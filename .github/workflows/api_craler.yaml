@@ -1,0 +1,118 @@
+name: API Crawler - 48h Interval
+
+on:
+  schedule:
+    # Run every 48 hours at 02:30 UTC
+    - cron: '30 2 */2 * *'
+  workflow_dispatch:  # Manual trigger for debugging
+
+env:
+  # API Configuration - centralized for easy maintenance
+  API_URL: https://www.163hot.net/hp/phb/getData
+  USER_AGENT: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
+  REFERER: https://www.163hot.net/
+  ORIGIN: https://www.163hot.net
+
+# Minimal permissions for security
+permissions:
+  contents: write  # Only need write access for commits
+
+jobs:
+  crawl-and-archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15  # Prevent infinite hangs
+    
+    steps:
+      # ========== 1. Repository Setup ==========
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0  # Fetch all history for proper tagging
+
+      # ========== 2. API Data Collection ==========
+      - name: Fetch API data
+        id: fetch-data
+        run: |
+          # Create archive directory
+          mkdir -p archive
+          
+          # Generate timestamp for versioning
+          TIMESTAMP=$(date -u +%Y%m%d-%H%M%S)
+          ARCHIVE_FILE="archive/${TIMESTAMP}.json"
+          
+          # Download API response with proper headers
+          RESPONSE=$(curl -s -w "\n%{http_code}" -o response_body.json \
+                    -H "User-Agent: ${{ env.USER_AGENT }}" \
+                    -H "Referer: ${{ env.REFERER }}" \
+                    -H "Origin: ${{ env.ORIGIN }}" \
+                    --max-time 45 \
+                    "${{ env.API_URL }}")
+          
+          # Separate HTTP status from response
+          HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
+          
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "status=$HTTP_STATUS" >> $GITHUB_OUTPUT
+            echo "success=false" >> $GITHUB_OUTPUT
+            exit 0  # Don't fail workflow, allow notification
+          fi
+          
+          # Validate JSON structure
+          if ! jq empty response_body.json 2>/dev/null; then
+            echo "success=false" >> $GITHUB_OUTPUT
+            echo "status=422" >> $GITHUB_OUTPUT  # 422: Unprocessable Entity
+            exit 0
+          fi
+          
+          # Save successful response
+          mv response_body.json "$ARCHIVE_FILE"
+          echo "success=true" >> $GITHUB_OUTPUT
+          echo "archive_file=$ARCHIVE_FILE" >> $GITHUB_ENV
+          
+          # Cleanup
+          rm -f response_body.json
+
+      # ========== 3. Change Detection ==========
+      - name: Detect data changes
+        if: steps.fetch-data.outputs.success == 'true'
+        id: detect-changes
+        run: |
+          # Create snapshot if it doesn't exist
+          [ -f snapshot.json ] || echo '{}' > snapshot.json
+          
+          # Calculate content hashes for comparison
+          OLD_HASH=$(jq -cS . snapshot.json | sha256sum | awk '{print $1}')
+          NEW_HASH=$(jq -cS . "${{ env.archive_file }}" | sha256sum | awk '{print $1}')
+          
+          if [ "$OLD_HASH" = "$NEW_HASH" ]; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            # Update snapshot to latest version
+            cp "${{ env.archive_file }}" snapshot.json
+          fi
+
+      # ========== 4. Version Control Updates ==========
+      - name: Commit changes if detected
+        if: steps.fetch-data.outputs.success == 'true' && steps.detect-changes.outputs.changed == 'true'
+        run: |
+          # Configure Git identity for automation
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Get data statistics for commit message
+          ITEM_COUNT=$(jq '.data | length' "${{ env.archive_file }}" 2>/dev/null || echo 0)
+          TIMESTAMP=$(basename "${{ env.archive_file }}" .json)
+          
+          # Commit both snapshot and archived file
+          git add snapshot.json "${{ env.archive_file }}"
+          git commit -m "chore: update API snapshot (${TIMESTAMP})
+          
+          - Items: ${ITEM_COUNT}
+          - Source: ${{ env.API_URL }}
+          - Auto-update"
+          
+          # Create version tag
+          git tag "v${TIMESTAMP}"
+          git push origin main --tags
