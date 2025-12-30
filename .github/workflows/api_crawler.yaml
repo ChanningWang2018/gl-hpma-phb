@@ -105,12 +105,80 @@ jobs:
           ITEM_COUNT=$(jq '.data | length' "${{ env.archive_file }}" 2>/dev/null || echo 0)
           TIMESTAMP=$(basename "${{ env.archive_file }}" .json)
           
-          # Commit both snapshot and archived file
-          git add snapshot.json "${{ env.archive_file }}"
+          # ========== Update manifest.json ==========
+          echo "Updating manifest.json with new archive file..."
+          
+          # Ensure manifest.json exists
+          if [ ! -f "archive/manifest.json" ]; then
+            echo "Creating initial manifest.json file..."
+            echo '{"description": "回响数据清单", "lastUpdated": "", "files": []}' > archive/manifest.json
+          fi
+          
+          # Extract date information from the first huixianginfo item
+          START_DATE=$(jq -r '.data.huixianginfo[0].starttimedate' "${{ env.archive_file }}" 2>/dev/null | sed 's/ //g' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' || echo "")
+          END_DATE=$(jq -r '.data.huixianginfo[0].endtimedate' "${{ env.archive_file }}" 2>/dev/null | sed 's/ //g' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' || echo "")
+          
+          if [ -n "$START_DATE" ] && [ -n "$END_DATE" ] && [ "$START_DATE" != "null" ] && [ "$END_DATE" != "null" ]; then
+            # Create period string (ensure consistent date format)
+            PERIOD="${START_DATE} - ${END_DATE}"
+            FILENAME=$(basename "${{ env.archive_file }}")
+            TODAY=$(date +%Y-%m-%d)
+            
+            # Update manifest.json using jq
+            echo "Adding file: $FILENAME with period: $PERIOD"
+            
+            # Create backup of manifest.json
+            cp archive/manifest.json archive/manifest.json.backup 2>/dev/null || true
+            
+            # Update manifest.json - append new file to the beginning of the array
+            jq --arg filename "$FILENAME" \
+               --arg period "$PERIOD" \
+               --arg today "$TODAY" \
+               '.lastUpdated = $today | .files = [{period: $period, file: $filename}] + .files' \
+               archive/manifest.json > archive/manifest.tmp && mv archive/manifest.tmp archive/manifest.json
+            
+            # Validate the updated manifest
+            if jq empty archive/manifest.json 2>/dev/null; then
+              echo "✅ manifest.json updated successfully"
+            else
+              echo "⚠️  Failed to update manifest.json, restoring backup"
+              mv archive/manifest.json.backup archive/manifest.json 2>/dev/null || true
+            fi
+          else
+            echo "⚠️  Could not extract date information from archive file"
+            echo "Using fallback period based on filename timestamp"
+            FILENAME=$(basename "${{ env.archive_file }}")
+            TODAY=$(date +%Y-%m-%d)
+            
+            # Extract date from filename (YYYYMMDD-HHMMSS format)
+            FILENAME_DATE=$(echo "$FILENAME" | grep -o '^[0-9]\{8\}' || echo "")
+            if [ -n "$FILENAME_DATE" ]; then
+              # Format date as YYYY/MM/DD
+              FORMATTED_DATE=$(echo "$FILENAME_DATE" | sed 's/\([0-9]\{4\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1\/\2\/\3/')
+              PERIOD="${FORMATTED_DATE} data archive"
+            else
+              PERIOD="Weekly data archive"
+            fi
+            
+            # Update manifest.json with fallback period
+            jq --arg filename "$FILENAME" \
+               --arg period "$PERIOD" \
+               --arg today "$TODAY" \
+               '.lastUpdated = $today | .files = [{period: $period, file: $filename}] + .files' \
+               archive/manifest.json > archive/manifest.tmp && mv archive/manifest.tmp archive/manifest.json
+          fi
+          
+          # Clean up backup file
+          rm -f archive/manifest.json.backup 2>/dev/null || true
+          
+          # Commit all changes: snapshot, archived file, and manifest
+          echo "Committing changes to repository..."
+          git add snapshot.json "${{ env.archive_file }}" archive/manifest.json
           git commit -m "chore: update API snapshot (${TIMESTAMP})
           
           - Items: ${ITEM_COUNT}
           - Source: ${{ env.API_URL }}
+          - Updated manifest.json
           - Auto-update"
           
           # Create version tag
