@@ -338,9 +338,9 @@
                         file: 'archive/' + file.file
                     };
                 });
-                // 按时间排序，最新的在前面
+                // 修改：按时间排序，最旧的在前（从远到近）
                 files.sort(function(a, b) {
-                    return new Date(b.period.split(' - ')[0]) - new Date(a.period.split(' - ')[0]);
+                    return new Date(a.period.split(' - ')[0]) - new Date(b.period.split(' - ')[0]);
                 });
                 return files;
             } catch (error) {
@@ -859,8 +859,8 @@
                 option.textContent = item.period;
                 periodSelect.appendChild(option);
                 
-                // 设置第一个选项为默认（最新时期）
-                if (index === 0) {
+                // 修改：设置最后一个选项为默认（最新时期），因为现在排序是从旧到新
+                if (index === manifest.length - 1) {
                     currentPeriod = item.period;
                 }
             });
