@@ -853,17 +853,24 @@
             const periodSelect = document.getElementById('period-select');
             periodSelect.innerHTML = '';
             
+            let latestPeriod = null;
             manifest.forEach(function(item, index) {
                 const option = document.createElement('option');
                 option.value = item.period;
                 option.textContent = item.period;
                 periodSelect.appendChild(option);
                 
-                // 修改：设置最后一个选项为默认（最新时期），因为现在排序是从旧到新
+                // 记录最后一个时期（最新时期），因为现在排序是从旧到新
                 if (index === manifest.length - 1) {
-                    currentPeriod = item.period;
+                    latestPeriod = item.period;
                 }
             });
+            
+            // 设置默认选中最新时期
+            if (latestPeriod) {
+                currentPeriod = latestPeriod;
+                periodSelect.value = latestPeriod;
+            }
             
             // 添加事件监听器
             periodSelect.addEventListener('change', function(e) {
