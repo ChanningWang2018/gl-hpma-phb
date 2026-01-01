@@ -46,9 +46,9 @@ A Vue 3-based analytics dashboard for tracking character (Reverberation, Echo) p
 │   ├── composables/            # Vue composables (if any)
 │   └── utils/                  # Utility functions
 ├── public/
-│   └── images/
-│       └── avatars/            # Character avatar images
-├── archive/                    # Historical data snapshots
+│   ├── images/
+│   │   └── avatars/            # Character avatar images
+│   └── archive/                # Historical data snapshots
 ├── vite.config.js              # Vite configuration
 ├── jsconfig.json               # JavaScript configuration
 ├── package.json                # Project dependencies
@@ -137,7 +137,7 @@ The dashboard supports four game modes:
 
 ## 💾 Data Storage
 
-- Historical data snapshots are stored in the `/archive` directory
+- Historical data snapshots are stored in the `public/archive` directory and accessible at `/archive` URL path
 - Data files include timestamps for version tracking
 - Current working data is in `snapshot.json`
 

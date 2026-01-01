@@ -77,11 +77,11 @@ export class DataService {
   // 加载清单文件
   static async loadManifest() {
     try {
-      const response = await fetch("archive/manifest.json");
+      const response = await fetch("/archive/manifest.json");
       const manifest = await response.json();
       const files = manifest.files.map((file) => ({
         period: file.period,
-        file: "archive/" + file.file,
+        file: "/archive/" + file.file,
       }));
 
       // 按时间排序，最旧的在前

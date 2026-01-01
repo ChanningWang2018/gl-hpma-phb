@@ -35,11 +35,11 @@ jobs:
         id: fetch-data
         run: |
           # Create archive directory
-          mkdir -p archive
+          mkdir -p public/archive
           
           # Generate timestamp for versioning
           TIMESTAMP=$(date -u +%Y%m%d-%H%M%S)
-          ARCHIVE_FILE="archive/${TIMESTAMP}.json"
+          ARCHIVE_FILE="public/archive/${TIMESTAMP}.json"
           
           # Download API response with proper headers
           RESPONSE=$(curl -s -w "\n%{http_code}" -o response_body.json \
@@ -109,9 +109,9 @@ jobs:
           echo "Updating manifest.json with new archive file..."
           
           # Ensure manifest.json exists
-          if [ ! -f "archive/manifest.json" ]; then
+          if [ ! -f "public/archive/manifest.json" ]; then
             echo "Creating initial manifest.json file..."
-            echo '{"description": "回响数据清单", "lastUpdated": "", "files": []}' > archive/manifest.json
+            echo '{"description": "回响数据清单", "lastUpdated": "", "files": []}' > public/archive/manifest.json
           fi
           
           # Extract date information from the first huixianginfo item
@@ -128,21 +128,21 @@ jobs:
             echo "Adding file: $FILENAME with period: $PERIOD"
             
             # Create backup of manifest.json
-            cp archive/manifest.json archive/manifest.json.backup 2>/dev/null || true
+            cp public/archive/manifest.json public/archive/manifest.json.backup 2>/dev/null || true
             
             # Update manifest.json - append new file to the beginning of the array
             jq --arg filename "$FILENAME" \
                --arg period "$PERIOD" \
                --arg today "$TODAY" \
                '.lastUpdated = $today | .files = [{period: $period, file: $filename}] + .files' \
-               archive/manifest.json > archive/manifest.tmp && mv archive/manifest.tmp archive/manifest.json
+               public/archive/manifest.json > public/archive/manifest.tmp && mv public/archive/manifest.tmp public/archive/manifest.json
             
             # Validate the updated manifest
-            if jq empty archive/manifest.json 2>/dev/null; then
+            if jq empty public/archive/manifest.json 2>/dev/null; then
               echo "✅ manifest.json updated successfully"
             else
               echo "⚠️  Failed to update manifest.json, restoring backup"
-              mv archive/manifest.json.backup archive/manifest.json 2>/dev/null || true
+              mv public/archive/manifest.json.backup public/archive/manifest.json 2>/dev/null || true
             fi
           else
             echo "⚠️  Could not extract date information from archive file"
@@ -165,15 +165,15 @@ jobs:
                --arg period "$PERIOD" \
                --arg today "$TODAY" \
                '.lastUpdated = $today | .files = [{period: $period, file: $filename}] + .files' \
-               archive/manifest.json > archive/manifest.tmp && mv archive/manifest.tmp archive/manifest.json
+               public/archive/manifest.json > public/archive/manifest.tmp && mv public/archive/manifest.tmp public/archive/manifest.json
           fi
           
           # Clean up backup file
-          rm -f archive/manifest.json.backup 2>/dev/null || true
+          rm -f public/archive/manifest.json.backup 2>/dev/null || true
           
           # Commit all changes: snapshot, archived file, and manifest
           echo "Committing changes to repository..."
-          git add snapshot.json "${{ env.archive_file }}" archive/manifest.json
+          git add snapshot.json "${{ env.archive_file }}" public/archive/manifest.json
           git commit -m "chore: update API snapshot (${TIMESTAMP})
           
           - Items: ${ITEM_COUNT}
