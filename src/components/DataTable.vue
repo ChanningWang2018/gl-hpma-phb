@@ -1,0 +1,109 @@
+<template>
+  <div class="data-table">
+    <h3>详细数据</h3>
+    <br>
+    <table id="dataTable">
+      <thead>
+        <tr>
+          <th>时期</th>
+          <th>模式</th>
+          <th>胜率 (%)</th>
+          <th>登场率 (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(item, index) in tableData" :key="index">
+          <td>{{ item.period }}</td>
+          <td>{{ modeMapping[currentMode] }}</td>
+          <td>
+            <span class="stat-badge winrate-badge">
+              {{ item.winrate ? item.winrate.toFixed(2) : 'N/A' }}
+            </span>
+          </td>
+          <td>
+            <span class="stat-badge attend-badge">
+              {{ item.attendancerate ? item.attendancerate.toFixed(2) : 'N/A' }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'DataTable',
+  props: {
+    tableData: {
+      type: Array,
+      required: true
+    },
+    currentMode: {
+      type: String,
+      required: true
+    },
+    modeMapping: {
+      type: Object,
+      required: true
+    }
+  }
+}
+</script>
+
+<style scoped>
+.data-table {
+  padding: 30px;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.95em;
+}
+
+td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #e9ecef;
+  font-size: 0.9em;
+}
+
+tr:hover {
+  background: #f8f9fa;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.stat-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85em;
+}
+
+.winrate-badge {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+}
+
+.attend-badge {
+  background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+  color: white;
+}
+</style>
