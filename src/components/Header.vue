@@ -1,7 +1,7 @@
 <template>
   <header>
-    <h1>HPMA回响数据可视化</h1>
-    <p>可视化展示不同时期回响的胜率与登场率变化</p>
+    <h1>HPMA Echo Data Visualization</h1>
+    <p>Visualizing win rate and pick rate changes for different echoes across periods</p>
   </header>
 </template>
 

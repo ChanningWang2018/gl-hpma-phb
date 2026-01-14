@@ -1,4 +1,4 @@
-// 图表服务 - 处理图表配置和生成
+// Chart Service - Handles chart configuration and generation
 import {
   CategoryScale,
   Chart,
@@ -14,7 +14,7 @@ import {
 } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
 
-// 注册Chart.js组件
+// Register Chart.js components
 Chart.register(
   LineController,
   LineElement,
@@ -30,9 +30,9 @@ Chart.register(
 );
 
 export class ChartService {
-  // 创建散点图
+  // Create scatter chart
   static async createScatterChart(ctx, data, avatarCache) {
-    // 预加载所有头像图片
+    // Preload all avatar images
     const avatarPromises = data.map((item) =>
       this.loadAvatarImage(item.reverberationid, avatarCache)
     );
@@ -43,7 +43,7 @@ export class ChartService {
       data: {
         datasets: [
           {
-            label: "回响分布",
+            label: "Echo Distribution",
             data: data.map((item) => ({
               x: item.attendancerate,
               y: item.winrate,
@@ -80,8 +80,8 @@ export class ChartService {
                 const item = data[context.dataIndex];
                 return [
                   item.name,
-                  `胜率: ${item.winrate.toFixed(2)}%`,
-                  `登场率: ${item.attendancerate.toFixed(2)}%`,
+                  `Win Rate: ${item.winrate.toFixed(2)}%`,
+                  `Pick Rate: ${item.attendancerate.toFixed(2)}%`,
                 ];
               },
             },
@@ -108,7 +108,7 @@ export class ChartService {
           y: {
             title: {
               display: true,
-              text: "胜率 (%)",
+              text: "Win Rate (%)",
               font: {
                 size: 14,
                 weight: "600",
@@ -131,7 +131,7 @@ export class ChartService {
           x: {
             title: {
               display: true,
-              text: "登场率 (%)",
+              text: "Pick Rate (%)",
               font: {
                 size: 14,
                 weight: "600",
@@ -253,9 +253,9 @@ export class ChartService {
         },
         scales: {
           y: {
-            beginAtZero: label.includes("登场率") ? true : false,
-            min: label.includes("胜率") ? 30 : undefined,
-            max: label.includes("胜率") ? 70 : undefined,
+            beginAtZero: label.includes("Pick Rate") ? true : false,
+            min: label.includes("Win Rate") ? 30 : undefined,
+            max: label.includes("Win Rate") ? 70 : undefined,
             grid: {
               color: "rgba(0, 0, 0, 0.05)",
             },

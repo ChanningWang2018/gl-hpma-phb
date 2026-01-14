@@ -1,14 +1,14 @@
 <template>
   <div class="data-table">
-    <h3>详细数据</h3>
+    <h3>Detailed Data</h3>
     <br>
     <table id="dataTable">
       <thead>
         <tr>
-          <th>时期</th>
-          <th>模式</th>
-          <th>胜率 (%)</th>
-          <th>登场率 (%)</th>
+          <th>Period</th>
+          <th>Mode</th>
+          <th>Win Rate (%)</th>
+          <th>Pick Rate (%)</th>
         </tr>
       </thead>
       <tbody>

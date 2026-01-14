@@ -2,35 +2,40 @@
   <div class="container">
     <Header />
     
-    <Controls 
-      :current-reverberation="chartStore.currentReverberation"
-      :current-mode="chartStore.currentMode"
-      :current-period="chartStore.currentPeriod"
-      :periods="chartStore.periods"
-      @update:current-reverberation="chartStore.setCurrentReverberation"
-      @update:current-period="chartStore.setCurrentPeriod"
-      @set-mode="chartStore.setCurrentMode"
-    />
-
     <div class="charts-container">
-      <ChartWrapper title="回响分布图（登场率 vs 胜率）" container-class="scatter-chart-container">
+      <ChartWrapper title="Echo Distribution (Pick Rate vs Win Rate)" container-class="scatter-chart-container">
         <ScatterChart 
           :chart-data="chartStore.scatterChartData"
         />
       </ChartWrapper>
-      
-      <ChartWrapper title="胜率趋势">
+    </div>
+
+    <Controls 
+      :current-mode="chartStore.currentMode"
+      :current-period="chartStore.currentPeriod"
+      :periods="chartStore.periods"
+      @update:current-period="chartStore.setCurrentPeriod"
+      @set-mode="chartStore.setCurrentMode"
+    />
+
+    <EchoSelect
+      :current-reverberation="chartStore.currentReverberation"
+      @update:current-reverberation="chartStore.setCurrentReverberation"
+    />
+
+    <div class="charts-container">
+      <ChartWrapper title="Win Rate Trend">
         <LineChart 
           :chart-data="winrateData"
-          label="胜率 (%)"
+          label="Win Rate (%)"
           color="rgb(17, 153, 142)"
         />
       </ChartWrapper>
       
-      <ChartWrapper title="登场率趋势">
+      <ChartWrapper title="Pick Rate Trend">
         <LineChart 
           :chart-data="attendanceData"
-          label="登场率 (%)"
+          label="Pick Rate (%)"
           color="rgb(238, 9, 121)"
         />
       </ChartWrapper>
@@ -48,6 +53,7 @@
 import ChartWrapper from '@/components/ChartWrapper.vue';
 import Controls from '@/components/Controls.vue';
 import DataTable from '@/components/DataTable.vue';
+import EchoSelect from '@/components/EchoSelect.vue';
 import Header from '@/components/Header.vue';
 import LineChart from '@/components/LineChart.vue';
 import ScatterChart from '@/components/ScatterChart.vue';
@@ -59,6 +65,7 @@ export default {
   components: {
     Header,
     Controls,
+    EchoSelect,
     ChartWrapper,
     DataTable,
     ScatterChart,

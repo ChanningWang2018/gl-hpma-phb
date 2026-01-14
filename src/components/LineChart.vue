@@ -104,9 +104,9 @@ export default {
         },
         scales: {
           y: {
-            beginAtZero: this.label.includes('登场率') ? true : false,
-            min: this.label.includes('胜率') ? 30 : undefined,
-            max: this.label.includes('胜率') ? 70 : undefined,
+            beginAtZero: this.label.includes('Pick Rate') ? true : false,
+            min: this.label.includes('Win Rate') ? 30 : undefined,
+            max: this.label.includes('Win Rate') ? 70 : undefined,
             grid: {
               color: 'rgba(0, 0, 0, 0.05)'
             },

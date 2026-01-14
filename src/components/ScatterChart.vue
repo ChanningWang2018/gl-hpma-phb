@@ -106,8 +106,8 @@ export default {
                 const item = this.chartData[context.datasetIndex]  // datasetIndex rather than dataIndex
                 return item ? [
                   item.name,
-                  `胜率: ${item.winrate.toFixed(2)}%`,
-                  `登场率: ${item.attendancerate.toFixed(2)}%`
+                  `Win Rate: ${item.winrate.toFixed(2)}%`,
+                  `Pick Rate: ${item.attendancerate.toFixed(2)}%`
                 ] : []
               }
             }
@@ -117,7 +117,7 @@ export default {
           y: {
             title: {
               display: true,
-              text: '胜率 (%)',
+              text: 'Win Rate (%)',
               font: {
                 size: 14,
                 weight: '600'
@@ -140,7 +140,7 @@ export default {
           x: {
             title: {
               display: true,
-              text: '登场率 (%)',
+              text: 'Pick Rate (%)',
               font: {
                 size: 14,
                 weight: '600'

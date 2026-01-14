@@ -1,31 +1,7 @@
 <template>
   <div class="controls">
     <div class="control-group">
-      <label for="reverberation-select">选择回响</label>
-      <select id="reverberation-select" :value="currentReverberation" @change="$emit('update:currentReverberation', $event.target.value)">
-        <option value="1">赫敏·格兰杰</option>
-        <option value="2">哈利·波特</option>
-        <option value="3">多比</option>
-        <option value="4">鲁伯·海格</option>
-        <option value="5">韦斯莱双胞胎</option>
-        <option value="6">纽特·斯卡曼德</option>
-        <option value="7">西弗勒斯·斯内普</option>
-        <option value="8">纳威·隆巴顿</option>
-        <option value="9">贝拉·莱斯特兰奇</option>
-        <option value="10">卢娜·洛夫古德</option>
-        <option value="11">菲利乌斯·弗立维</option>
-        <option value="12">小天狼星·布莱克</option>
-        <option value="13">罗恩·韦斯莱</option>
-        <option value="14">金妮·韦斯莱</option>
-        <option value="15">阿不思·邓布利多</option>
-        <option value="16">米勒娃·麦格</option>
-        <option value="17">伏地魔</option>
-        <option value="18">塞德里克·迪戈里</option>
-      </select>
-    </div>
-
-    <div class="control-group">
-      <label>选择模式</label>
+      <label>Select Mode</label>
       <div class="mode-toggles">
         <button 
           class="mode-btn" 
@@ -33,7 +9,7 @@
           @click="$emit('set-mode', '1v1-low')"
           data-mode="1v1-low"
         >
-          1v1: 7500分以下
+          1v1: Below 7500
         </button>
         <button 
           class="mode-btn" 
@@ -41,7 +17,7 @@
           @click="$emit('set-mode', '1v1-high')"
           data-mode="1v1-high"
         >
-          1v1: 7500分以上
+          1v1: Above 7500
         </button>
         <button 
           class="mode-btn" 
@@ -49,7 +25,7 @@
           @click="$emit('set-mode', '2v2-low')"
           data-mode="2v2-low"
         >
-          2v2: 7500分以下
+          2v2: Below 7500
         </button>
         <button 
           class="mode-btn" 
@@ -57,13 +33,13 @@
           @click="$emit('set-mode', '2v2-high')"
           data-mode="2v2-high"
         >
-          2v2: 7500分以上
+          2v2: Above 7500
         </button>
       </div>
     </div>
 
     <div class="control-group">
-      <label for="period-select">选择时期</label>
+      <label for="period-select">Select Period</label>
       <select id="period-select" :value="currentPeriod" @change="$emit('update:currentPeriod', $event.target.value)">
         <option v-for="period in periods" :key="period" :value="period">
           {{ period }}
@@ -77,10 +53,6 @@
 export default {
   name: 'Controls',
   props: {
-    currentReverberation: {
-      type: [String, Number],
-      required: true
-    },
     currentMode: {
       type: String,
       required: true
@@ -94,7 +66,7 @@ export default {
       required: true
     }
   },
-  emits: ['update:currentReverberation', 'update:currentPeriod', 'set-mode']
+  emits: ['update:currentPeriod', 'set-mode']
 }
 </script>
 
@@ -109,6 +81,10 @@ export default {
   margin-bottom: 25px;
 }
 
+.control-group:last-child {
+  margin-bottom: 0;
+}
+
 .control-group label {
   display: block;
   font-weight: 600;
@@ -119,6 +95,7 @@ export default {
 
 select {
   width: 100%;
+  max-width: 400px;
   padding: 12px 15px;
   border: 2px solid #dee2e6;
   border-radius: 8px;

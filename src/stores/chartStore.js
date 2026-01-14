@@ -5,7 +5,7 @@ export const useChartStore = defineStore("chart", {
   state: () => ({
     // 响应式数据
     currentReverberation: 1,
-    currentMode: "1v1-low",
+    currentMode: "2v2-high",
     currentPeriod: null,
     periods: [],
     allData: [],

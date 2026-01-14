@@ -1,9 +1,9 @@
-// 数据服务 - 处理数据加载和处理逻辑
+// Data Service - Handles data loading and processing logic
 export class DataService {
-  // 头像缓存
+  // Avatar cache
   static avatarCache = {};
 
-  // 模式映射
+  // Mode mapping (keep Chinese keys for data file compatibility)
   static modeMapping = {
     "1v1-low": "1v1:7500分以下",
     "1v1-high": "1v1:7500分以上",
@@ -11,29 +11,29 @@ export class DataService {
     "2v2-high": "2v2:7500分以上",
   };
 
-  // 获取回响名称
+  // Get reverberation name
   static getReverberationName(id) {
     const names = {
-      1: "赫敏·格兰杰",
-      2: "哈利·波特",
-      3: "多比",
-      4: "鲁伯·海格",
-      5: "韦斯莱双胞胎",
-      6: "纽特·斯卡曼德",
-      7: "西弗勒斯·斯内普",
-      8: "纳威·隆巴顿",
-      9: "贝拉·莱斯特兰奇",
-      10: "卢娜·洛夫古德",
-      11: "菲利乌斯·弗立维",
-      12: "小天狼星·布莱克",
-      13: "罗恩·韦斯莱",
-      14: "金妮·韦斯莱",
-      15: "阿不思·邓布利多",
-      16: "米勒娃·麦格",
-      17: "伏地魔",
-      18: "塞德里克·迪戈里",
+      1: "Hermione Granger",
+      2: "Harry Potter",
+      3: "Dobby",
+      4: "Rubeus Hagrid",
+      5: "Weasley Twins",
+      6: "Newt Scamander",
+      7: "Severus Snape",
+      8: "Neville Longbottom",
+      9: "Bellatrix Lestrange",
+      10: "Luna Lovegood",
+      11: "Filius Flitwick",
+      12: "Sirius Black",
+      13: "Ron Weasley",
+      14: "Ginny Weasley",
+      15: "Albus Dumbledore",
+      16: "Minerva McGonagall",
+      17: "Lord Voldemort",
+      18: "Cedric Diggory",
     };
-    return names[id] || "未知回响";
+    return names[id] || "Unknown Echo";
   }
 
   // 加载头像图片

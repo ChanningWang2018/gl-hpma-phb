@@ -33,7 +33,8 @@ A Vue 3-based analytics dashboard for tracking character (Reverberation, Echo) p
 │   │       └── global.css      # Global styling
 │   ├── components/
 │   │   ├── Header.vue          # Page header
-│   │   ├── Controls.vue        # Filter and control panel
+│   │   ├── Controls.vue        # Filter and control panel (Mode + Period)
+│   │   ├── EchoSelect.vue      # Character selection for trend charts
 │   │   ├── ChartWrapper.vue    # Reusable chart container
 │   │   ├── ScatterChart.vue    # Attendance vs Win rate scatter plot
 │   │   ├── LineChart.vue       # Trend line charts
@@ -174,4 +175,4 @@ When contributing to this project:
 
 ---
 
-**Last Updated**: January 2, 2026
+**Last Updated**: January 14, 2026
