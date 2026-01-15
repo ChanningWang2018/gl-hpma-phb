@@ -2,8 +2,8 @@ name: API Crawler - 48h Interval
 
 on:
   schedule:
-    # Run every 48 hours at 02:30 UTC
-    - cron: '30 2 */2 * *'
+    # Run every 24 hours at 02:30 UTC
+    - cron: '30 2 * * *'
   workflow_dispatch:  # Manual trigger for debugging
 
 env:
