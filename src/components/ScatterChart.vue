@@ -43,71 +43,116 @@ export default {
   },
   computed: {
     chartConfig() {
-      // 如果没有数据或图片未加载，返回空配置
-      if (!this.chartData || this.chartData.length === 0 || !this.imagesLoaded) {
+      if (!this.chartData || this.chartData.length === 0) {
         return {
           datasets: []
         }
       }
 
-      // 为每个数据点创建单独的dataset，以便使用不同的图片
-      const datasets = this.chartData.map(item => {
-        const avatarId = item.reverberationid
-        const image = this.avatarImages[avatarId]
-        
-        // 如果没有对应的图片，使用默认颜色
-        if (!image) {
-          return {
-            label: item.name,
-            data: [{ x: item.attendancerate, y: item.winrate }],
+      if (!this.imagesLoaded) {
+        return {
+          datasets: [{
+            data: this.chartData.map(item => ({
+              x: item.attendancerate,
+              y: item.winrate,
+              name: item.name,
+              id: item.reverberationid
+            })),
+            pointStyle: 'circle',
             backgroundColor: 'rgba(102, 126, 234, 0.3)',
             borderColor: 'rgba(102, 126, 234, 0.8)',
             borderWidth: 1,
             pointRadius: 8,
             pointHoverRadius: 12
-          }
+          }]
         }
+      }
 
-        // 使用图片作为数据点
+      const pointStyles = []
+      const pointColors = []
+      const allImagesLoaded = this.chartData.every(item => 
+        this.avatarImages[item.reverberationid]
+      )
+
+      if (!allImagesLoaded) {
         return {
-          label: item.name,
-          data: [{ x: item.attendancerate, y: item.winrate }],
-          pointStyle: image,
-          pointRadius: 20,
-          pointHoverRadius: 25,
-          borderWidth: 0
+          datasets: [{
+            data: this.chartData.map(item => ({
+              x: item.attendancerate,
+              y: item.winrate,
+              name: item.name,
+              id: item.reverberationid
+            })),
+            pointStyle: 'circle',
+            backgroundColor: 'rgba(102, 126, 234, 0.3)',
+            borderColor: 'rgba(102, 126, 234, 0.8)',
+            borderWidth: 1,
+            pointRadius: 8,
+            pointHoverRadius: 12
+          }]
+        }
+      }
+
+      this.chartData.forEach(item => {
+        const avatarId = item.reverberationid
+        const image = this.avatarImages[avatarId]
+        
+        if (image) {
+          pointStyles.push(image)
+          pointColors.push('transparent')
+        } else {
+          pointStyles.push('circle')
+          pointColors.push('rgba(102, 126, 234, 0.3)')
         }
       })
 
       return {
-        datasets: datasets
+        datasets: [{
+          data: this.chartData.map(item => ({
+            x: item.attendancerate,
+            y: item.winrate,
+            name: item.name,
+            id: item.reverberationid
+          })),
+          pointStyle: pointStyles,
+          backgroundColor: pointColors,
+          borderColor: 'rgba(102, 126, 234, 0.8)',
+          borderWidth: 0,
+          pointRadius: 20,
+          pointHoverRadius: 25
+        }]
       }
     },
     options() {
       return {
         responsive: true,
         maintainAspectRatio: false,
+        animation: {
+          duration: 200,
+          easing: 'linear'
+        },
         plugins: {
           legend: {
             display: false
           },
           tooltip: {
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            padding: 12,
+            padding: 10,
             titleFont: {
-              size: 14,
+              size: 13,
               weight: '600'
             },
             bodyFont: {
-              size: 13
+              size: 12
             },
+            displayColors: false,
             callbacks: {
               label: (context) => {
-                const item = this.chartData[context.datasetIndex]  // datasetIndex rather than dataIndex
+                const item = context.raw
                 return item ? [
                   item.name,
-                  `Win Rate: ${item.winrate.toFixed(2)}%`,
-                  `Pick Rate: ${item.attendancerate.toFixed(2)}%`
+                  `Win Rate: ${item.y.toFixed(2)}%`,
+                  `Pick Rate: ${item.x.toFixed(2)}%`
                 ] : []
               }
             }
@@ -119,22 +164,24 @@ export default {
               display: true,
               text: 'Win Rate (%)',
               font: {
-                size: 14,
+                size: 13,
                 weight: '600'
               },
               color: '#495057'
             },
             beginAtZero: false,
             grid: {
-              color: 'rgba(0, 0, 0, 0.05)'
+              color: 'rgba(0, 0, 0, 0.05)',
+              drawBorder: false
             },
             ticks: {
               callback: function(value) {
                 return value + '%'
               },
               font: {
-                size: 12
-              }
+                size: 11
+              },
+              maxTicksLimit: 8
             }
           },
           x: {
@@ -142,22 +189,24 @@ export default {
               display: true,
               text: 'Pick Rate (%)',
               font: {
-                size: 14,
+                size: 13,
                 weight: '600'
               },
               color: '#495057'
             },
             beginAtZero: true,
             grid: {
-              color: 'rgba(0, 0, 0, 0.05)'
+              color: 'rgba(0, 0, 0, 0.05)',
+              drawBorder: false
             },
             ticks: {
               callback: function(value) {
                 return value + '%'
               },
               font: {
-                size: 12
-              }
+                size: 11
+              },
+              maxTicksLimit: 8
             }
           }
         },
@@ -183,29 +232,39 @@ export default {
         return
       }
 
-      // 获取所有唯一的回响ID
-      const reverberationIds = [...new Set(this.chartData.map(item => item.reverberationid))]
-      
-      // 加载所有头像图片
-      const imagePromises = reverberationIds.map(async id => {
-        try {
-          const response = await fetch(`/images/avatars/echo${id.toString().padStart(2, '0')}.png`)
-          if (!response.ok) {
-            throw new Error(`Failed to load image for id ${id}`)
+      const imagePromises = this.chartData.map(async item => {
+        const id = item.reverberationid
+        const idStr = id.toString().padStart(2, '0')
+        
+        async function loadImage(format) {
+          try {
+            const response = await fetch(`/images/avatars/echo${idStr}.${format}`)
+            if (!response.ok) return null
+            const blob = await response.blob()
+            return new Promise((resolve, reject) => {
+              const img = new Image()
+              img.onload = () => {
+                img.width = 50
+                img.height = 50
+                resolve(img)
+              }
+              img.onerror = reject
+              img.src = URL.createObjectURL(blob)
+            })
+          } catch (error) {
+            return null
           }
-          
-          const blob = await response.blob()
-          return new Promise((resolve, reject) => {
-            const img = new Image()
-            img.onload = () => {
-              img.width = 50
-              img.height = 50
-              resolve({ id, img })}
-            img.onerror = reject
-            img.src = URL.createObjectURL(blob)
-          })
+        }
+
+        try {
+          let img = await loadImage('webp')
+          if (!img) {
+            img = await loadImage('png')
+          }
+          if (!img) throw new Error(`Failed to load image for id ${id}`)
+          return { id, img }
         } catch (error) {
-          console.warn(`无法加载头像图片 echo${id.toString().padStart(2, '0')}.png:`, error)
+          console.warn(`无法加载头像图片 echo${idStr}:`, error)
           return null
         }
       })
@@ -213,7 +272,6 @@ export default {
       try {
         const results = await Promise.all(imagePromises)
         
-        // 更新avatarImages对象
         results.forEach(result => {
           if (result) {
             this.avatarImages[result.id] = result.img
@@ -221,6 +279,8 @@ export default {
         })
         
         this.imagesLoaded = true
+        
+        this.$forceUpdate()
       } catch (error) {
         console.error('加载头像图片失败:', error)
       }

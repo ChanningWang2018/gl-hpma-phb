@@ -74,27 +74,34 @@ export default {
       return {
         responsive: true,
         maintainAspectRatio: false,
+        animation: {
+          duration: 300,
+          easing: 'linear'
+        },
         plugins: {
           legend: {
             display: true,
             position: 'top',
             labels: {
               font: {
-                size: 14,
+                size: 13,
                 weight: '600'
-              }
+              },
+              boxWidth: 12,
+              padding: 10
             }
           },
           tooltip: {
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            padding: 12,
+            padding: 10,
             titleFont: {
-              size: 14,
+              size: 13,
               weight: '600'
             },
             bodyFont: {
-              size: 13
+              size: 12
             },
+            displayColors: false,
             callbacks: {
               label: (context) => {
                 return `${this.label}: ${context.parsed.y.toFixed(2)}%`
@@ -108,20 +115,23 @@ export default {
             min: this.label.includes('Win Rate') ? 30 : undefined,
             max: this.label.includes('Win Rate') ? 70 : undefined,
             grid: {
-              color: 'rgba(0, 0, 0, 0.05)'
+              color: 'rgba(0, 0, 0, 0.05)',
+              drawBorder: false
             },
             ticks: {
               callback: function(value) {
                 return value + '%'
               },
               font: {
-                size: 12
-              }
+                size: 11
+              },
+              maxTicksLimit: 8
             }
           },
           x: {
             grid: {
-              color: 'rgba(0, 0, 0, 0.05)'
+              color: 'rgba(0, 0, 0, 0.05)',
+              drawBorder: false
             },
             ticks: {
               display: false,

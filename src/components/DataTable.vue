@@ -57,6 +57,59 @@ export default {
   overflow-x: auto;
 }
 
+@media (max-width: 768px) {
+  .data-table {
+    padding: 15px;
+  }
+
+  table {
+    font-size: 0.85em;
+  }
+
+  th {
+    padding: 12px 10px;
+    font-size: 0.85em;
+  }
+
+  td {
+    padding: 10px 8px;
+    font-size: 0.8em;
+  }
+
+  .stat-badge {
+    padding: 4px 10px;
+    font-size: 0.75em;
+  }
+}
+
+@media (max-width: 480px) {
+  .data-table {
+    padding: 12px;
+  }
+
+  table {
+    font-size: 0.75em;
+  }
+
+  th {
+    padding: 8px 6px;
+    font-size: 0.75em;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 6px 4px;
+    font-size: 0.7em;
+  }
+
+  .stat-badge {
+    padding: 3px 8px;
+    font-size: 0.7em;
+    display: block;
+    text-align: center;
+  }
+}
+
 table {
   width: 100%;
   border-collapse: collapse;

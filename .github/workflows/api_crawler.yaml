@@ -1,4 +1,4 @@
-name: API Crawler - 48h Interval
+name: API Crawler - 24h Interval
 
 on:
   schedule:

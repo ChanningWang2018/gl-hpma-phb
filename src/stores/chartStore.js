@@ -18,6 +18,10 @@ export const useChartStore = defineStore("chart", {
 
     // 头像缓存
     avatarCache: {},
+
+    // 加载状态
+    loading: false,
+    error: null,
   }),
 
   getters: {
@@ -60,20 +64,38 @@ export const useChartStore = defineStore("chart", {
 
     // 初始化时期选择器
     async initializePeriodSelector() {
-      const manifest = await DataService.loadManifest();
-      console.log("Loaded manifest:", manifest);
-      this.periods = manifest.map((item) => item.period);
+      this.loading = true;
+      try {
+        const manifest = await DataService.loadManifest();
+        console.log("Loaded manifest:", manifest);
+        this.periods = manifest.map((item) => item.period);
 
-      // 设置默认选中最新时期
-      if (this.periods.length > 0) {
-        this.currentPeriod = this.periods[this.periods.length - 1];
-        console.log("Set current period to:", this.currentPeriod);
+        // 设置默认选中最新时期
+        if (this.periods.length > 0) {
+          this.currentPeriod = this.periods[this.periods.length - 1];
+          console.log("Set current period to:", this.currentPeriod);
+        }
+      } catch (error) {
+        this.error = "Failed to load manifest";
+        console.error("Error loading manifest:", error);
+        throw error;
+      } finally {
+        this.loading = false;
       }
     },
 
     // 加载所有归档数据
     async loadArchiveData() {
-      this.allData = await DataService.loadArchiveData();
+      this.loading = true;
+      try {
+        this.allData = await DataService.loadArchiveData();
+      } catch (error) {
+        this.error = "Failed to load archive data";
+        console.error("Error loading archive data:", error);
+        throw error;
+      } finally {
+        this.loading = false;
+      }
     },
 
     // 更新散点图数据

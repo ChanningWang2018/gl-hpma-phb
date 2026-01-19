@@ -150,8 +150,47 @@ select:focus {
 }
 
 @media (max-width: 768px) {
+  .controls {
+    padding: 20px 15px;
+  }
+
   .mode-toggles {
     flex-direction: column;
+  }
+
+  .mode-btn {
+    min-width: 100%;
+    padding: 10px 15px;
+    font-size: 0.95em;
+  }
+
+  .control-group label {
+    font-size: 1em;
+  }
+}
+
+@media (max-width: 480px) {
+  .controls {
+    padding: 15px 12px;
+  }
+
+  .control-group {
+    margin-bottom: 20px;
+  }
+
+  .control-group label {
+    font-size: 0.95em;
+    margin-bottom: 8px;
+  }
+
+  .mode-btn {
+    padding: 8px 12px;
+    font-size: 0.9em;
+  }
+
+  select {
+    padding: 10px 12px;
+    font-size: 0.9em;
   }
 }
 </style>

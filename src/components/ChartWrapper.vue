@@ -47,4 +47,43 @@ export default {
   position: relative;
   height: 600px;
 }
+
+@media (max-width: 768px) {
+  .chart-wrapper {
+    padding: 15px;
+    border-radius: 8px;
+  }
+
+  .chart-wrapper h3 {
+    margin-bottom: 12px;
+    font-size: 1.1em;
+  }
+
+  .chart-container {
+    height: 350px;
+  }
+
+  .chart-container.scatter-chart-container {
+    height: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-wrapper {
+    padding: 12px;
+  }
+
+  .chart-wrapper h3 {
+    margin-bottom: 10px;
+    font-size: 1em;
+  }
+
+  .chart-container {
+    height: 300px;
+  }
+
+  .chart-container.scatter-chart-container {
+    height: 350px;
+  }
+}
 </style>

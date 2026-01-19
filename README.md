@@ -2,6 +2,13 @@
 
 A Vue 3-based analytics dashboard for tracking character (Reverberation, Echo) performance metrics in Harry Potter: Magic Awakened. The application visualizes win rates, attendance rates, and statistical distributions across different game modes.
 
+## 🚀 Recent Optimizations
+
+- **Mobile Responsive**: Fully optimized for mobile and tablet devices with adaptive layouts
+- **Performance**: Chart.js optimizations with reduced animation complexity and improved rendering
+- **Image Loading**: WebP format support with automatic fallback to PNG, plus preloading strategy
+- **User Experience**: Loading states and error handling with retry functionality
+
 ## 📊 Features
 
 - **Interactive Scatter Charts**: Visualize character performance by plotting attendance rate vs win rate
@@ -175,4 +182,32 @@ When contributing to this project:
 
 ---
 
-**Last Updated**: January 14, 2026
+## ⚡ Performance Optimizations Completed
+
+### Mobile Responsive Design
+- Adaptive chart sizes (500px → 350px on mobile, 300px on small screens)
+- Optimized table layouts with horizontal scrolling
+- Responsive control buttons and selectors
+- Better spacing and padding for touch interactions
+
+### Chart.js Performance
+- Merged 18 separate datasets into single scatter dataset
+- Reduced animation duration (1s → 200-300ms)
+- Optimized tooltip rendering and font sizes
+- Added `maxTicksLimit` to reduce tick calculations
+- Simplified grid configurations
+
+### Image Optimization
+- WebP format support with PNG fallback
+- Preload all 18 avatar images on app initialization
+- Cached images in browser and service layer
+- Automatic fallback to generated canvas when images fail to load
+
+### User Experience
+- Loading spinner during data initialization
+- Error messages with retry button
+- Better error handling throughout the data pipeline
+
+---
+
+**Last Updated**: January 19, 2026

@@ -39,38 +39,62 @@ export class DataService {
   // 加载头像图片
   static loadAvatarImage(id) {
     return new Promise((resolve, reject) => {
-      // 检查缓存
       if (DataService.avatarCache[id]) {
         resolve(DataService.avatarCache[id]);
         return;
       }
 
       const img = new Image();
-      img.onload = function () {
-        DataService.avatarCache[id] = img;
-        resolve(img);
+      const idStr = id.toString().padStart(2, "0");
+      
+      const loadWebP = () => {
+        return new Promise((resolve, reject) => {
+          const webpImg = new Image();
+          webpImg.onload = () => resolve(webpImg);
+          webpImg.onerror = () => reject();
+          webpImg.src = `/images/avatars/echo${idStr}.webp`;
+        });
       };
-      img.onerror = function () {
-        console.error("Failed to load avatar image:", id);
-        // 创建一个简单的圆形作为fallback
-        const canvas = document.createElement("canvas");
-        canvas.width = 40;
-        canvas.height = 40;
-        const ctx = canvas.getContext("2d");
-        ctx.fillStyle = "#667eea";
-        ctx.beginPath();
-        ctx.arc(20, 20, 20, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = "white";
-        ctx.font = "14px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(id, 20, 20);
-        DataService.avatarCache[id] = canvas;
-        resolve(canvas);
+
+      const loadPNG = () => {
+        return new Promise((resolve, reject) => {
+          const pngImg = new Image();
+          pngImg.onload = () => resolve(pngImg);
+          pngImg.onerror = reject;
+          pngImg.src = `/images/avatars/echo${idStr}.png`;
+        });
       };
-      // 修复图片路径 - 在Vite中，public目录下的文件直接使用根路径访问
-      img.src = `/images/avatars/echo${id.toString().padStart(2, "0")}.png`;
+
+      loadWebP()
+        .then((loadedImg) => {
+          DataService.avatarCache[id] = loadedImg;
+          resolve(loadedImg);
+        })
+        .catch(() => {
+          loadPNG()
+            .then((loadedImg) => {
+              DataService.avatarCache[id] = loadedImg;
+              resolve(loadedImg);
+            })
+            .catch((error) => {
+              console.error("Failed to load avatar image:", id);
+              const canvas = document.createElement("canvas");
+              canvas.width = 40;
+              canvas.height = 40;
+              const ctx = canvas.getContext("2d");
+              ctx.fillStyle = "#667eea";
+              ctx.beginPath();
+              ctx.arc(20, 20, 20, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = "white";
+              ctx.font = "14px Arial";
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.fillText(id, 20, 20);
+              DataService.avatarCache[id] = canvas;
+              resolve(canvas);
+            });
+        });
     });
   }
 
