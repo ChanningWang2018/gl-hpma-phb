@@ -36,3 +36,4 @@ coverage
 __screenshots__/
 
 .setenv.ps1
+AGENTS.md
