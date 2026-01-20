@@ -236,33 +236,22 @@ export default {
         const id = item.reverberationid
         const idStr = id.toString().padStart(2, '0')
         
-        async function loadImage(format) {
-          try {
-            const response = await fetch(`/images/avatars/echo${idStr}.${format}`)
-            if (!response.ok) return null
-            const blob = await response.blob()
-            return new Promise((resolve, reject) => {
-              const img = new Image()
-              img.onload = () => {
-                img.width = 50
-                img.height = 50
-                resolve(img)
-              }
-              img.onerror = reject
-              img.src = URL.createObjectURL(blob)
-            })
-          } catch (error) {
-            return null
-          }
-        }
-
         try {
-          let img = await loadImage('webp')
-          if (!img) {
-            img = await loadImage('png')
+          const response = await fetch(`/images/avatars/echo${idStr}.webp`)
+          if (!response.ok) {
+            throw new Error(`Failed to fetch WebP image for echo${idStr}`)
           }
-          if (!img) throw new Error(`Failed to load image for id ${id}`)
-          return { id, img }
+          const blob = await response.blob()
+          return new Promise((resolve, reject) => {
+            const img = new Image()
+            img.onload = () => {
+              img.width = 50
+              img.height = 50
+              resolve({ id, img })
+            }
+            img.onerror = () => reject(new Error(`Failed to load WebP image for echo${idStr}`))
+            img.src = URL.createObjectURL(blob)
+          })
         } catch (error) {
           console.warn(`无法加载头像图片 echo${idStr}:`, error)
           return null

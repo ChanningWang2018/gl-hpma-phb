@@ -121,21 +121,12 @@ export default {
       for (let i = 1; i <= 18; i++) {
         const idStr = i.toString().padStart(2, '0');
         
-        // Preload WebP version first
-        const webpLink = document.createElement('link');
-        webpLink.rel = 'preload';
-        webpLink.as = 'image';
-        webpLink.href = `/images/avatars/echo${idStr}.webp`;
-        webpLink.type = 'image/webp';
-        document.head.appendChild(webpLink);
-        
-        // Fallback to PNG
-        const pngLink = document.createElement('link');
-        pngLink.rel = 'preload';
-        pngLink.as = 'image';
-        pngLink.href = `/images/avatars/echo${idStr}.png`;
-        pngLink.type = 'image/png';
-        document.head.appendChild(pngLink);
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = `/images/avatars/echo${idStr}.webp`;
+        link.type = 'image/webp';
+        document.head.appendChild(link);
       }
     };
     
