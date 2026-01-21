@@ -1,0 +1,46 @@
+{
+  "links": [
+    {
+      "id": "herbologyGuide",
+      "title": "Herbology Career Research Guide",
+      "url": "https://docs.google.com/spreadsheets/d/1uWQPwlvkGzHqGdHcHZArp4RKXiroYYtxuCncYXKdDgk",
+      "description": "Detailed progression paths and research data for the Herbology career."
+    },
+    {
+      "id": "gastronomyGuide",
+      "title": "Gastronomy Career Research Guide",
+      "url": "https://docs.google.com/spreadsheets/d/1TQwDo87k1oJhLrxgCkRySlhB6FR2UBV2SHNpxBzX8gs",
+      "description": "Essential recipes and research requirements for mastering Gastronomy."
+    },
+    {
+      "id": "spellStatics",
+      "title": "HPMA Card Level Chart",
+      "url": "https://docs.google.com/spreadsheets/d/10yGU_axzlTh0DI701EbVUuARXwXG2CBONuw0ytWd450",
+      "description": "A statistical breakdown of spell scaling and HP/Damage by card level."
+    },
+    {
+      "id": "hvaCalculator",
+      "title": "HVA Caculator",
+      "url": "https://www.modelscope.cn/studios/OhMyDearAI/ArithmancySolver4HPMA",
+      "description": "An 'Arithmancy Solver' to optimize your weekly budget."
+    },
+    {
+      "id": "orderGauntletPreview",
+      "title": "Order Gauntlet Preview Tool",
+      "url": "https://www.modelscope.cn/studios/OhMyDearAI/hawarma-preview",
+      "description": "A visual tool to preview and plan your Order Gauntlet runs."
+    },
+    {
+      "id": "aliceBlog",
+      "title": "アリスの呟きブログ",
+      "url": "https://alicetheants.blogspot.com/",
+      "description": "Insightful blog posts and gameplay analysis from Alice (Japanese community)."
+    },
+    {
+      "id": "levelupCalculator",
+      "title": "Card Levelup Calculator",
+      "url": "https://karmey77.github.io/hpma_levelup_calculator/#",
+      "description": "Easily calculate the total gold and card duplicates required to upgrade your cards to their next level or maximum rank."
+    }
+  ]
+}
