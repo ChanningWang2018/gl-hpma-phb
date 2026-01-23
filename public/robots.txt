@@ -1,0 +1,4 @@
+# robots.txt for HPMA Echo Analytics
+User-agent: *
+Allow: /
+Sitemap: https://hpma-phb.netlify.app/sitemap.xml

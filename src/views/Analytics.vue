@@ -68,6 +68,7 @@ import LineChart from '@/components/LineChart.vue';
 import ScatterChart from '@/components/ScatterChart.vue';
 import { useChartStore } from '@/stores/chartStore.js';
 import { computed, onMounted } from 'vue';
+import { useHead } from '@vueuse/head';
 
 export default {
   name: 'Analytics',
@@ -80,6 +81,13 @@ export default {
     ScatterChart
   },
   setup() {
+    useHead({
+      title: 'Analytics | HPMA Echo DataViz',
+      meta: [
+        { name: 'description', content: 'View detailed Echo performance analytics including win rates, pick rates, and historical trends for all 18 characters in HPMA.' }
+      ]
+    });
+
     const chartStore = useChartStore();
     
     const winrateData = computed(() => {

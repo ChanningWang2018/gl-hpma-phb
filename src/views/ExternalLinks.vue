@@ -26,6 +26,7 @@
 
 <script>
 import { LinksService } from '@/services/linksService.js';
+import { useHead } from '@vueuse/head';
 
 export default {
   name: 'ExternalLinks',
@@ -33,6 +34,14 @@ export default {
     return {
       links: []
     };
+  },
+  setup() {
+    useHead({
+      title: 'Resources | HPMA Echo DataViz',
+      meta: [
+        { name: 'description', content: 'Curated HPMA community resources including guides, calculators, and tools for Harry Potter: Magic Awakened players.' }
+      ]
+    });
   },
   mounted() {
     this.links = LinksService.getAllLinks();
