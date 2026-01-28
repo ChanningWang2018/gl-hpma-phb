@@ -4,6 +4,7 @@
     <p>Visualizing win rate and pick rate changes for different echoes across periods</p>
     <nav class="nav-tabs">
       <router-link to="/" class="nav-tab" exact>Analytics</router-link>
+      <router-link to="/sales-optimizer" class="nav-tab">Sales Optimizer</router-link>
       <router-link to="/resources" class="nav-tab">Other Resources</router-link>
     </nav>
   </header>

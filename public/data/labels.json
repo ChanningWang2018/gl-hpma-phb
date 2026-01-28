@@ -1,0 +1,443 @@
+{
+  "en": {
+    "tiers": {
+      "radiant": "RADIANT",
+      "flourishing": "FLOURISHING",
+      "hardy": "HARDY",
+      "feeble": "FEEBLE",
+      "radiant_rarecolor": "RADIANT+RARE",
+      "flourishing_rarecolor": "FLOURISHING+RARE",
+      "hardy_rarecolor": "HARDY+RARE",
+      "legendary": "LEGENDARY",
+      "epic": "EPIC",
+      "rare": "RARE"
+    },
+
+    "plants": {
+      "fanged_geranium": "Fanged Geranium",
+      "gillyweed": "Gillyweed",
+      "rose": "Rose",
+      "vining_marjoram": "Vining Marjoram",
+      "puffapod": "Puffapod",
+      "wild_pansy": "Wild Pansy",
+      "nifflers_fancy": "Niffler's Fancy",
+      "charred_cinnamon_tree": "Charred Cinnamon Tree",
+      "fanwort": "Fanwort",
+      "ladys_mantle": "Lady's Mantle",
+      "paleleaf_laurel": "Paleleaf Laurel",
+      "kelp": "Kelp",
+      "mandrake": "Mandrake",
+      "chinese_chomping_cabbage": "Chinese Chomping Cabbage",
+      "dragons_breath_macroalgae": "Dragon's Breath Macroalgae",
+      "peony": "Peony",
+      "begonia": "Begonia",
+      "mayflower": "Mayflower",
+      "hydrangea": "Hydrangea",
+      "ludwigia_glandulosa": "Ludwigia Glandulosa",
+      "daffodil": "Daffodil",
+      "water_hyacinth": "Water Hyacinth",
+      "wildbloom_thyme": "Wildbloom Thyme",
+      "lily_of_the_valley": "Lily of the Valley",
+      "mosaic_flower": "Mosaic Flower",
+      "sunflower": "Sunflower",
+      "mimbulus_mimbletonia": "Mimbulus Mimbletonia",
+      "water_lily": "Water Lily"
+    },
+
+    "dishes": {
+      "gilded_shore_risotto": "Gilded Shore Risotto",
+      "farmstead_feast_roast": "Farmstead Feast Roast",
+      "woodland_mushroom_risotto": "Woodland Mushroom Risotto",
+      "braised_venison_stew": "Braised Venison Stew",
+      "hearty_custard_pie": "Hearty Custard Pie",
+      "paleleaf_meat_roll": "Paleleaf Meat Roll",
+      "saltbaked_shrimp": "Saltbaked Shrimp",
+      "dome_figue_miel": "Dome Figue Miel",
+      "hearthroast_chicken": "Hearthroast Chicken",
+      "holiday_gingerbread": "Holiday Gingerbread",
+      "mooncake_1": "Mooncake(Crab, Beef, Berry, Rice)",
+      "mooncake_2": "Mooncake(Cocoa, Fig, Sugar, Thyme)",
+      "simple_seared_scallops": "Simple Seared Scallops",
+      "snow_skin_mooncake_1": "Snow Skin Mooncake(Crab, Beef, Berry, Rice)",
+      "snow_skin_mooncake_2": "Snow Skin Mooncake(Cocoa, Fig, Sugar, Thyme)",
+      "wild_herb_tomahawk": "Wild Herb Tomahawk",
+      "honey_glazed_wings": "Honey-Glazed Wings",
+      "velvet_tiramisu": "Velvet Tiramisu",
+      "midsummer_lamb_roast": "Midsummer Lamb Roast",
+      "cocoa_berry_bliss": "Cocoa-Berry Bliss",
+      "deepwater_ink_pasta": "Deepwater Ink Pasta",
+      "golden_cream_pasta": "Golden Cream Pasta",
+      "wildbloom_salad": "Wildbloom Salad",
+      "charred_mystery_steak": "Charred Mystery Steak",
+      "cinnamon_seared_foie_gras": "Cinnamon-Seared Foie Gras",
+      "feast_of_courage_and_chivalry": "Feast of Courage and Chivalry",
+      "feast_of_cunning_and_ambition": "Feast of Cunning and Ambition",
+      "feast_of_loyalty_and_dedication": "Feast of Loyalty and Dedication",
+      "feast_of_widsom_and_wit": "Feast of Wisdom and Wit",
+      "the_founders_feast": "The Founders Feast"
+    },
+    "ui": {
+      "talent_price_bonus": "Talent Price Bonus(%)",
+      "talent_price_bonus_info": "Enter the total percentage increase in dish selling price from your talents.",
+      "language": {
+        "label": "Language",
+        "info": "Select the language for the interface."
+      },
+      "currency": {
+        "label": "Currency",
+        "info": "Select the currency.",
+        "gold": "Gold",
+        "gems": "Gems"
+      },
+      "budget": {
+        "label": "Budget💸",
+        "info": "Enter your budget amount."
+      },
+      "inventory": {
+        "title": "Inventory",
+        "hva_info": "Enter quantities for items sold to HVA shop"
+      },
+      "strategy": {
+        "label": "Selling Strategy📈📉",
+        "info": "Select the strategy for selling items.",
+        "maximize_stock": "Prioritize high-priced items",
+        "minimize_stock": "Prioritize low-priced items"
+      },
+      "blooms_rate": {
+        "label": "Blooms Extra Acquisition Rate🌿",
+        "info": "Select your high-value acquisition rate for Bewildering Blooms.",
+        "options": [
+          "0(Gabby's Acquisition)",
+          "+100%(HVA for Shop Level 1 & 2)",
+          "+200%(HVA for Shop Level 3 & 4)",
+          "+300%(HVA for Shop Level 5 & 6)"
+        ]
+      },
+      "confiserie_rate": {
+        "label": "Confiserie Extra Acquisition Rate🍜",
+        "info": "Select your high-value acquisition rate for The Confiserie.",
+        "options": [
+          "0(Andre's Acquisition)",
+          "+100%(HVA for Shop Level 1 & 2)",
+          "+200%(HVA for Shop Level 3 & 4)",
+          "+300%(HVA for Shop Level 5 & 6)"
+        ]
+      },
+      "plants_selector": {
+        "label": "Plants",
+        "info": "Select plants"
+      },
+      "dishes_selector": {
+        "label": "Dishes",
+        "info": "Select dishes."
+      },
+      "solve_button": "Solve",
+      "solving": "Solving...",
+      "results": {
+        "label": "Results",
+        "solution": "Solution",
+        "total_value": "Total Value",
+        "total_count": "Total Count",
+        "remaining_budget": "Remaining Budget"
+      },
+      "select_all": "Select All",
+      "clear_all": "Clear All",
+      "selected": "Selected",
+      "no_selection": "Select items above to enter quantities"
+    }
+  },
+  "cn": {
+    "tiers": {
+      "radiant": "稀世珍品",
+      "flourishing": "圆润饱满",
+      "hardy": "普普通通",
+      "feeble": "萎靡不振",
+      "radiant_rarecolor": "稀世珍品&稀有色",
+      "flourishing_rarecolor": "圆润饱满&稀有色",
+      "hardy_rarecolor": "普普通通&稀有色",
+      "legendary": "传说",
+      "epic": "史诗",
+      "rare": "稀有"
+    },
+
+    "plants": {
+      "fanged_geranium": "毒牙天竺葵",
+      "gillyweed": "鳃囊草",
+      "rose": "玫瑰",
+      "vining_marjoram": "龙舌兰香草",
+      "puffapod": "泡泡豆荚",
+      "wild_pansy": "三色堇",
+      "nifflers_fancy": "嗅幻草",
+      "charred_cinnamon_tree": "火焰肉桂",
+      "fanwort": "绿菊",
+      "ladys_mantle": "羽衣草",
+      "paleleaf_laurel": "幽兰月桂",
+      "kelp": "巨藻",
+      "mandrake": "曼德拉草",
+      "chinese_chomping_cabbage": "中国咬人甘蓝",
+      "dragons_breath_macroalgae": "红火焰藻",
+      "peony": "牡丹",
+      "begonia": "秋海棠",
+      "mayflower": "五月花",
+      "hydrangea": "绣球花",
+      "ludwigia_glandulosa": "红波水草",
+      "daffodil": "水仙",
+      "water_hyacinth": "凤眼莲",
+      "wildbloom_thyme": "迷迭香",
+      "lily_of_the_valley": "铃兰",
+      "mosaic_flower": "菱叶丁香蓼",
+      "sunflower": "向日葵",
+      "mimbulus_mimbletonia": "米布米宝",
+      "water_lily": "睡莲"
+    },
+
+    "dishes": {
+      "gilded_shore_risotto": "海鱼黄金焗饭",
+      "farmstead_feast_roast": "果香烤乳猪",
+      "woodland_mushroom_risotto": "奶油蘑菇炖饭",
+      "braised_venison_stew": "红酒鹿肉炖汤",
+      "hearty_custard_pie": "甜奶油蛋派",
+      "paleleaf_meat_roll": "幽兰秘制肉卷",
+      "saltbaked_shrimp": "盐烤海虾",
+      "dome_figue_miel": "酒心果子露",
+      "hearthroast_chicken": "浓香烤全鸡",
+      "holiday_gingerbread": "神秘圣诞姜饼人",
+      "mooncake_1": "月饼(蟹粉,牛肉,莓果,奶酪香米)",
+      "mooncake_2": "月饼(可可,无花果,甜味,迷迭香)",
+      "simple_seared_scallops": "香草风味扇贝",
+      "snow_skin_mooncake_1": "冰皮月饼(蟹粉,牛肉,莓果,奶酪香米)",
+      "snow_skin_mooncake_2": "冰皮月饼(可可,无花果,甜味,迷迭香)",
+      "wild_herb_tomahawk": "香草战斧牛排",
+      "honey_glazed_wings": "火焰蜜汁烤翅",
+      "velvet_tiramisu": "浓醇提拉米苏",
+      "midsummer_lamb_roast": "蜂蜜烤羊腿",
+      "cocoa_berry_bliss": "香浓可可混莓果冻",
+      "deepwater_ink_pasta": "墨汁海鲜意面",
+      "golden_cream_pasta": "奶油蟹粉面",
+      "wildbloom_salad": "迷迭香风味沙拉",
+      "charred_mystery_steak": "香煎怪肉排",
+      "cinnamon_seared_foie_gras": "烈焰香煎鹅肝",
+      "feast_of_courage_and_chivalry": "勇气与胆识之宴",
+      "feast_of_cunning_and_ambition": "野心与荣耀之宴",
+      "feast_of_loyalty_and_dedication": "忠诚与无私之宴",
+      "feast_of_widsom_and_wit": "智慧与风雅之宴",
+      "the_founders_feast": "霍格沃茨盛宴"
+    },
+    "ui": {
+      "talent_price_bonus": "天赋价格加成(%)",
+      "talent_price_bonus_info": "输入天赋导致的菜品售价增幅百分比",
+      "language": {
+        "label": "语言",
+        "info": "选择界面语言"
+      },
+      "currency": {
+        "label": "货币",
+        "info": "选择货币类型",
+        "gold": "金币",
+        "gems": "宝石"
+      },
+      "budget": {
+        "label": "预算💸",
+        "info": "输入您的预算金额"
+      },
+      "inventory": {
+        "title": "库存",
+        "hva_info": "输入出售给HVA商店的物品数量"
+      },
+      "strategy": {
+        "label": "销售策略📈📉",
+        "info": "选择物品销售策略",
+        "maximize_stock": "优先出售高价物品",
+        "minimize_stock": "优先出售低价物品"
+      },
+      "blooms_rate": {
+        "label": "疯狂藤蔓加价倍率🌿",
+        "info": "选择疯狂藤蔓收购的加价倍率",
+        "options": [
+          "0(普通收购)",
+          "+100%(商店等级1-2的高价收购)",
+          "+200%(商店等级3-4的高价收购)",
+          "+300%(商店等级5-6的高价收购)"
+        ]
+      },
+      "confiserie_rate": {
+        "label": "美味工坊加价倍率🍜",
+        "info": "选择美味工坊收购的加价倍率",
+        "options": [
+          "0(普通收购)",
+          "+100%(商店等级1-2的高价收购)",
+          "+200%(商店等级3-4的高价收购)",
+          "+300%(商店等级5-6的高价收购)"
+        ]
+      },
+      "plants_selector": {
+        "label": "植物",
+        "info": "选择植物"
+      },
+      "dishes_selector": {
+        "label": "菜品",
+        "info": "选择菜品"
+      },
+      "solve_button": "求解",
+      "solving": "求解中...",
+      "results": {
+        "label": "结果",
+        "solution": "组合方案",
+        "total_value": "总价值",
+        "total_count": "总数量",
+        "remaining_budget": "剩余预算"
+      },
+      "select_all": "全选",
+      "clear_all": "清空",
+      "selected": "已选",
+      "no_selection": "请在上方选择物品以输入数量"
+    }
+  },
+  "ja": {
+    "tiers": {
+      "radiant": "レジェンド",
+      "flourishing": "エピック",
+      "hardy": "レア",
+      "feeble": "FEEBLE",
+      "radiant_rarecolor": "レジェンド（レア、イベ）",
+      "flourishing_rarecolor": "エピック（レア、イベ）",
+      "hardy_rarecolor": "レア（レア、イベ）",
+      "legendary": "レジェンド",
+      "epic": "エピック",
+      "rare": "レア"
+    },
+
+    "plants": {
+      "fanged_geranium": "牙付きゼラニウム",
+      "gillyweed": "鰓昆布",
+      "rose": "バラ",
+      "vining_marjoram": "テキーラハーブ",
+      "puffapod": "花咲か豆",
+      "wild_pansy": "サンシキスミレ",
+      "nifflers_fancy": "ニフラーズファンシー",
+      "charred_cinnamon_tree": "ファイアシナモン",
+      "fanwort": "ハゴロモモ",
+      "ladys_mantle": "ハゴロモグサ",
+      "paleleaf_laurel": "蒼葉ローレル",
+      "kelp": "ジャイアントケルプ",
+      "mandrake": "マンドレイク",
+      "chinese_chomping_cabbage": "嚙み嚙み白菜",
+      "dragons_breath_macroalgae": "ツヅレグサ",
+      "peony": "ボタン",
+      "begonia": "シュウカイドウ",
+      "mayflower": "メイフラワー",
+      "hydrangea": "アジサイ",
+      "ludwigia_glandulosa": "ルブラハイグロ",
+      "daffodil": "スイセン",
+      "water_hyacinth": "ホテイアオイ",
+      "wildbloom_thyme": "ローズマリー",
+      "lily_of_the_valley": "スズラン",
+      "mosaic_flower": "ミズヒメビシ",
+      "sunflower": "ヒマワリ",
+      "mimbulus_mimbletonia": "ミンビュラス",
+      "water_lily": "スイレン"
+    },
+
+    "dishes": {
+      "gilded_shore_risotto": "魚介の黄金リゾット",
+      "farmstead_feast_roast": "フルーツ風味の子豚の丸焼き",
+      "woodland_mushroom_risotto": "きのこのクリームリゾット",
+      "braised_venison_stew": "鹿肉の赤ワイン煮込み",
+      "hearty_custard_pie": "スイートクリームエッグパイ",
+      "paleleaf_meat_roll": "蒼葉の特製肉ロール",
+      "saltbaked_shrimp": "海老の塩焼き",
+      "dome_figue_miel": "フルーツ・ボンボンシロップ",
+      "hearthroast_chicken": "香り豊かなローストチキン",
+      "holiday_gingerbread": "ジンジャーブレッドマン",
+      "mooncake_1": "月餅(蟹,牛肉,ベリー,米)",
+      "mooncake_2": "月餅(ココア,ギンシカ,砂糖,ロズマリ)",
+      "simple_seared_scallops": "ホタテのハーブ焼き",
+      "snow_skin_mooncake_1": "氷皮月餅(蟹,牛肉,ベリー,米)",
+      "snow_skin_mooncake_2": "氷皮月餅(ココア,ギンシカ,砂糖,ロズマリ)",
+      "wild_herb_tomahawk": "トマホークステーキのハーブ焼き",
+      "honey_glazed_wings": "ハニーチキンウィッグ",
+      "velvet_tiramisu": "浓醇提拉米苏",
+      "midsummer_lamb_roast": "はちみつ仕立てのラムレッグロースト",
+      "cocoa_berry_bliss": "濃厚ココアのベリーゼリー",
+      "deepwater_ink_pasta": "イカ墨パスタ",
+      "golden_cream_pasta": "カニのクリームパスタ",
+      "wildbloom_salad": "ローズマリーのサラダ",
+      "charred_mystery_steak": "謎の肉のステーキ",
+      "cinnamon_seared_foie_gras": "フォアグラのフランベ",
+      "feast_of_courage_and_chivalry": "勇気と度胸の宴",
+      "feast_of_cunning_and_ambition": "野心と栄光の宴",
+      "feast_of_loyalty_and_dedication": "知恵と風雅の宴",
+      "feast_of_widsom_and_wit": "忠誠と無私の宴",
+      "the_founders_feast": "ホグワーツの饗宴"
+    },
+    "ui": {
+      "talent_price_bonus": "才能価格ボーナス(%)",
+      "talent_price_bonus_info": "才能による料理販売価格の上昇率を入力してください",
+      "language": {
+        "label": "言語",
+        "info": "インターフェースの言語を選択"
+      },
+      "currency": {
+        "label": "通貨",
+        "info": "通貨を選択",
+        "gold": "ゴールド",
+        "gems": "ジェム"
+      },
+      "budget": {
+        "label": "予算💸",
+        "info": "予算額を入力してください"
+      },
+      "inventory": {
+        "title": "在庫",
+        "hva_info": "HVAショップに売るアイテムの数量を入力してください"
+      },
+      "strategy": {
+        "label": "販売戦略📈📉",
+        "info": "アイテムの販売戦略を選択",
+        "maximize_stock": "高価格アイテムを優先",
+        "minimize_stock": "低価格アイテムを優先"
+      },
+      "blooms_rate": {
+        "label": "花々の追加取得率🌿",
+        "info": "花々の高価値取得率を選択",
+        "options": [
+          "0(ギャビーの通常取得)",
+          "+100%(ショップレベル1-2の高価値取得)",
+          "+200%(ショップレベル3-4の高価値取得)",
+          "+300%(ショップレベル5-6の高価値取得)"
+        ]
+      },
+      "confiserie_rate": {
+        "label": "菓子店の追加取得率🍜",
+        "info": "菓子店の高価値取得率を選択",
+        "options": [
+          "0(アンドレの通常取得)",
+          "+100%(ショップレベル1-2の高価値取得)",
+          "+200%(ショップレベル3-4の高価値取得)",
+          "+300%(ショップレベル5-6の高価値取得)"
+        ]
+      },
+      "plants_selector": {
+        "label": "植物",
+        "info": "植物を選択"
+      },
+      "dishes_selector": {
+        "label": "料理",
+        "info": "料理を選択"
+      },
+      "solve_button": "解決",
+      "solving": "解決中...",
+      "results": {
+        "label": "結果",
+        "solution": "解決策",
+        "total_value": "合計価値",
+        "total_count": "合計数",
+        "remaining_budget": "残り予算"
+      },
+      "select_all": "すべて選択",
+      "clear_all": "クリア",
+      "selected": "選択済み",
+      "no_selection": "上記でアイテムを選択して数量を入力してください"
+    }
+  }
+}
