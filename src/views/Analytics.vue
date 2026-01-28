@@ -82,9 +82,12 @@ export default {
   },
   setup() {
     useHead({
-      title: 'Analytics | HPMA Echo DataViz',
+      title: 'HPMA Echo Analytics - Win Rate & Pick Rate Statistics',
       meta: [
-        { name: 'description', content: 'View detailed Echo performance analytics including win rates, pick rates, and historical trends for all 18 characters in HPMA.' }
+        { name: 'description', content: 'Track Harry Potter: Magic Awakened character performance. Win rates, pick rates, and trends for all 18 Echoes across 1v1 and 2v2 modes.' },
+        { property: 'og:title', content: 'HPMA Echo Analytics - Character Performance Data' },
+        { property: 'og:description', content: 'Comprehensive win rate and pick rate statistics for all Echoes in Harry Potter: Magic Awakened.' },
+        { property: 'og:url', content: 'https://hpma-phb.netlify.app/' }
       ]
     });
 

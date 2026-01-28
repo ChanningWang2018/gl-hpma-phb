@@ -37,7 +37,7 @@ export default {
   },
   setup() {
     useHead({
-      title: 'Resources | HPMA Echo DataViz',
+      title: 'HPMA Resources - Created by HPMA community',
       meta: [
         { name: 'description', content: 'Curated HPMA community resources including guides, calculators, and tools for Harry Potter: Magic Awakened players.' }
       ]

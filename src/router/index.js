@@ -1,12 +1,21 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Analytics from '@/views/Analytics.vue';
-import SalesOptimizer from '@/views/SalesOptimizer.vue';
-import ExternalLinks from '@/views/ExternalLinks.vue';
 
 const routes = [
-  { path: '/', component: Analytics, name: 'analytics' },
-  { path: '/sales-optimizer', component: SalesOptimizer, name: 'sales-optimizer' },
-  { path: '/resources', component: ExternalLinks, name: 'resources' }
+  { 
+    path: '/', 
+    component: () => import('@/views/Analytics.vue'),
+    name: 'analytics' 
+  },
+  { 
+    path: '/sales-optimizer', 
+    component: () => import('@/views/SalesOptimizer.vue'),
+    name: 'sales-optimizer' 
+  },
+  { 
+    path: '/resources', 
+    component: () => import('@/views/ExternalLinks.vue'),
+    name: 'resources' 
+  }
 ];
 
 const router = createRouter({

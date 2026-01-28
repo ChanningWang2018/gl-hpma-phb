@@ -251,6 +251,7 @@ import ImageSelector from '@/components/ImageSelector.vue';
 import SalesOptimizerLoader from '@/services/salesOptimizerLoader.js';
 import SalesOptimizerSolver from '@/services/salesOptimizerSolver.js';
 import { computed, onMounted, ref, watch } from 'vue';
+import { useHead } from '@vueuse/head';
 
 export default {
   name: 'SalesOptimizer',
@@ -259,6 +260,16 @@ export default {
     CollapsibleSection
   },
   setup() {
+    useHead({
+      title: 'HPMA Sales Optimizer - HVA Shop Calculator',
+      meta: [
+        { name: 'description', content: 'Optimize your HVA shop sales in Harry Potter: Magic Awakened. Calculate the best items to sell for maximum gold or gems.' },
+        { property: 'og:title', content: 'HPMA Sales Optimizer' },
+        { property: 'og:description', content: 'Maximize your earnings with our HVA shop sales calculator for Harry Potter: Magic Awakened.' },
+        { property: 'og:url', content: 'https://hpma-phb.netlify.app/sales-optimizer' }
+      ]
+    });
+    
     const currency = ref('gold');
     const budget = ref(0);
     const inventory = ref({});
