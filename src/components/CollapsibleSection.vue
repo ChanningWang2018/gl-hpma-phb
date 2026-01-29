@@ -116,11 +116,11 @@ export default {
   max-height: 5000px;
   opacity: 1;
   padding: 15px;
-  background: #f5f5f5;
+  background: transparent;
   border-radius: 0 0 10px 10px;
-  border: 2px solid #667eea;
+  border: 1px solid rgba(102, 126, 234, 0.3);
   border-top: none;
-  margin-top: -2px;
+  margin-top: -1px;
 }
 
 .collapsible-content.collapsed {
@@ -136,8 +136,8 @@ export default {
     font-size: 1em;
   }
   
-  .collapsible-content {
-    padding: 12px;
+.collapsible-content {
+    padding: 8px;
   }
 }
 
@@ -153,8 +153,8 @@ export default {
     font-size: 0.8em;
   }
   
-  .collapsible-content {
-    padding: 10px;
+.collapsible-content {
+    padding: 6px;
   }
 }
 </style>

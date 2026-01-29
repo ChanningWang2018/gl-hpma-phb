@@ -68,7 +68,7 @@
                     class="tier-input-inline"
                     :class="getTierClass(tier)"
                   >
-                    <input 
+<input 
                       type="number"
                       v-model.number="inventory[`${item.name}_${tier}`]"
                       :min="0"
@@ -122,7 +122,7 @@
                     class="tier-input-inline"
                     :class="getTierClass(tier)"
                   >
-                    <input 
+<input 
                       type="number"
                       v-model.number="inventory[`${item.name}_${tier}`]"
                       :min="0"
@@ -275,7 +275,7 @@ export default {
     const inventory = ref({});
     const plantsRate = ref(0);
     const dishesRate = ref(0);
-    const talentBonus = ref(10);
+    const talentBonus = ref(0);
     const results = ref(null);
     const isSolving = ref(false);
     const labels = ref({});
@@ -285,8 +285,6 @@ export default {
 
     const allPlants = ref([]);
     const allDishes = ref([]);
-
-    let saveTimeout = null;
 
     // Get unique plant names preserving CSV order
     const currencyPlants = computed(() => {
@@ -462,32 +460,50 @@ export default {
     const handleCurrencyChange = () => {
       inventory.value = {};
       results.value = null;
-      saveToStorage();
+      // 移除saveToStorage()调用，不保存状态
     };
 
-    const resetItemInventory = (itemName, tiers) => {
+const resetItemInventory = (itemName, tiers) => {
       tiers.forEach(tier => {
         const key = `${itemName}_${tier}`;
-        inventory.value[key] = 0;
+        delete inventory.value[key];
       });
     };
 
     watch(selectedPlants, (newVal, oldVal) => {
       const removedItems = oldVal ? oldVal.filter(item => !newVal.includes(item)) : [];
+      
+      // 只清除被移除物品的库存，新选择的物品不初始化任何值
       removedItems.forEach(itemName => {
         const tiers = SalesOptimizerLoader.getPlantTiers();
         resetItemInventory(itemName, tiers);
       });
-      debouncedSave();
+      
+      // 移除debouncedSave()调用
     });
 
     watch(selectedDishes, (newVal, oldVal) => {
       const removedItems = oldVal ? oldVal.filter(item => !newVal.includes(item)) : [];
+      
+      // 只清除被移除物品的库存，新选择的物品不初始化任何值
       removedItems.forEach(itemName => {
         const tiers = SalesOptimizerLoader.getDishTiers();
         resetItemInventory(itemName, tiers);
       });
-      debouncedSave();
+      
+      // 移除debouncedSave()调用
+    });
+
+    watch(selectedDishes, (newVal, oldVal) => {
+      const removedItems = oldVal ? oldVal.filter(item => !newVal.includes(item)) : [];
+      
+      // 只清除被移除物品的库存，新选择的物品不初始化任何值
+      removedItems.forEach(itemName => {
+        const tiers = SalesOptimizerLoader.getDishTiers();
+        resetItemInventory(itemName, tiers);
+      });
+      
+      // 移除debouncedSave()调用
     });
 
     const handleSolve = async () => {
@@ -570,48 +586,12 @@ export default {
     };
 
     const debouncedSave = () => {
-      if (saveTimeout) clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(() => {
-        saveToStorage();
-      }, 500);
-    };
-
-    const saveToStorage = () => {
-      const data = {
-        currency: currency.value,
-        budget: budget.value,
-        plantsRate: plantsRate.value,
-        dishesRate: dishesRate.value,
-        talentBonus: talentBonus.value,
-        inventory: inventory.value,
-        selectedPlants: selectedPlants.value,
-        selectedDishes: selectedDishes.value
-      };
-      localStorage.setItem('salesOptimizerData', JSON.stringify(data));
-    };
-
-    const loadFromStorage = () => {
-      try {
-        const saved = localStorage.getItem('salesOptimizerData');
-        if (saved) {
-          const data = JSON.parse(saved);
-          currency.value = data.currency || 'gold';
-          budget.value = data.budget || 0;
-          plantsRate.value = data.plantsRate || 0;
-          dishesRate.value = data.dishesRate || 0;
-          talentBonus.value = data.talentBonus || 0;
-          inventory.value = data.inventory || {};
-          selectedPlants.value = data.selectedPlants || [];
-          selectedDishes.value = data.selectedDishes || [];
-        }
-      } catch (error) {
-        console.error('Failed to load from storage:', error);
-      }
+      // 移除状态保存功能，页面刷新时会清除所有用户输入
     };
 
     onMounted(() => {
       loadData();
-      loadFromStorage();
+      // 移除loadFromStorage()，确保每次页面加载都是空白状态
     });
 
     return {
@@ -724,8 +704,8 @@ h2 {
 }
 
 .inventory-section {
-  background: #f5f5f5;
-  padding: 25px;
+  background: transparent;
+  padding: 20px;
   border-radius: 15px;
   margin-top: 10px;
 }
@@ -793,7 +773,7 @@ h2 {
 
 .tier-input-inline {
   flex-shrink: 0;
-  width: 50px;
+  width: 65px;
   padding: 0;
   border-radius: 6px;
   border: 2px solid;
@@ -1069,7 +1049,7 @@ h2 {
   border-radius: 8px;
   object-fit: cover;
   flex-shrink: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: transparent;
 }
 
 .solution-item-info {
@@ -1132,8 +1112,8 @@ h2 {
 }
 
 @media (max-width: 768px) {
-  .sales-optimizer-container {
-    padding: 15px;
+.sales-optimizer-container {
+    padding: 10px;
   }
 
   h2 {
@@ -1152,8 +1132,8 @@ h2 {
     grid-template-columns: 1fr;
   }
 
-  .tier-input-inline {
-    width: 45px;
+.tier-input-inline {
+    width: 55px;
   }
   
   .tier-input-inline input {
@@ -1166,9 +1146,9 @@ h2 {
     height: 40px;
   }
   
-  .selected-item-row {
-    gap: 8px;
-    padding: 6px 10px;
+.selected-item-row {
+    gap: 6px;
+    padding: 4px 8px;
   }
   
   .tier-inputs-inline {

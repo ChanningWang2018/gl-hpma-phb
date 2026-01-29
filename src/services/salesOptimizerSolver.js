@@ -34,7 +34,7 @@ export default class SalesOptimizerSolver {
     return prices;
   }
 
-  static generateInventoryItems(
+static generateInventoryItems(
     selectedPlants,
     selectedDishes,
     inventory,
@@ -43,7 +43,6 @@ export default class SalesOptimizerSolver {
     currency,
   ) {
     const items = [];
-    let uid = 0;
 
     for (const plantName of selectedPlants) {
       const plantTiers = SalesOptimizerLoader.getPlantTiers();
@@ -54,16 +53,14 @@ export default class SalesOptimizerSolver {
         const price = adjustedPrices[`${plantName}_${tier}`] || 0;
         const isHVA = hvaSet.has(`${plantName}_${tier}`);
 
-        for (let i = 0; i < count; i++) {
-          items.push({
-            uid: uid++,
-            name: plantName,
-            tier,
-            type: "plants",
-            price,
-            isHVA,
-          });
-        }
+        items.push({
+          name: plantName,
+          tier,
+          type: "plants",
+          price,
+          count,
+          isHVA,
+        });
       }
     }
 
@@ -76,23 +73,21 @@ export default class SalesOptimizerSolver {
         const price = adjustedPrices[`${dishName}_${tier}`] || 0;
         const isHVA = hvaSet.has(`${dishName}_${tier}`);
 
-        for (let i = 0; i < count; i++) {
-          items.push({
-            uid: uid++,
-            name: dishName,
-            tier,
-            type: "dishes",
-            price,
-            isHVA,
-          });
-        }
+        items.push({
+          name: dishName,
+          tier,
+          type: "dishes",
+          price,
+          count,
+          isHVA,
+        });
       }
     }
 
     return items;
   }
 
-  static lpKnapsack(items, budget) {
+static lpKnapsack(items, budget) {
     if (items.length === 0 || budget <= 0) {
       return { items: [], totalValue: 0, remaining: budget };
     }
@@ -112,22 +107,22 @@ export default class SalesOptimizerSolver {
       },
       variables: {},
       ints: {},
-      timeout: 5000,
-      tolerance: 0.01
+      timeout: 3000,
+      tolerance: 1e-10
     };
 
     for (let i = 0; i < validItems.length; i++) {
       const item = validItems[i];
       const varName = `item_${i}`;
-      const boundName = `bound_${i}`;
+      const maxCountVarName = `max_${i}`;
       
       model.variables[varName] = {
         totalValue: item.price,
         budget: item.price,
-        [boundName]: 1
+        [maxCountVarName]: 1
       };
       
-      model.constraints[boundName] = { max: 1 };
+      model.constraints[maxCountVarName] = { max: item.count };
       model.ints[varName] = 1;
     }
 
@@ -140,8 +135,18 @@ export default class SalesOptimizerSolver {
     const selectedItems = [];
     for (let i = 0; i < validItems.length; i++) {
       const varName = `item_${i}`;
-      if (result[varName] === 1) {
-        selectedItems.push(validItems[i]);
+      const selectedCount = Math.round(result[varName]);
+      if (selectedCount > 0) {
+        const item = validItems[i];
+        for (let k = 0; k < selectedCount; k++) {
+          selectedItems.push({
+            name: item.name,
+            tier: item.tier,
+            type: item.type,
+            price: item.price,
+            isHVA: item.isHVA
+          });
+        }
       }
     }
 

@@ -193,16 +193,16 @@ export default {
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  padding: 8px;
+  padding: 4px;
   border-radius: 8px;
   border: 2px solid transparent;
   transition: all 0.2s;
   position: relative;
-  background: white;
+  background: transparent;
 }
 
 .image-item:hover {
-  background: #eef2ff;
+  background: rgba(238, 242, 255, 0.5);
   transform: scale(1.05);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
@@ -303,7 +303,7 @@ export default {
 
 @media (max-width: 480px) {
   .image-grid {
-    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
     gap: 6px;
   }
   
