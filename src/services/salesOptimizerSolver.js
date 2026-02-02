@@ -87,7 +87,7 @@ static generateInventoryItems(
     return items;
   }
 
-static lpKnapsack(items, budget) {
+static lpKnapsack(items, budget, strategy = 'minimize_stock') {
     if (items.length === 0 || budget <= 0) {
       return { items: [], totalValue: 0, remaining: budget };
     }
@@ -99,7 +99,8 @@ static lpKnapsack(items, budget) {
       return { items: [], totalValue: 0, remaining: budget };
     }
 
-    const model = {
+    // Stage 1: Find optimal value
+    const stage1Model = {
       optimize: 'totalValue',
       opType: 'max',
       constraints: {
@@ -116,26 +117,90 @@ static lpKnapsack(items, budget) {
       const varName = `item_${i}`;
       const maxCountVarName = `max_${i}`;
       
-      model.variables[varName] = {
+      stage1Model.variables[varName] = {
         totalValue: item.price,
         budget: item.price,
         [maxCountVarName]: 1
       };
       
-      model.constraints[maxCountVarName] = { max: item.count };
-      model.ints[varName] = 1;
+      stage1Model.constraints[maxCountVarName] = { max: item.count };
+      stage1Model.ints[varName] = 1;
     }
 
-    const result = solver.Solve(model);
+    const stage1Result = solver.Solve(stage1Model);
 
-    if (!result.feasible) {
+    if (!stage1Result.feasible) {
       return { items: [], totalValue: 0, remaining: budget };
     }
 
+    // Get optimal value from Stage 1
+    const optimalValue = Math.round(stage1Result.result);
+
+    // Stage 2: Optimize item count with fixed optimal value
+    const stage2Model = {
+      optimize: 'itemCount',
+      opType: strategy === 'minimize_stock' ? 'max' : 'min',
+      constraints: {
+        budget: { max: budget },
+        totalValue: { min: optimalValue - 0.01 } // Allow tiny floating point tolerance
+      },
+      variables: {},
+      ints: {},
+      timeout: 3000,
+      tolerance: 1e-10
+    };
+
+    for (let i = 0; i < validItems.length; i++) {
+      const item = validItems[i];
+      const varName = `item_${i}`;
+      const maxCountVarName = `max_${i}`;
+      
+      stage2Model.variables[varName] = {
+        itemCount: 1,
+        totalValue: item.price,
+        budget: item.price,
+        [maxCountVarName]: 1
+      };
+      
+      stage2Model.constraints[maxCountVarName] = { max: item.count };
+      stage2Model.ints[varName] = 1;
+    }
+
+    const stage2Result = solver.Solve(stage2Model);
+
+    if (!stage2Result.feasible) {
+      // Fallback to Stage 1 result if Stage 2 fails
+      const selectedItems = [];
+      for (let i = 0; i < validItems.length; i++) {
+        const varName = `item_${i}`;
+        const selectedCount = Math.round(stage1Result[varName]);
+        if (selectedCount > 0) {
+          const item = validItems[i];
+          for (let k = 0; k < selectedCount; k++) {
+            selectedItems.push({
+              name: item.name,
+              tier: item.tier,
+              type: item.type,
+              price: item.price,
+              isHVA: item.isHVA
+            });
+          }
+        }
+      }
+      
+      const totalValue = selectedItems.reduce((sum, item) => sum + item.price, 0);
+      return {
+        items: selectedItems,
+        totalValue,
+        remaining: budget - totalValue
+      };
+    }
+
+    // Extract solution from Stage 2
     const selectedItems = [];
     for (let i = 0; i < validItems.length; i++) {
       const varName = `item_${i}`;
-      const selectedCount = Math.round(result[varName]);
+      const selectedCount = Math.round(stage2Result[varName]);
       if (selectedCount > 0) {
         const item = validItems[i];
         for (let k = 0; k < selectedCount; k++) {
@@ -230,7 +295,7 @@ const inventoryItems = this.generateInventoryItems(
         };
       }
 
-      const solution = this.lpKnapsack(inventoryItems, budget);
+      const solution = this.lpKnapsack(inventoryItems, budget, strategy || 'minimize_stock');
 
       const groupedResults = this.groupResults(solution.items);
 

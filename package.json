@@ -9,7 +9,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@vueuse/head": "^2.0.0",
@@ -23,7 +25,9 @@
   "devDependencies": {
     "@pyyupsk/vite-plugin-sitemap": "^0.2.3",
     "@vitejs/plugin-vue": "^6.0.3",
+    "@vitest/ui": "^4.0.18",
     "vite": "^7.3.0",
-    "vite-plugin-vue-devtools": "^8.0.5"
+    "vite-plugin-vue-devtools": "^8.0.5",
+    "vitest": "^4.0.18"
   }
 }

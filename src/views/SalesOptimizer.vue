@@ -29,6 +29,23 @@
           </div>
         </div>
         
+        <div class="control-row">
+          <div class="control-group">
+            <label>{{ labels.ui?.strategy?.label || 'Selling Strategy📈📉' }}</label>
+            <select v-model="strategy" @change="debouncedSave">
+              <option value="minimize_stock">
+                {{ labels.ui?.strategy?.minimize_stock || 'Prioritize low-priced items' }}
+              </option>
+              <option value="maximize_stock">
+                {{ labels.ui?.strategy?.maximize_stock || 'Prioritize high-priced items' }}
+              </option>
+            </select>
+            <small v-if="labels.ui?.strategy?.info" class="help-text">
+              {{ labels.ui.strategy.info }}
+            </small>
+          </div>
+        </div>
+        
         <div class="inventory-section">
           <h3>{{ labels.ui?.inventory?.title || 'Inventory' }}</h3>
           <p class="inventory-subtitle">{{ labels.ui?.inventory?.hva_info || 'Enter quantities for items sold to HVA shop' }}</p>
@@ -276,6 +293,7 @@ export default {
     const plantsRate = ref(0);
     const dishesRate = ref(0);
     const talentBonus = ref(0);
+    const strategy = ref('minimize_stock'); // Default: prioritize low-priced items
     const results = ref(null);
     const isSolving = ref(false);
     const labels = ref({});
@@ -514,6 +532,7 @@ const resetItemInventory = (itemName, tiers) => {
         
         results.value = await SalesOptimizerSolver.solve({
           budget: budget.value,
+          strategy: strategy.value,
           inventory: inventory.value,
           currency: currency.value,
           plantsRate: plantsRate.value,
@@ -601,6 +620,7 @@ const resetItemInventory = (itemName, tiers) => {
       plantsRate,
       dishesRate,
       talentBonus,
+      strategy,
       results,
       isSolving,
       labels,
@@ -701,6 +721,13 @@ h2 {
 .control-group select:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.control-group .help-text {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85em;
+  margin-top: 4px;
+  font-weight: 400;
 }
 
 .inventory-section {
