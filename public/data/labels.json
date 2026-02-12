@@ -12,7 +12,6 @@
       "epic": "EPIC",
       "rare": "RARE"
     },
-
     "plants": {
       "fanged_geranium": "Fanged Geranium",
       "gillyweed": "Gillyweed",
@@ -35,6 +34,7 @@
       "hydrangea": "Hydrangea",
       "ludwigia_glandulosa": "Ludwigia Glandulosa",
       "daffodil": "Daffodil",
+      "sage": "Sage",
       "water_hyacinth": "Water Hyacinth",
       "wildbloom_thyme": "Wildbloom Thyme",
       "lily_of_the_valley": "Lily of the Valley",
@@ -43,10 +43,11 @@
       "mimbulus_mimbletonia": "Mimbulus Mimbletonia",
       "water_lily": "Water Lily"
     },
-
     "dishes": {
       "gilded_shore_risotto": "Gilded Shore Risotto",
+      "braised_new_year_fish": "Braised New Year Fish",
       "farmstead_feast_roast": "Farmstead Feast Roast",
+      "new_year_jiaozi": "New Year Jiaozi",
       "woodland_mushroom_risotto": "Woodland Mushroom Risotto",
       "braised_venison_stew": "Braised Venison Stew",
       "hearty_custard_pie": "Hearty Custard Pie",
@@ -159,7 +160,6 @@
       "epic": "史诗",
       "rare": "稀有"
     },
-
     "plants": {
       "fanged_geranium": "毒牙天竺葵",
       "gillyweed": "鳃囊草",
@@ -182,6 +182,7 @@
       "hydrangea": "绣球花",
       "ludwigia_glandulosa": "红波水草",
       "daffodil": "水仙",
+      "sage": "鼠尾草",
       "water_hyacinth": "凤眼莲",
       "wildbloom_thyme": "迷迭香",
       "lily_of_the_valley": "铃兰",
@@ -190,10 +191,11 @@
       "mimbulus_mimbletonia": "米布米宝",
       "water_lily": "睡莲"
     },
-
     "dishes": {
       "gilded_shore_risotto": "海鱼黄金焗饭",
+      "braised_new_year_fish": "年年有鱼",
       "farmstead_feast_roast": "果香烤乳猪",
+      "new_year_jiaozi": "招财进宝汤饺",
       "woodland_mushroom_risotto": "奶油蘑菇炖饭",
       "braised_venison_stew": "红酒鹿肉炖汤",
       "hearty_custard_pie": "甜奶油蛋派",
@@ -306,7 +308,6 @@
       "epic": "エピック",
       "rare": "レア"
     },
-
     "plants": {
       "fanged_geranium": "牙付きゼラニウム",
       "gillyweed": "鰓昆布",
@@ -329,6 +330,7 @@
       "hydrangea": "アジサイ",
       "ludwigia_glandulosa": "ルブラハイグロ",
       "daffodil": "スイセン",
+      "sage": "アキギリ",
       "water_hyacinth": "ホテイアオイ",
       "wildbloom_thyme": "ローズマリー",
       "lily_of_the_valley": "スズラン",
@@ -337,10 +339,11 @@
       "mimbulus_mimbletonia": "ミンビュラス",
       "water_lily": "スイレン"
     },
-
     "dishes": {
       "gilded_shore_risotto": "魚介の黄金リゾット",
+      "braised_new_year_fish": "年々『魚』あり",
       "farmstead_feast_roast": "フルーツ風味の子豚の丸焼き",
+      "new_year_jiaozi": "スープ餃子",
       "woodland_mushroom_risotto": "きのこのクリームリゾット",
       "braised_venison_stew": "鹿肉の赤ワイン煮込み",
       "hearty_custard_pie": "スイートクリームエッグパイ",

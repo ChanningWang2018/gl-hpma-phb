@@ -22,9 +22,10 @@
               type="number" 
               v-model.number="budget"
               :min="0" 
-              :max="50000"
+              :max="20000"
               :step="1000"
               @input="debouncedSave"
+              placeholder="0"
             />
           </div>
         </div>
@@ -109,7 +110,7 @@
             v-if="currencyDishes.length > 0"
             :title="'🍽️ ' + (labels.ui?.dishes_title || 'Dishes')"
             :badgeText="selectionBadgeText('dishes')"
-            :defaultOpen="false"
+            :defaultOpen="true"
           >
             <ImageSelector
               :items="currencyDishes"
@@ -288,7 +289,7 @@ export default {
     });
     
     const currency = ref('gold');
-    const budget = ref(0);
+    const budget = ref(null);
     const inventory = ref({});
     const plantsRate = ref(0);
     const dishesRate = ref(0);
