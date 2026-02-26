@@ -215,7 +215,16 @@
       </div>
       
       <div class="results-panel" v-if="results">
-        <h3>{{ labels.ui?.results?.label || 'Results' }}</h3>
+        <div class="results-header">
+          <h3>{{ labels.ui?.results?.label || 'Results' }}</h3>
+          <button 
+            class="copy-button"
+            @click="copyResults"
+            :disabled="copySuccess"
+          >
+            {{ copySuccess ? (labels.ui?.results?.copied || 'Copied!') : (labels.ui?.results?.copy_results || 'Copy Results') }}
+          </button>
+        </div>
         
         <div class="summary-stats">
           <div class="stat-item">
@@ -297,6 +306,7 @@ export default {
     const strategy = ref('minimize_stock'); // Default: prioritize low-priced items
     const results = ref(null);
     const isSolving = ref(false);
+    const copySuccess = ref(false);
     const labels = ref({});
     const imageLoaded = ref({});
     const selectedPlants = ref([]);
@@ -447,7 +457,9 @@ export default {
           total_value: 'Total Value',
           total_count: 'Total Count',
           remaining_budget: 'Remaining Budget',
-          solution: 'Solution'
+          solution: 'Solution',
+          copy_results: 'Copy Results',
+          copied: 'Copied!'
         },
         select_all: 'Select All',
         clear_all: 'Clear All',
@@ -549,6 +561,40 @@ const resetItemInventory = (itemName, tiers) => {
       }
     };
 
+    const formatResultsAsText = () => {
+      if (!results.value) return '';
+      
+      const lines = [];
+      lines.push(`Total Value: ${formatNumber(results.value.totalValue)}`);
+      lines.push(`Total Count: ${results.value.totalCount}`);
+      lines.push(`Remaining Budget: ${formatNumber(results.value.remainingBudget)}`);
+      lines.push('');
+      lines.push('Solution:');
+      
+      if (results.value.solution && results.value.solution.length > 0) {
+        results.value.solution.forEach(item => {
+          const name = getItemLabel(item);
+          const tier = getTierLabel(item.tier);
+          lines.push(`- ${name} (${tier}) x${item.count} ($${formatNumber(item.price)})`);
+        });
+      }
+      
+      return lines.join('\n');
+    };
+
+    const copyResults = async () => {
+      try {
+        const text = formatResultsAsText();
+        await navigator.clipboard.writeText(text);
+        copySuccess.value = true;
+        setTimeout(() => {
+          copySuccess.value = false;
+        }, 2000);
+      } catch (error) {
+        console.error('Failed to copy:', error);
+      }
+    };
+
     const formatNumber = (num) => num.toLocaleString();
 
     const getPlantLabel = (name) => {
@@ -624,6 +670,7 @@ const resetItemInventory = (itemName, tiers) => {
       strategy,
       results,
       isSolving,
+      copySuccess,
       labels,
       imageLoaded,
       selectedPlants,
@@ -639,6 +686,7 @@ const resetItemInventory = (itemName, tiers) => {
       talentBonusOptions,
       handleCurrencyChange,
       handleSolve,
+      copyResults,
       formatNumber,
       getPlantLabel,
       getDishLabel,
@@ -999,10 +1047,39 @@ h2 {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.results-panel h3 {
-  color: #333;
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
+}
+
+.results-header h3 {
+  color: #333;
+  margin: 0;
   font-size: 1.5em;
+}
+
+.copy-button {
+  padding: 10px 20px;
+  font-size: 0.95em;
+  font-weight: 600;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.copy-button:hover:not(:disabled) {
+  background: #45a049;
+  transform: translateY(-1px);
+}
+
+.copy-button:disabled {
+  background: #66bb6a;
+  cursor: default;
 }
 
 .summary-stats {
