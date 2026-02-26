@@ -22,19 +22,19 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# ====== 动态数据：每日缓存（游戏每周更新） ======
+# ====== 动态数据：每hour缓存（游戏每周更新） ======
 
-# Archive 数据文件（1天）
+# Archive 数据文件（1 hour）
 [[headers]]
   for = "/archive/*"
   [headers.values]
-    Cache-Control = "public, max-age=86400"
+    Cache-Control = "public, max-age=3600"
 
-# Data 文件（1天）
+# Data 文件（1 hour）
 [[headers]]
   for = "/data/*"
   [headers.values]
-    Cache-Control = "public, max-age=86400"
+    Cache-Control = "public, max-age=3600"
 
 # ====== 特殊文件：中期缓存 ======
 
