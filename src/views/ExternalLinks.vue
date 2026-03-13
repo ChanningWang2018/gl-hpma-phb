@@ -1,9 +1,5 @@
 <template>
   <div class="external-links-page">
-    <div class="page-header">
-      <h2>Resources</h2>
-      <p>A curated collection of the best resources created by the incredible HPMA community</p>
-    </div>
 
     <div class="links-container">
       <div v-for="link in links" :key="link.id" class="link-item">

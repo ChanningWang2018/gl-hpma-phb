@@ -1,8 +1,7 @@
 <template>
   <div class="sales-optimizer-container">
     <div class="sales-optimizer-content">
-      <h2>{{ labels.title }}</h2>
-      <p class="subtitle">{{ labels.subtitle }}</p>
+      
       
       <div class="controls-panel">
         <div class="control-row">

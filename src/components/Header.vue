@@ -1,7 +1,7 @@
 <template>
   <header>
-    <h1>HPMA Echo Data Visualization</h1>
-    <p>Visualizing win rate and pick rate changes for different echoes across periods</p>
+    <h1>{{ headerContent.title }}</h1>
+    <p>{{ headerContent.subtitle }}</p>
     <nav class="nav-tabs">
       <router-link to="/" class="nav-tab" exact>Analytics</router-link>
       <router-link to="/sales-optimizer" class="nav-tab">Sales Optimizer</router-link>
@@ -11,8 +11,29 @@
 </template>
 
 <script>
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+
 export default {
-  name: 'Header'
+  name: 'Header',
+  setup() {
+    const route = useRoute();
+
+    const headerContent = computed(() => {
+      const subtitles = {
+        'analytics': 'Data that matters (not really)',
+        'sales-optimizer': 'Math without tears',
+        'resources': 'Borrowed wisdom'
+      };
+      return {
+        title: 'Wizarding Bits',
+        title: 'my little hpma bits',
+        subtitle: subtitles[route.name] || 'Data that matters (not really)'
+      };
+    });
+
+    return { headerContent };
+  }
 }
 </script>
 
@@ -28,12 +49,17 @@ header h1 {
   font-size: 2.5em;
   margin-bottom: 10px;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  font-family: 'Caveat', cursive;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 
 header p {
-  font-size: 1.1em;
+  font-size: 1.3em;
   opacity: 0.9;
   margin-bottom: 25px;
+  font-family: 'Caveat', cursive;
+  font-weight: 400;
 }
 
 .nav-tabs {
