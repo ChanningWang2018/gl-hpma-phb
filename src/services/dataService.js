@@ -32,6 +32,7 @@ export class DataService {
       16: "Minerva McGonagall",
       17: "Lord Voldemort",
       18: "Cedric Diggory",
+      19: "Gellert Grindelwald",
     };
     return names[id] || "Unknown Echo";
   }
@@ -143,8 +144,9 @@ export class DataService {
 
     if (!periodData) return [];
 
+    const validIds = [...new Set(periodData.data.map(d => d.reverberationid))].sort((a, b) => a - b);
     const scatterData = [];
-    for (let i = 1; i <= 18; i++) {
+    for (const i of validIds) {
       const record = periodData.data.find(
         (d) =>
           d.reverberationid === i && d.type === DataService.modeMapping[mode]

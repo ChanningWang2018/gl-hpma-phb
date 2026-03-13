@@ -21,6 +21,7 @@
         <option value="16">Minerva McGonagall</option>
         <option value="17">Lord Voldemort</option>
         <option value="18">Cedric Diggory</option>
+        <option value="19">Gellert Grindelwald</option>
       </select>
     </div>
   </div>
