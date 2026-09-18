@@ -4,6 +4,7 @@ A Vue 3-based analytics dashboard for tracking character (Reverberation, Echo) p
 
 ## 🚀 Recent Optimizations
 
+- **Aggregated Data Loading**: All archive snapshots are collapsed into a single compact `trends.json` (~18KB gzipped, one request) instead of fetching every archive file — first-load data payload cut ~99%
 - **Mobile Responsive**: Fully optimized for mobile and tablet devices with adaptive layouts
 - **Performance**: Chart.js optimizations with reduced animation complexity and improved rendering
 - **Image Loading**: WebP format support with automatic fallback to PNG, plus preloading strategy
@@ -148,6 +149,8 @@ The dashboard supports four game modes:
 - Historical data snapshots are stored in the `public/archive` directory and accessible at `/archive` URL path
 - Data files include timestamps for version tracking
 - Current working data is in `snapshot.json`
+- The client reads only `public/archive/trends.json`, a compact aggregate ([period, echo, mode, winrate, pickrate] rows) built from all snapshots with `npm run build:trends`; the crawler workflow regenerates it automatically on every new snapshot (`npm run verify:trends` re-checks it against the raw archives)
+- Raw archive files are kept as the source of truth and download archive, but are no longer fetched by the app
 
 ## 📝 License
 

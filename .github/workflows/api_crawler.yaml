@@ -94,6 +94,12 @@ jobs:
           fi
 
       # ========== 4. Version Control Updates ==========
+      - name: Rebuild aggregated trends data
+        if: steps.fetch-data.outputs.success == 'true' && steps.detect-changes.outputs.changed == 'true'
+        run: |
+          node scripts/build-trends.mjs
+          node scripts/build-trends.mjs --verify
+
       - name: Commit changes if detected
         if: steps.fetch-data.outputs.success == 'true' && steps.detect-changes.outputs.changed == 'true'
         run: |
@@ -171,9 +177,9 @@ jobs:
           # Clean up backup file
           rm -f public/archive/manifest.json.backup 2>/dev/null || true
           
-          # Commit all changes: snapshot, archived file, and manifest
+          # Commit all changes: snapshot, archived file, manifest, and aggregated trends
           echo "Committing changes to repository..."
-          git add snapshot.json "${{ env.archive_file }}" public/archive/manifest.json
+          git add snapshot.json "${{ env.archive_file }}" public/archive/manifest.json public/archive/trends.json
           git commit -m "chore: update API snapshot (${TIMESTAMP})
           
           - Items: ${ITEM_COUNT}

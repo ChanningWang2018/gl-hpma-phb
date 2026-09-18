@@ -76,90 +76,51 @@ export class DataService {
     });
   }
 
-  // 加载清单文件
-  static async loadManifest() {
-    try {
-      const response = await fetch("/archive/manifest.json");
-      const manifest = await response.json();
-      const files = manifest.files.map((file) => ({
-        period: file.period,
-        file: "/archive/" + file.file,
-      }));
-
-      // 按时间排序，最旧的在前
-      files.sort((a, b) => {
-        return (
-          new Date(a.period.split(" - ")[0]) -
-          new Date(b.period.split(" - ")[0])
-        );
-      });
-
-      return files;
-    } catch (error) {
-      console.error("Error loading manifest:", error);
-      return [];
+  // 加载聚合趋势数据（单请求替代逐个加载全部归档文件）
+  static async loadTrendsData() {
+    const response = await fetch("/archive/trends.json");
+    if (!response.ok) {
+      throw new Error("Failed to load trends data: HTTP " + response.status);
     }
+    return response.json();
   }
 
-  // 加载所有归档数据
-  static async loadArchiveData() {
-    const archiveFiles = await DataService.loadManifest();
-    const dataPromises = archiveFiles.map(async (item) => {
-      try {
-        const response = await fetch(item.file);
-        const json = await response.json();
-        return {
-          period: item.period,
-          data: json.data.huixianginfo,
-        };
-      } catch (error) {
-        console.error("Error loading " + item.file + ":", error);
-        return null;
-      }
-    });
-
-    const results = await Promise.all(dataPromises);
-    return results.filter((r) => r !== null);
+  static resolveModeIndex(trends, mode) {
+    return trends.modes.indexOf(DataService.modeMapping[mode]);
   }
 
-  // 提取特定回响和模式的数据
-  static extractData(loadedData, reverberationId, mode) {
-    return loadedData.map((item) => {
-      const record = item.data.find(
-        (d) =>
-          d.reverberationid === parseInt(reverberationId) &&
-          d.type === DataService.modeMapping[mode]
+  // 提取特定回响和模式的数据（trends.rows: [periodIndex, echoId, modeIndex, winrate, pickrate]）
+  static extractData(trends, reverberationId, mode) {
+    if (!trends) return [];
+    const modeIndex = DataService.resolveModeIndex(trends, mode);
+    const echoId = parseInt(reverberationId);
+    return trends.periods.map((period, periodIndex) => {
+      const row = trends.rows.find(
+        (r) => r[0] === periodIndex && r[1] === echoId && r[2] === modeIndex
       );
       return {
-        period: item.period,
-        winrate: record ? record.winrate : null,
-        attendancerate: record ? record.attendancerate : null,
+        period,
+        winrate: row ? row[3] : null,
+        attendancerate: row ? row[4] : null,
       };
     });
   }
 
   // 提取散点图数据
-  static extractScatterData(loadedData, period, mode) {
-    const periodData = loadedData.find((item) => item.period === period);
+  static extractScatterData(trends, period, mode) {
+    if (!trends) return [];
+    const periodIndex = trends.periods.indexOf(period);
+    const modeIndex = DataService.resolveModeIndex(trends, mode);
+    if (periodIndex === -1 || modeIndex === -1) return [];
 
-    if (!periodData) return [];
-
-    const validIds = [...new Set(periodData.data.map(d => d.reverberationid))].sort((a, b) => a - b);
-    const scatterData = [];
-    for (const i of validIds) {
-      const record = periodData.data.find(
-        (d) =>
-          d.reverberationid === i && d.type === DataService.modeMapping[mode]
-      );
-      if (record) {
-        scatterData.push({
-          reverberationid: i,
-          winrate: record.winrate,
-          attendancerate: record.attendancerate,
-          name: DataService.getReverberationName(i),
-        });
-      }
-    }
-    return scatterData;
+    return trends.rows
+      .filter((r) => r[0] === periodIndex && r[2] === modeIndex)
+      .sort((a, b) => a[1] - b[1])
+      .map((r) => ({
+        reverberationid: r[1],
+        winrate: r[3],
+        attendancerate: r[4],
+        name: DataService.getReverberationName(r[1]),
+      }));
   }
 }

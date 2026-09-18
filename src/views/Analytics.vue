@@ -113,8 +113,6 @@ export default {
     
     onMounted(async () => {
       try {
-        await chartStore.initializePeriodSelector();
-        await chartStore.loadArchiveData();
         await chartStore.updateAllData();
         preloadAvatarImages();
       } catch (error) {
@@ -142,8 +140,6 @@ export default {
       retryLoading: async () => {
         chartStore.error = null;
         try {
-          await chartStore.initializePeriodSelector();
-          await chartStore.loadArchiveData();
           await chartStore.updateAllData();
         } catch (error) {
           console.error("重试失败:", error);

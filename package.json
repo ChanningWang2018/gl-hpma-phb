@@ -11,7 +11,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "build:trends": "node scripts/build-trends.mjs",
+    "verify:trends": "node scripts/build-trends.mjs --verify"
   },
   "dependencies": {
     "@vueuse/head": "^2.0.0",
