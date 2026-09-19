@@ -46,12 +46,15 @@
   --oxblood: #8a2f2b;
   --teal-ink: #1f5f5b;
   --gold-leaf: #b08d3f;
+  --gold-ink: #7a5c1e;
+  --violet-ink: #5d4378;
 
   /* RGB triplets of the colors above, for rgba(var(--x-rgb), a) tints */
   --ink-rgb: 42, 33, 24;
   --accent-rgb: 138, 47, 43;
   --teal-rgb: 31, 95, 91;
   --gold-rgb: 176, 141, 63;
+  --violet-rgb: 93, 67, 120;
   --paper-light-rgb: 247, 240, 225;
 
   /* Type roles */

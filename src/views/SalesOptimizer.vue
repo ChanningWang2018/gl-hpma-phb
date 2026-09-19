@@ -807,13 +807,13 @@ h2 {
   font-size: 1.1em;
   background: var(--paper-light);
   border-radius: 2px;
-  border: 2px dashed #ddd;
+  border: 1px dashed var(--rule);
 }
 
 .selected-items-tiers {
   margin-top: 15px;
   padding-top: 15px;
-  border-top: 2px solid #e0e0e0;
+  border-top: 1px solid var(--rule);
 }
 
 .selected-item-row {
@@ -824,12 +824,12 @@ h2 {
   background: var(--paper-light);
   border-radius: 2px;
   margin-bottom: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.2s;
+  border: 1px solid var(--rule);
+  transition: border-color 0.2s;
 }
 
 .selected-item-row:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border-color: var(--ink-faded);
 }
 
 .item-image {
@@ -853,15 +853,14 @@ h2 {
   flex-shrink: 0;
   width: 65px;
   padding: 0;
-  border-radius: 6px;
-  border: 2px solid;
-  transition: all 0.3s;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  transition: border-color 0.25s, background 0.25s;
   background: var(--paper-light);
 }
 
 .tier-input-inline:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-color: var(--ink-faded);
 }
 
 .tier-input-inline input {
@@ -878,130 +877,74 @@ h2 {
 
 .tier-input-inline input:focus {
   outline: none;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(var(--ink-rgb), 0.06);
 }
 
 
 
-.tier-input-compact.tier-legendary,
-.tier-input-compact.tier-radiant {
-  border-color: #e8b923;
-  background: linear-gradient(135deg, #fff8dc 0%, #fff5cc 100%);
-}
-
-/* Standard Tier Colors */
+/* Rarity washes: the game's tier hues re-inked in the paper palette */
 .tier-input-inline.tier-legendary,
 .tier-input-inline.tier-radiant {
-  border-color: #e8b923;
-  background: linear-gradient(135deg, #fff8dc 0%, #fff5cc 100%);
+  border-color: rgba(var(--gold-rgb), 0.55);
+  background: rgba(var(--gold-rgb), 0.14);
 }
 
 .tier-input-inline.tier-legendary input,
 .tier-input-inline.tier-radiant input {
-  color: #9a7b0f;
+  color: var(--gold-ink);
 }
 
 .tier-input-inline.tier-epic,
 .tier-input-inline.tier-flourishing {
-  border-color: #8b5cf6;
-  background: linear-gradient(135deg, #e6e6fa 0%, #ddd6ff 100%);
+  border-color: rgba(var(--violet-rgb), 0.55);
+  background: rgba(var(--violet-rgb), 0.14);
 }
 
 .tier-input-inline.tier-epic input,
 .tier-input-inline.tier-flourishing input {
-  color: #6b3fa0;
+  color: var(--violet-ink);
 }
 
 .tier-input-inline.tier-rare,
 .tier-input-inline.tier-hardy {
-  border-color: #3b82f6;
-  background: linear-gradient(135deg, #f0f8ff 0%, #e0f0ff 100%);
+  border-color: rgba(var(--teal-rgb), 0.55);
+  background: rgba(var(--teal-rgb), 0.14);
 }
 
 .tier-input-inline.tier-rare input,
 .tier-input-inline.tier-hardy input {
-  color: #2b6cb0;
+  color: var(--teal-ink);
 }
 
-/* Rare Color Tiers - Blimy/Shiny/Colorful Effects */
-
-/* Radiant Rare Color - Enhanced Gold Effect */
+/* Rare-color variants: the same family pressed twice — deeper wash, no glow */
 .tier-input-inline.tier-radiant_rarecolor {
-  border-color: #d4af37;
-  background: linear-gradient(135deg, #fff8dc 0%, #faebd7 25%, #f0e68c 50%, #fff5cc 75%, #fff8dc 100%);
-  background-size: 200% 200%;
-  animation: goldShift 3s ease infinite;
-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.6), inset 0 0 10px rgba(255, 248, 220, 0.5);
+  border-color: var(--gold-leaf);
+  background: rgba(var(--gold-rgb), 0.26);
 }
 
 .tier-input-inline.tier-radiant_rarecolor input {
-  color: #9a7b0f;
-  text-shadow: 0 0 3px rgba(255, 248, 220, 0.9);
+  color: var(--gold-ink);
   font-weight: 700;
 }
 
-/* Flourishing Rare Color - Enhanced Purple Effect */
 .tier-input-inline.tier-flourishing_rarecolor {
-  border-color: #7b68ee;
-  background: linear-gradient(135deg, #e6e6fa 0%, #ddd6ff 25%, #c8b6ff 50%, #e6e6fa 75%, #ddd6ff 100%);
-  background-size: 200% 200%;
-  animation: purpleShift 2.5s ease infinite;
-  box-shadow: 0 0 20px rgba(123, 104, 238, 0.6), inset 0 0 10px rgba(230, 230, 250, 0.5);
+  border-color: var(--violet-ink);
+  background: rgba(var(--violet-rgb), 0.26);
 }
 
 .tier-input-inline.tier-flourishing_rarecolor input {
-  color: #6b3fa0;
-  text-shadow: 0 0 3px rgba(230, 230, 250, 0.9);
+  color: var(--violet-ink);
   font-weight: 700;
 }
 
-/* Hardy Rare Color - Enhanced Blue Effect */
 .tier-input-inline.tier-hardy_rarecolor {
-  border-color: #4682b4;
-  background: linear-gradient(135deg, #f0f8ff 0%, #e0f0ff 25%, #b0e0e6 50%, #f0f8ff 75%, #e0f0ff 100%);
-  background-size: 200% 200%;
-  animation: blueShift 2.5s ease infinite;
-  box-shadow: 0 0 20px rgba(70, 130, 180, 0.6), inset 0 0 10px rgba(240, 248, 255, 0.5);
+  border-color: var(--teal-ink);
+  background: rgba(var(--teal-rgb), 0.26);
 }
 
 .tier-input-inline.tier-hardy_rarecolor input {
-  color: #2b6cb0;
-  text-shadow: 0 0 3px rgba(240, 248, 255, 0.9);
+  color: var(--teal-ink);
   font-weight: 700;
-}
-
-/* Animations */
-@keyframes goldShift {
-  0%, 100% { 
-    background-position: 0% 50%;
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.6), inset 0 0 10px rgba(255, 248, 220, 0.5);
-  }
-  50% { 
-    background-position: 100% 50%;
-    box-shadow: 0 0 30px rgba(212, 175, 55, 0.8), inset 0 0 15px rgba(255, 248, 220, 0.7);
-  }
-}
-
-@keyframes purpleShift {
-  0%, 100% { 
-    background-position: 0% 50%;
-    box-shadow: 0 0 20px rgba(123, 104, 238, 0.6), inset 0 0 10px rgba(230, 230, 250, 0.5);
-  }
-  50% { 
-    background-position: 100% 50%;
-    box-shadow: 0 0 30px rgba(123, 104, 238, 0.8), inset 0 0 15px rgba(230, 230, 250, 0.7);
-  }
-}
-
-@keyframes blueShift {
-  0%, 100% { 
-    background-position: 0% 50%;
-    box-shadow: 0 0 20px rgba(70, 130, 180, 0.6), inset 0 0 10px rgba(240, 248, 255, 0.5);
-  }
-  50% { 
-    background-position: 100% 50%;
-    box-shadow: 0 0 30px rgba(70, 130, 180, 0.8), inset 0 0 15px rgba(240, 248, 255, 0.7);
-  }
 }
 
 .no-selection-message {
@@ -1010,8 +953,8 @@ h2 {
   color: var(--ink-faded);
   font-style: italic;
   background: var(--paper-light);
-  border-radius: 6px;
-  border: 1px dashed #ddd;
+  border-radius: 2px;
+  border: 1px dashed var(--rule);
 }
 
 .solve-button {
@@ -1196,27 +1139,31 @@ h2 {
 
 .item-tier {
   font-size: 0.85em;
-  padding: 6px 12px;
-  border-radius: 4px;
+  padding: 4px 12px;
+  border-radius: 2px;
   font-weight: 600;
 }
 
+/* Same washes as the inventory inputs, so both reads of rarity agree */
 .tier-legendary,
 .tier-radiant {
-  background: #fff8dc;
-  color: #9a7b0f;
+  background: rgba(var(--gold-rgb), 0.14);
+  border: 1px solid rgba(var(--gold-rgb), 0.4);
+  color: var(--gold-ink);
 }
 
 .tier-epic,
 .tier-flourishing {
-  background: #e6e6fa;
-  color: #6b3fa0;
+  background: rgba(var(--violet-rgb), 0.14);
+  border: 1px solid rgba(var(--violet-rgb), 0.4);
+  color: var(--violet-ink);
 }
 
 .tier-rare,
 .tier-hardy {
-  background: #f0f8ff;
-  color: #2b6cb0;
+  background: rgba(var(--teal-rgb), 0.14);
+  border: 1px solid rgba(var(--teal-rgb), 0.4);
+  color: var(--teal-ink);
 }
 
 @media (max-width: 768px) {
