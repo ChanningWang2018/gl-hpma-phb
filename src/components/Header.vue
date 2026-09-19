@@ -1,7 +1,10 @@
 <template>
   <header>
-    <h1>{{ headerContent.title }}</h1>
-    <p>{{ headerContent.subtitle }}</p>
+    <p v-if="datelineText" :key="datelineText" class="dateline">
+      <span class="dateline-text">{{ datelineText }}</span>
+    </p>
+    <h1 class="masthead">{{ headerContent.title }}</h1>
+    <p class="tagline">{{ headerContent.subtitle }}</p>
     <nav class="nav-tabs">
       <router-link to="/" class="nav-tab" exact>Analytics</router-link>
       <router-link to="/sales-optimizer" class="nav-tab">Sales Optimizer</router-link>
@@ -13,11 +16,13 @@
 <script>
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { useChartStore } from '@/stores/chartStore.js';
 
 export default {
   name: 'Header',
   setup() {
     const route = useRoute();
+    const chartStore = useChartStore();
 
     const headerContent = computed(() => {
       const subtitles = {
@@ -26,118 +31,140 @@ export default {
         'resources': 'Borrowed wisdom'
       };
       return {
-        title: 'Wizarding Bits',
         title: 'my little hpma bits',
         subtitle: subtitles[route.name] || 'Data that matters (not really)'
       };
     });
 
-    return { headerContent };
+    // Edition number = manifest count; dateline = the real current period.
+    const datelineText = computed(() => {
+      if (!chartStore.currentPeriod) return '';
+      const edition = chartStore.periods.length
+        ? `No. ${chartStore.periods.length} · `
+        : '';
+      return `${edition}${chartStore.currentPeriod}`;
+    });
+
+    return { headerContent, datelineText };
   }
 }
 </script>
 
 <style scoped>
 header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 30px;
+  padding: 34px 30px 26px;
   text-align: center;
+  border-bottom: 3px double var(--ink);
 }
 
-header h1 {
-  font-size: 2.5em;
-  margin-bottom: 10px;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-  font-family: 'Caveat', cursive;
-  font-weight: 700;
-  letter-spacing: 1px;
+.dateline {
+  font-family: var(--font-type);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  color: var(--ink-faded);
+  width: fit-content;
+  margin: 0 auto 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  animation: dateline-type 1.4s steps(44) 0.2s both;
 }
 
-header p {
-  font-size: 1.3em;
-  opacity: 0.9;
-  margin-bottom: 25px;
-  font-family: 'Caveat', cursive;
+/* The telegraph key stays on the paper after typing */
+.dateline::after {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 1.05em;
+  margin-left: 3px;
+  vertical-align: -0.18em;
+  background: var(--oxblood);
+  animation: dateline-caret 1.06s linear infinite;
+}
+
+@keyframes dateline-type {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes dateline-caret {
+  0%, 45% { opacity: 1; }
+  50%, 95% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.masthead {
+  font-family: var(--font-blackletter);
   font-weight: 400;
+  font-size: clamp(40px, 6vw, 64px);
+  line-height: 1.05;
+  color: var(--ink);
+  letter-spacing: 1px;
+  /* Letterpress impression */
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 3px rgba(42, 33, 24, 0.28);
+  /* The plate is loose: slow drift with a hint of rotation */
+  animation: masthead-drift 6.5s 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes masthead-drift {
+  from { transform: translate(0, 0) rotate(0deg); }
+  to { transform: translate(2.6px, -1.8px) rotate(0.22deg); }
+}
+
+.tagline {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ink-faded);
+  margin: 10px 0 22px;
 }
 
 .nav-tabs {
   display: flex;
   justify-content: center;
-  gap: 15px;
-  margin-top: 20px;
+  gap: 34px;
 }
 
 .nav-tab {
-  padding: 10px 25px;
-  background: rgba(255, 255, 255, 0.15);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  color: white;
+  font-family: var(--font-type);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   text-decoration: none;
-  font-weight: 600;
-  font-size: 1em;
-  transition: all 0.3s;
-  backdrop-filter: blur(10px);
+  color: var(--ink-faded);
+  padding: 4px 2px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.25s, border-color 0.25s;
 }
 
 .nav-tab:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: translateY(-2px);
+  color: var(--ink);
 }
 
+/* Active section: gold-leaf underline */
 .nav-tab.router-link-active {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%);
-  border-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  color: var(--ink);
+  border-bottom-color: var(--gold-leaf);
 }
 
 @media (max-width: 768px) {
-  header h1 {
-    font-size: 1.8em;
+  header {
+    padding: 24px 15px 20px;
   }
 
-  header p {
-    font-size: 1em;
+  .masthead {
+    font-size: clamp(30px, 8vw, 44px);
   }
 
   .nav-tabs {
-    gap: 10px;
-    margin-top: 15px;
-  }
-
-  .nav-tab {
-    padding: 8px 20px;
-    font-size: 0.95em;
+    gap: 18px;
   }
 }
 
 @media (max-width: 480px) {
-  header {
-    padding: 20px 15px;
-  }
-
-  header h1 {
-    font-size: 1.5em;
-    margin-bottom: 8px;
-  }
-
-  header p {
-    font-size: 0.95em;
-    margin-bottom: 20px;
-  }
-
   .nav-tabs {
     flex-direction: column;
-    gap: 8px;
-    margin-top: 15px;
-  }
-
-  .nav-tab {
-    padding: 8px 15px;
-    font-size: 0.9em;
+    gap: 10px;
+    align-items: center;
   }
 }
 </style>
