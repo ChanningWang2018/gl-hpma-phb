@@ -13,11 +13,17 @@
     <div v-else>
       <div class="charts-container">
         <ChartWrapper title="Echo Distribution (Pick Rate vs Win Rate)" container-class="scatter-chart-container">
-          <ScatterChart 
+          <ScatterChart
             :chart-data="chartStore.scatterChartData"
           />
         </ChartWrapper>
       </div>
+
+      <EchoStandings
+        :rows="chartStore.scatterChartData"
+        :prev-rows="prevRows"
+        :mode="chartStore.currentMode"
+      />
 
       <Controls 
         :current-mode="chartStore.currentMode"
@@ -64,9 +70,11 @@ import ChartWrapper from '@/components/ChartWrapper.vue';
 import Controls from '@/components/Controls.vue';
 import DataTable from '@/components/DataTable.vue';
 import EchoSelect from '@/components/EchoSelect.vue';
+import EchoStandings from '@/components/EchoStandings.vue';
 import LineChart from '@/components/LineChart.vue';
 import ScatterChart from '@/components/ScatterChart.vue';
 import { useChartStore } from '@/stores/chartStore.js';
+import { DataService } from '@/services/dataService.js';
 import { ThemeTokens } from '@/services/themeTokens.js';
 import { computed, onMounted } from 'vue';
 import { useHead } from '@vueuse/head';
@@ -78,6 +86,7 @@ export default {
     Controls,
     DataTable,
     EchoSelect,
+    EchoStandings,
     LineChart,
     ScatterChart
   },
@@ -112,6 +121,21 @@ export default {
         }))
         .filter(item => item.value !== null);
     });
+
+    // Previous period's echo rows — the standings' Δ week column
+    const prevPeriod = computed(() => {
+      const idx = chartStore.periods.indexOf(chartStore.currentPeriod);
+      return idx > 0 ? chartStore.periods[idx - 1] : null;
+    });
+
+    const prevRows = computed(() => {
+      if (!chartStore.trends || !prevPeriod.value) return null;
+      return DataService.extractScatterData(
+        chartStore.trends,
+        prevPeriod.value,
+        chartStore.currentMode
+      );
+    });
     
     onMounted(async () => {
       try {
@@ -140,6 +164,7 @@ export default {
       theme,
       winrateData,
       attendanceData,
+      prevRows,
       retryLoading: async () => {
         chartStore.error = null;
         try {
