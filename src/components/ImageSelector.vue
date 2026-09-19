@@ -144,8 +144,8 @@ export default {
 <style scoped>
 .image-selector {
   padding: 15px;
-  background: #f9f9f9;
-  border-radius: 10px;
+  background: rgba(var(--accent-rgb), 0.03);
+  border-radius: 2px;
 }
 
 .selector-actions {
@@ -156,29 +156,30 @@ export default {
 }
 
 .action-btn {
-  padding: 8px 16px;
-  background: var(--oxblood);
-  color: white;
-  border: none;
-  border-radius: 6px;
+  padding: 6px 14px;
+  background: rgba(var(--accent-rgb), 0.1);
+  color: var(--oxblood);
+  border: 1px solid rgba(var(--accent-rgb), 0.5);
+  border-radius: 2px;
   cursor: pointer;
-  font-size: 0.9em;
-  transition: all 0.2s;
-  font-weight: 500;
+  font-family: var(--font-type);
+  font-size: 0.85em;
+  transition: background 0.2s;
 }
 
 .action-btn:hover {
-  background: #5a6fd6;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  background: rgba(var(--accent-rgb), 0.2);
 }
 
 .action-btn-secondary {
-  background: #9ca3af;
+  background: transparent;
+  color: var(--ink-faded);
+  border-color: var(--rule);
 }
 
 .action-btn-secondary:hover {
-  background: #6b7280;
+  background: rgba(var(--accent-rgb), 0.05);
+  color: var(--ink);
 }
 
 .image-grid {
@@ -202,15 +203,13 @@ export default {
 }
 
 .image-item:hover {
-  background: rgba(238, 242, 255, 0.5);
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: rgba(var(--accent-rgb), 0.06);
+  border-color: var(--rule);
 }
 
 .image-item.selected {
   border-color: var(--oxblood);
-  background: #eef2ff;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  background: rgba(var(--accent-rgb), 0.1);
 }
 
 .hidden-checkbox {
@@ -247,16 +246,16 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--paper-light);
+  font-family: var(--font-serif);
   font-size: 16px;
-  font-weight: bold;
-  background: var(--oxblood);
-  border-radius: 8px;
+  background: var(--ink-faded);
+  border-radius: 2px;
 }
 
 .item-tooltip {
   font-size: 0.7em;
-  color: #666;
+  color: var(--ink-faded);
   text-align: center;
   margin-top: 4px;
   overflow: hidden;
@@ -268,12 +267,13 @@ export default {
 
 .selection-info {
   text-align: center;
-  color: #666;
+  color: var(--ink-faded);
   font-size: 0.9em;
-  padding: 10px;
-  background: white;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
+  padding: 8px;
+  background: transparent;
+  border-radius: 2px;
+  border: none;
+  border-top: 1px solid var(--rule);
 }
 
 @media (max-width: 768px) {

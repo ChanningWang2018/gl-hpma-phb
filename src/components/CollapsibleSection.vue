@@ -60,25 +60,24 @@ export default {
 
 .collapsible-header {
   width: 100%;
-  padding: 14px 18px;
-  background: var(--oxblood);
-  color: white;
-  border: none;
-  border-radius: 10px;
+  padding: 12px 16px;
+  background: var(--paper-deep);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 1.1em;
-  font-weight: 600;
-  transition: all 0.3s;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  font-family: var(--font-serif);
+  font-size: 1.15em;
+  font-weight: 400;
+  transition: background 0.25s, border-color 0.25s;
 }
 
 .collapsible-header:hover {
-  background: linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  background: rgba(var(--accent-rgb), 0.08);
+  border-color: var(--ink-faded);
 }
 
 .collapsible-header:active {
@@ -90,6 +89,7 @@ export default {
   font-size: 0.8em;
   display: flex;
   align-items: center;
+  color: var(--ink-faded);
 }
 
 .header-icon.rotated {
@@ -102,12 +102,14 @@ export default {
 }
 
 .header-badge {
-  background: rgba(255, 255, 255, 0.3);
-  padding: 4px 14px;
-  border-radius: 16px;
-  font-size: 0.85em;
-  font-weight: 500;
-  backdrop-filter: blur(10px);
+  background: rgba(var(--accent-rgb), 0.08);
+  border: 1px solid rgba(var(--accent-rgb), 0.4);
+  color: var(--oxblood);
+  padding: 3px 12px;
+  border-radius: 2px;
+  font-family: var(--font-type);
+  font-size: 0.8em;
+  font-weight: 400;
 }
 
 .collapsible-content {
@@ -117,8 +119,8 @@ export default {
   opacity: 1;
   padding: 15px;
   background: transparent;
-  border-radius: 0 0 10px 10px;
-  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 0 0 2px 2px;
+  border: 1px solid var(--rule);
   border-top: none;
   margin-top: -1px;
 }

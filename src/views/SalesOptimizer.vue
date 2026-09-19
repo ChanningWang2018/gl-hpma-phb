@@ -715,26 +715,26 @@ const resetItemInventory = (itemName, tiers) => {
 
 h2 {
   text-align: center;
-  color: #333;
+  color: var(--ink);
   margin-bottom: 10px;
   font-size: 2em;
 }
 
 .subtitle {
   text-align: center;
-  color: #666;
+  color: var(--ink-faded);
   margin-bottom: 30px;
   font-size: 1.1em;
 }
 
 .controls-panel {
-  background: var(--oxblood);
+  background: rgba(var(--accent-rgb), 0.04);
+  border: 1px solid var(--rule);
   padding: 25px;
-  border-radius: 15px;
+  border-radius: 2px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .control-row {
@@ -750,29 +750,32 @@ h2 {
 }
 
 .control-group label {
-  color: white;
-  font-weight: 600;
-  font-size: 0.95em;
+  font-family: var(--font-type);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  font-weight: 400;
+  font-size: 0.8em;
 }
 
 .control-group input,
 .control-group select {
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
   font-size: 1em;
-  background: white;
-  transition: transform 0.2s, box-shadow 0.2s;
+  color: var(--ink);
+  background: var(--paper-light);
+  transition: border-color 0.25s;
 }
 
 .control-group input:hover,
 .control-group select:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border-color: var(--ink-faded);
 }
 
 .control-group .help-text {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--ink-faded);
   font-size: 0.85em;
   margin-top: 4px;
   font-weight: 400;
@@ -781,18 +784,18 @@ h2 {
 .inventory-section {
   background: transparent;
   padding: 20px;
-  border-radius: 15px;
+  border-radius: 2px;
   margin-top: 10px;
 }
 
 .inventory-section h3 {
-  color: #333;
+  color: var(--ink);
   margin-bottom: 10px;
   font-size: 1.5em;
 }
 
 .inventory-subtitle {
-  color: #666;
+  color: var(--ink-faded);
   font-size: 0.95em;
   margin-bottom: 25px;
 }
@@ -800,10 +803,10 @@ h2 {
 .no-items {
   text-align: center;
   padding: 40px;
-  color: #999;
+  color: var(--ink-faded);
   font-size: 1.1em;
-  background: white;
-  border-radius: 8px;
+  background: var(--paper-light);
+  border-radius: 2px;
   border: 2px dashed #ddd;
 }
 
@@ -818,8 +821,8 @@ h2 {
   align-items: center;
   gap: 10px;
   padding: 8px 12px;
-  background: white;
-  border-radius: 8px;
+  background: var(--paper-light);
+  border-radius: 2px;
   margin-bottom: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.2s;
@@ -832,7 +835,7 @@ h2 {
 .item-image {
   width: 50px;
   height: 50px;
-  border-radius: 8px;
+  border-radius: 2px;
   object-fit: cover;
   flex-shrink: 0;
   background: transparent;
@@ -853,7 +856,7 @@ h2 {
   border-radius: 6px;
   border: 2px solid;
   transition: all 0.3s;
-  background: white;
+  background: var(--paper-light);
 }
 
 .tier-input-inline:hover {
@@ -1004,9 +1007,9 @@ h2 {
 .no-selection-message {
   text-align: center;
   padding: 20px;
-  color: #999;
+  color: var(--ink-faded);
   font-style: italic;
-  background: white;
+  background: var(--paper-light);
   border-radius: 6px;
   border: 1px dashed #ddd;
 }
@@ -1016,10 +1019,10 @@ h2 {
   padding: 18px;
   font-size: 1.3em;
   font-weight: 600;
-  background: #4caf50;
-  color: white;
+  background: var(--oxblood);
+  color: var(--ink);
   border: none;
-  border-radius: 8px;
+  border-radius: 2px;
   cursor: pointer;
   margin-top: 20px;
   transition: background 0.3s, transform 0.2s;
@@ -1027,21 +1030,21 @@ h2 {
 }
 
 .solve-button:hover:not(:disabled) {
-  background: #45a049;
+  background: rgba(var(--accent-rgb), 0.82);
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
 }
 
 .solve-button:disabled {
-  background: #ccc;
+  background: var(--paper-deep);
   cursor: not-allowed;
   transform: none;
 }
 
 .results-panel {
-  background: white;
+  background: var(--paper-light);
   padding: 25px;
-  border-radius: 15px;
+  border-radius: 2px;
   margin-top: 30px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
@@ -1054,7 +1057,7 @@ h2 {
 }
 
 .results-header h3 {
-  color: #333;
+  color: var(--ink);
   margin: 0;
   font-size: 1.5em;
 }
@@ -1063,8 +1066,8 @@ h2 {
   padding: 10px 20px;
   font-size: 0.95em;
   font-weight: 600;
-  background: #4caf50;
-  color: white;
+  background: var(--oxblood);
+  color: var(--ink);
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -1072,12 +1075,12 @@ h2 {
 }
 
 .copy-button:hover:not(:disabled) {
-  background: #45a049;
+  background: rgba(var(--accent-rgb), 0.82);
   transform: translateY(-1px);
 }
 
 .copy-button:disabled {
-  background: #66bb6a;
+  background: var(--paper-deep);
   cursor: default;
 }
 
@@ -1086,8 +1089,9 @@ h2 {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 15px;
   padding: 20px;
-  background: var(--oxblood);
-  border-radius: 10px;
+  background: rgba(var(--accent-rgb), 0.05);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
 }
 
 .stat-item {
@@ -1099,13 +1103,13 @@ h2 {
 
 .stat-label {
   font-size: 0.9em;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--ink-faded);
 }
 
 .stat-value {
   font-size: 1.6em;
   font-weight: 700;
-  color: white;
+  color: var(--ink);
 }
 
 .emoji {
@@ -1118,7 +1122,7 @@ h2 {
 }
 
 .solution-list h4 {
-  color: #333;
+  color: var(--ink);
   margin-bottom: 15px;
   font-size: 1.3em;
 }
@@ -1130,15 +1134,15 @@ h2 {
 
 .solution-list li {
   padding: 15px;
-  background: #f9f9f9;
-  border-radius: 8px;
+  background: transparent;
+  border-radius: 2px;
   margin-bottom: 8px;
   border-left: 4px solid var(--oxblood);
   transition: background 0.2s;
 }
 
 .solution-list li:hover {
-  background: #f0f0f0;
+  background: rgba(var(--accent-rgb), 0.05);
 }
 
 .solution-item-content {
@@ -1150,7 +1154,7 @@ h2 {
 .solution-item-image {
   width: 50px;
   height: 50px;
-  border-radius: 8px;
+  border-radius: 2px;
   object-fit: cover;
   flex-shrink: 0;
   background: transparent;
@@ -1165,7 +1169,7 @@ h2 {
 
 .item-name {
   font-weight: 600;
-  color: #333;
+  color: var(--ink);
 }
 
 .solution-item-details {
@@ -1176,17 +1180,18 @@ h2 {
 }
 
 .item-count {
-  background: var(--oxblood);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 4px;
+  background: rgba(var(--accent-rgb), 0.1);
+  border: 1px solid rgba(var(--accent-rgb), 0.5);
+  color: var(--oxblood);
+  padding: 4px 12px;
+  border-radius: 2px;
   font-weight: 600;
   font-size: 0.95em;
 }
 
 .item-price {
   font-weight: 700;
-  color: #333;
+  color: var(--ink);
   font-size: 1.05em;
 }
 

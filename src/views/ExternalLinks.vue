@@ -47,69 +47,59 @@ export default {
 
 <style scoped>
 .external-links-page {
-  padding: 30px;
-}
-
-.page-header {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.page-header h2 {
-  font-size: 2em;
-  color: var(--ink-faded);
-  margin-bottom: 10px;
-}
-
-.page-header p {
-  font-size: 1.1em;
-  color: #6c757d;
+  padding: 26px 30px 34px;
 }
 
 .links-container {
   max-width: 800px;
   margin: 0 auto;
+  border-top: 3px double var(--ink);
 }
 
+/* Classifieds: printed notices separated by hairlines, no boxes */
 .link-item {
-  background: white;
-  border: 2px solid #dee2e6;
-  border-radius: 10px;
-  padding: 20px 25px;
-  margin-bottom: 15px;
-  transition: all 0.3s;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  border-radius: 0;
+  padding: 18px 6px;
+  margin-bottom: 0;
+  transition: background 0.25s;
 }
 
 .link-item:hover {
-  border-color: var(--oxblood);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-  transform: translateX(5px);
+  background: rgba(var(--accent-rgb), 0.05);
+  box-shadow: none;
+  transform: none;
 }
 
 .link-title {
   display: inline-flex;
   align-items: center;
-  font-size: 1.2em;
-  font-weight: 600;
+  font-family: var(--font-serif);
+  font-size: 1.3em;
+  font-weight: 400;
   color: var(--oxblood);
   text-decoration: none;
-  margin-bottom: 8px;
-  transition: color 0.3s;
+  margin-bottom: 6px;
+  transition: color 0.25s;
 }
 
 .link-title:hover {
   color: var(--teal-ink);
+  text-decoration: underline;
 }
 
 .external-icon {
   margin-left: 8px;
-  font-size: 1.1em;
+  font-size: 0.9em;
 }
 
 .link-description {
-  color: #6c757d;
+  color: var(--ink-faded);
   line-height: 1.6;
-  margin: 8px 0 0 0;
+  margin: 4px 0 0 0;
+  font-size: 0.95em;
 }
 
 @media (max-width: 768px) {
@@ -117,24 +107,12 @@ export default {
     padding: 20px 15px;
   }
 
-  .page-header h2 {
-    font-size: 1.6em;
-  }
-
-  .page-header p {
-    font-size: 1em;
-  }
-
   .link-item {
-    padding: 15px 20px;
+    padding: 15px 4px;
   }
 
   .link-title {
-    font-size: 1.1em;
-  }
-
-  .link-description {
-    font-size: 0.95em;
+    font-size: 1.15em;
   }
 }
 
@@ -143,25 +121,12 @@ export default {
     padding: 15px 12px;
   }
 
-  .page-header {
-    margin-bottom: 30px;
-  }
-
-  .page-header h2 {
-    font-size: 1.4em;
-  }
-
-  .page-header p {
-    font-size: 0.95em;
-  }
-
   .link-item {
-    padding: 12px 15px;
-    margin-bottom: 12px;
+    padding: 12px 2px;
   }
 
   .link-title {
-    font-size: 1em;
+    font-size: 1.05em;
   }
 
   .link-description {
