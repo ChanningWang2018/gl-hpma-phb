@@ -4,25 +4,34 @@
     <table>
       <thead>
         <tr>
-          <th>Echo</th>
-          <th>Win %</th>
-          <th>Δ week</th>
-          <th>Pick %</th>
+          <th
+            v-for="col in columns"
+            :key="col.key"
+            :aria-sort="sortKey === col.key ? (sortDir === 'asc' ? 'ascending' : 'descending') : undefined"
+          >
+            <button
+              class="th-sort"
+              :class="{ active: sortKey === col.key }"
+              type="button"
+              @click="setSort(col.key)"
+            >
+              {{ col.label }}
+              <span v-if="sortKey === col.key" class="sort-arrow">{{ sortDir === 'asc' ? '▲' : '▼' }}</span>
+            </button>
+          </th>
         </tr>
       </thead>
       <tbody>
         <tr
-          v-for="(row, index) in rankedRows"
+          v-for="row in sortedRows"
           :key="row.reverberationid"
-          :style="{ '--tint': tintFor(index) }"
+          :style="{ '--tint': tintFor(row.winRank) }"
         >
           <td>{{ row.name }}</td>
           <td class="num-cell">{{ fmt(row.winrate) }}%</td>
-          <td :class="row.delta === null ? 'no-delta' : (row.delta >= 0 ? 'delta-up' : 'delta-down')">
-            <template v-if="row.delta === null">&mdash;</template>
-            <template v-else>{{ row.delta >= 0 ? '▲' : '▼' }} {{ Math.abs(row.delta).toFixed(1) }}</template>
-          </td>
+          <td :class="deltaClass(row.deltaWin)">{{ deltaLabel(row.deltaWin) }}</td>
           <td class="num-cell">{{ fmt(row.attendancerate) }}%</td>
+          <td :class="deltaClass(row.deltaPick)">{{ deltaLabel(row.deltaPick) }}</td>
         </tr>
       </tbody>
     </table>
@@ -49,14 +58,32 @@ export default {
       required: true
     }
   },
+  data() {
+    return {
+      sortKey: 'winrate',
+      sortDir: 'desc'
+    }
+  },
   computed: {
+    columns() {
+      return [
+        { key: 'name', label: 'Echo' },
+        { key: 'winrate', label: 'Win %' },
+        { key: 'deltaWin', label: 'Δ Win' },
+        { key: 'attendancerate', label: 'Pick %' },
+        { key: 'deltaPick', label: 'Δ Pick' }
+      ]
+    },
     modeLabel() {
       return this.mode
         .split('-')
         .map(part => part.charAt(0).toUpperCase() + part.slice(1))
         .join(' ');
     },
-    rankedRows() {
+    // Decorate every row with its win-rate rank and week-over-week deltas.
+    // The tint anchors to winRank, NOT to row position — sorting reshuffles
+    // rows but the ink depth always encodes the win-rate standing.
+    decoratedRows() {
       const prevById = new Map(
         (this.prevRows || []).map(row => [row.reverberationid, row])
       );
@@ -64,22 +91,58 @@ export default {
       return [...this.rows]
         .filter(row => row && row.name)
         .sort((a, b) => (b.winrate ?? -Infinity) - (a.winrate ?? -Infinity))
-        .map(row => {
+        .map((row, index) => {
           const prev = prevById.get(row.reverberationid);
-          const delta = prev && prev.winrate != null && row.winrate != null
-            ? row.winrate - prev.winrate
-            : null;
-          return { ...row, delta };
+          const deltaOf = (current, previous) =>
+            prev && previous != null && current != null
+              ? current - previous
+              : null;
+          return {
+            ...row,
+            winRank: index,
+            deltaWin: deltaOf(row.winrate, prev?.winrate),
+            deltaPick: deltaOf(row.attendancerate, prev?.attendancerate)
+          };
         });
+    },
+    sortedRows() {
+      const dir = this.sortDir === 'asc' ? 1 : -1;
+      const key = this.sortKey;
+
+      return [...this.decoratedRows].sort((a, b) => {
+        const av = a[key];
+        const bv = b[key];
+        if (av == null && bv == null) return 0;
+        if (av == null) return 1;   // missing values sink regardless of direction
+        if (bv == null) return -1;
+        if (typeof av === 'string') return av.localeCompare(bv) * dir;
+        return (av - bv) * dir;
+      });
     }
   },
   methods: {
+    setSort(key) {
+      if (this.sortKey === key) {
+        this.sortDir = this.sortDir === 'desc' ? 'asc' : 'desc';
+        return;
+      }
+      this.sortKey = key;
+      this.sortDir = key === 'name' ? 'asc' : 'desc';
+    },
+    deltaClass(delta) {
+      if (delta == null) return 'no-delta';
+      return delta >= 0 ? 'delta-up' : 'delta-down';
+    },
+    deltaLabel(delta) {
+      if (delta == null) return '—';
+      return `${delta >= 0 ? '▲' : '▼'} ${Math.abs(delta).toFixed(1)}`;
+    },
     fmt(value) {
       return value == null ? '—' : Number(value).toFixed(1);
     },
-    // Ink deepens toward the top of the table (rank-based tint)
-    tintFor(index) {
-      return Math.max(0.02, 0.20 - index * 0.013).toFixed(3);
+    // Ink deepens toward the win-rate leader (rank-based tint)
+    tintFor(winRank) {
+      return Math.max(0.02, 0.20 - winRank * 0.013).toFixed(3);
     }
   }
 }
@@ -115,6 +178,37 @@ th {
   text-align: left;
   padding: 8px 12px;
   border-bottom: 1px solid var(--ink);
+}
+
+/* Sortable headers: the caption is a press button */
+.th-sort {
+  background: none;
+  border: none;
+  padding: 0 0 2px;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-bottom: 1px solid transparent;
+  transition: color 0.2s;
+}
+
+.th-sort:hover {
+  color: var(--ink);
+}
+
+.th-sort.active {
+  color: var(--ink);
+  border-bottom-color: var(--gold-leaf);
+}
+
+.sort-arrow {
+  font-size: 0.85em;
+  color: var(--oxblood);
 }
 
 td {
