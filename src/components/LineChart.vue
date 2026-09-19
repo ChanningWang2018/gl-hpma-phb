@@ -63,7 +63,8 @@ export default {
   data() {
     return {
       ink: { path: null, w: 0, h: 0, tipX: 0, tipY: 0 },
-      reducedMotion: false
+      reducedMotion: false,
+      inkTimer: null
     }
   },
   computed: {
@@ -99,7 +100,13 @@ export default {
         animation: {
           duration: this.reducedMotion ? 0 : 600,
           easing: 'easeOutQuart',
-          onComplete: () => this.recomputeInk()
+          onComplete: () => {
+            if (this.inkTimer) {
+              clearTimeout(this.inkTimer);
+              this.inkTimer = null;
+            }
+            this.recomputeInk()
+          }
         },
         plugins: {
           legend: {
@@ -159,12 +166,23 @@ export default {
     this.resizeObserver.observe(this.$refs.rootEl)
   },
   beforeUnmount() {
+    if (this.inkTimer) clearTimeout(this.inkTimer)
     this.resizeObserver?.disconnect()
     this.motionQuery?.removeEventListener?.('change', this.onMotionPrefChange)
   },
   watch: {
+    // New edition: the old ink is void — lift the overlay until the new line
+    // has finished drawing, then re-trace. Sampling mid-animation would leave
+    // the quill tip wandering along a line that no longer exists.
     chartData() {
-      this.$nextTick(() => this.scheduleRecompute())
+      this.ink = { path: null, w: 0, h: 0, tipX: 0, tipY: 0 }
+      if (this.inkTimer) clearTimeout(this.inkTimer)
+      if (this.reducedMotion) {
+        this.$nextTick(() => this.scheduleRecompute())
+        return
+      }
+      // Fallback in case animation.onComplete never fires
+      this.inkTimer = setTimeout(() => this.scheduleRecompute(), 800)
     }
   },
   methods: {
