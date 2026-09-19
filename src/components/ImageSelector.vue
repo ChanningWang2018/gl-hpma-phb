@@ -157,7 +157,7 @@ export default {
 
 .action-btn {
   padding: 8px 16px;
-  background: #667eea;
+  background: var(--oxblood);
   color: white;
   border: none;
   border-radius: 6px;
@@ -208,7 +208,7 @@ export default {
 }
 
 .image-item.selected {
-  border-color: #667eea;
+  border-color: var(--oxblood);
   background: #eef2ff;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
 }
@@ -250,7 +250,7 @@ export default {
   color: white;
   font-size: 16px;
   font-weight: bold;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--oxblood);
   border-radius: 8px;
 }
 

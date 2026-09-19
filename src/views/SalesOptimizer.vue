@@ -728,7 +728,7 @@ h2 {
 }
 
 .controls-panel {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--oxblood);
   padding: 25px;
   border-radius: 15px;
   display: flex;
@@ -1086,7 +1086,7 @@ h2 {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 15px;
   padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--oxblood);
   border-radius: 10px;
 }
 
@@ -1133,7 +1133,7 @@ h2 {
   background: #f9f9f9;
   border-radius: 8px;
   margin-bottom: 8px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid var(--oxblood);
   transition: background 0.2s;
 }
 
@@ -1176,7 +1176,7 @@ h2 {
 }
 
 .item-count {
-  background: #667eea;
+  background: var(--oxblood);
   color: white;
   padding: 6px 12px;
   border-radius: 4px;

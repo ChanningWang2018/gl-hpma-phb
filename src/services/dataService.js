@@ -1,4 +1,6 @@
 // Data Service - Handles data loading and processing logic
+import { ThemeTokens } from "@/services/themeTokens.js";
+
 export class DataService {
   // Avatar cache
   static avatarCache = {};
@@ -59,7 +61,7 @@ export class DataService {
         canvas.width = 40;
         canvas.height = 40;
         const ctx = canvas.getContext("2d");
-        ctx.fillStyle = "#667eea";
+        ctx.fillStyle = ThemeTokens.tokens.colors.inkFaded;
         ctx.beginPath();
         ctx.arc(20, 20, 20, 0, Math.PI * 2);
         ctx.fill();

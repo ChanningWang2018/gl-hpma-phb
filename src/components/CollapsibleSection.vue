@@ -61,7 +61,7 @@ export default {
 .collapsible-header {
   width: 100%;
   padding: 14px 18px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--oxblood);
   color: white;
   border: none;
   border-radius: 10px;

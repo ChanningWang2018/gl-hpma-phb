@@ -15,6 +15,7 @@ import {
   Tooltip
 } from 'chart.js';
 import { Scatter } from 'vue-chartjs';
+import { ThemeTokens } from '@/services/themeTokens.js';
 
 // 注册Chart.js组件
 ChartJS.register(
@@ -38,10 +39,33 @@ export default {
   data() {
     return {
       avatarImages: {},
-      imagesLoaded: false
+      imagesLoaded: false,
+      reducedMotion: false
     }
   },
   computed: {
+    inkColors() {
+      return ThemeTokens.tokens.colors
+    },
+    fallbackDataset() {
+      const c = this.inkColors
+      return {
+        datasets: [{
+          data: this.chartData.map(item => ({
+            x: item.attendancerate,
+            y: item.winrate,
+            name: item.name,
+            id: item.reverberationid
+          })),
+          pointStyle: 'circle',
+          backgroundColor: ThemeTokens.withAlpha(c.inkFaded, 0.3),
+          borderColor: c.inkFaded,
+          borderWidth: 1,
+          pointRadius: 8,
+          pointHoverRadius: 12
+        }]
+      }
+    },
     chartConfig() {
       if (!this.chartData || this.chartData.length === 0) {
         return {
@@ -50,59 +74,29 @@ export default {
       }
 
       if (!this.imagesLoaded) {
-        return {
-          datasets: [{
-            data: this.chartData.map(item => ({
-              x: item.attendancerate,
-              y: item.winrate,
-              name: item.name,
-              id: item.reverberationid
-            })),
-            pointStyle: 'circle',
-            backgroundColor: 'rgba(102, 126, 234, 0.3)',
-            borderColor: 'rgba(102, 126, 234, 0.8)',
-            borderWidth: 1,
-            pointRadius: 8,
-            pointHoverRadius: 12
-          }]
-        }
+        return this.fallbackDataset
       }
 
       const pointStyles = []
       const pointColors = []
-      const allImagesLoaded = this.chartData.every(item => 
+      const allImagesLoaded = this.chartData.every(item =>
         this.avatarImages[item.reverberationid]
       )
 
       if (!allImagesLoaded) {
-        return {
-          datasets: [{
-            data: this.chartData.map(item => ({
-              x: item.attendancerate,
-              y: item.winrate,
-              name: item.name,
-              id: item.reverberationid
-            })),
-            pointStyle: 'circle',
-            backgroundColor: 'rgba(102, 126, 234, 0.3)',
-            borderColor: 'rgba(102, 126, 234, 0.8)',
-            borderWidth: 1,
-            pointRadius: 8,
-            pointHoverRadius: 12
-          }]
-        }
+        return this.fallbackDataset
       }
 
       this.chartData.forEach(item => {
         const avatarId = item.reverberationid
         const image = this.avatarImages[avatarId]
-        
+
         if (image) {
           pointStyles.push(image)
           pointColors.push('transparent')
         } else {
           pointStyles.push('circle')
-          pointColors.push('rgba(102, 126, 234, 0.3)')
+          pointColors.push(ThemeTokens.withAlpha(this.inkColors.inkFaded, 0.3))
         }
       })
 
@@ -116,7 +110,7 @@ export default {
           })),
           pointStyle: pointStyles,
           backgroundColor: pointColors,
-          borderColor: 'rgba(102, 126, 234, 0.8)',
+          borderColor: this.inkColors.inkFaded,
           borderWidth: 0,
           pointRadius: 20,
           pointHoverRadius: 25
@@ -124,11 +118,13 @@ export default {
       }
     },
     options() {
+      const paper = ThemeTokens.chartPaper()
+      const c = this.inkColors
       return {
         responsive: true,
         maintainAspectRatio: false,
         animation: {
-          duration: 200,
+          duration: this.reducedMotion ? 0 : 200,
           easing: 'linear'
         },
         plugins: {
@@ -136,16 +132,7 @@ export default {
             display: false
           },
           tooltip: {
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            padding: 10,
-            titleFont: {
-              size: 13,
-              weight: '600'
-            },
-            bodyFont: {
-              size: 12
-            },
-            displayColors: false,
+            ...paper.tooltip,
             callbacks: {
               label: (context) => {
                 const item = context.raw
@@ -163,23 +150,15 @@ export default {
             title: {
               display: true,
               text: 'Win Rate (%)',
-              font: {
-                size: 13,
-                weight: '600'
-              },
-              color: '#495057'
+              ...paper.axisTitle
             },
             beginAtZero: false,
-            grid: {
-              color: 'rgba(0, 0, 0, 0.05)',
-              drawBorder: false
-            },
+            border: { ...paper.scaleBorder },
+            grid: { ...paper.grid },
             ticks: {
+              ...paper.ticks,
               callback: function(value) {
                 return value + '%'
-              },
-              font: {
-                size: 11
               },
               maxTicksLimit: 8
             }
@@ -188,23 +167,15 @@ export default {
             title: {
               display: true,
               text: 'Pick Rate (%)',
-              font: {
-                size: 13,
-                weight: '600'
-              },
-              color: '#495057'
+              ...paper.axisTitle
             },
             beginAtZero: true,
-            grid: {
-              color: 'rgba(0, 0, 0, 0.05)',
-              drawBorder: false
-            },
+            border: { ...paper.scaleBorder },
+            grid: { ...paper.grid },
             ticks: {
+              ...paper.ticks,
               callback: function(value) {
                 return value + '%'
-              },
-              font: {
-                size: 11
               },
               maxTicksLimit: 8
             }
@@ -218,6 +189,8 @@ export default {
     }
   },
   mounted() {
+    this.reducedMotion = typeof window.matchMedia === 'function'
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches
     this.loadAvatarImages()
   },
   watch: {
@@ -282,5 +255,10 @@ export default {
 .scatter-chart {
   width: 100%;
   height: 100%;
+}
+
+/* Vintage print tone over the portraits (static, zero logic change) */
+.scatter-chart :deep(canvas) {
+  filter: sepia(0.18) contrast(0.98);
 }
 </style>

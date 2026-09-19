@@ -72,13 +72,13 @@ export default {
 
 <style scoped>
 .controls {
-  padding: 30px;
-  background: #f8f9fa;
-  border-bottom: 2px solid #e9ecef;
+  padding: 26px 30px;
+  background: transparent;
+  border-bottom: 1px solid var(--rule);
 }
 
 .control-group {
-  margin-bottom: 25px;
+  margin-bottom: 22px;
 }
 
 .control-group:last-child {
@@ -87,71 +87,77 @@ export default {
 
 .control-group label {
   display: block;
-  font-weight: 600;
+  font-family: var(--font-type);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   margin-bottom: 10px;
-  color: #495057;
-  font-size: 1.1em;
+  color: var(--ink-faded);
+  font-size: 0.85em;
 }
 
 select {
   width: 100%;
   max-width: 400px;
-  padding: 12px 15px;
-  border: 2px solid #dee2e6;
-  border-radius: 8px;
-  font-size: 1em;
-  background: white;
+  padding: 10px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  font-family: var(--font-type);
+  font-size: 0.95em;
+  color: var(--ink);
+  background: var(--paper-light);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: border-color 0.25s;
 }
 
 select:hover {
-  border-color: #667eea;
+  border-color: var(--ink-faded);
 }
 
 select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  border-color: var(--gold-leaf);
+  box-shadow: 0 0 0 2px rgba(176, 141, 63, 0.25);
 }
 
 .mode-toggles {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 12px;
 }
 
 .mode-btn {
   flex: 1;
   min-width: 150px;
-  padding: 12px 20px;
-  border: 2px solid #dee2e6;
-  border-radius: 8px;
-  background: white;
-  font-size: 1em;
-  font-weight: 600;
+  padding: 10px 18px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: transparent;
+  font-family: var(--font-type);
+  font-size: 0.95em;
+  font-weight: 400;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  transition: all 0.3s;
-  color: #495057;
+  transition: background 0.25s, border-color 0.25s, color 0.25s;
+  color: var(--ink-faded);
 }
 
 .mode-btn:hover {
-  background: #f0f0f0;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  background: rgba(var(--accent-rgb), 0.06);
+  border-color: var(--ink-faded);
+  color: var(--ink);
 }
 
+/* Selected mode: oxblood ink stamp */
 .mode-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-color: #667eea;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--oxblood);
+  border-color: var(--oxblood);
 }
 
 @media (max-width: 768px) {
   .controls {
-    padding: 20px 15px;
+    padding: 18px 15px;
   }
 
   .mode-toggles {
@@ -163,10 +169,6 @@ select:focus {
     padding: 10px 15px;
     font-size: 0.95em;
   }
-
-  .control-group label {
-    font-size: 1em;
-  }
 }
 
 @media (max-width: 480px) {
@@ -176,11 +178,6 @@ select:focus {
 
   .control-group {
     margin-bottom: 20px;
-  }
-
-  .control-group label {
-    font-size: 0.95em;
-    margin-bottom: 8px;
   }
 
   .mode-btn {

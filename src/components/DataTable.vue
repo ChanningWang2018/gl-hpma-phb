@@ -1,7 +1,6 @@
 <template>
   <div class="data-table">
     <h3>Detailed Data</h3>
-    <br>
     <table id="dataTable">
       <thead>
         <tr>
@@ -113,29 +112,32 @@ export default {
 table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  background: transparent;
+  border-top: 3px double var(--ink);
 }
 
 th {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 15px;
+  background: transparent;
+  color: var(--ink-faded);
+  font-family: var(--font-type);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 12px 15px;
   text-align: left;
-  font-weight: 600;
-  font-size: 0.95em;
+  font-size: 0.8em;
+  border-bottom: 1px solid var(--ink);
 }
 
 td {
-  padding: 12px 15px;
-  border-bottom: 1px solid #e9ecef;
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--rule);
   font-size: 0.9em;
+  color: var(--ink);
 }
 
 tr:hover {
-  background: #f8f9fa;
+  background: rgba(var(--accent-rgb), 0.05);
 }
 
 tr:last-child td {
@@ -144,19 +146,22 @@ tr:last-child td {
 
 .stat-badge {
   display: inline-block;
-  padding: 5px 12px;
-  border-radius: 20px;
+  padding: 2px 10px;
+  border-radius: 2px;
   font-weight: 600;
   font-size: 0.85em;
 }
 
+/* Ink stamps: tinted ground, hairline frame — no pill gradients */
 .winrate-badge {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  color: white;
+  background: rgba(var(--accent-rgb), 0.1);
+  border: 1px solid rgba(var(--accent-rgb), 0.5);
+  color: var(--oxblood);
 }
 
 .attend-badge {
-  background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
-  color: white;
+  background: rgba(31, 95, 91, 0.1);
+  border: 1px solid rgba(31, 95, 91, 0.5);
+  color: var(--teal-ink);
 }
 </style>

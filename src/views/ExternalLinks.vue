@@ -57,7 +57,7 @@ export default {
 
 .page-header h2 {
   font-size: 2em;
-  color: #495057;
+  color: var(--ink-faded);
   margin-bottom: 10px;
 }
 
@@ -81,7 +81,7 @@ export default {
 }
 
 .link-item:hover {
-  border-color: #667eea;
+  border-color: var(--oxblood);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
   transform: translateX(5px);
 }
@@ -91,14 +91,14 @@ export default {
   align-items: center;
   font-size: 1.2em;
   font-weight: 600;
-  color: #667eea;
+  color: var(--oxblood);
   text-decoration: none;
   margin-bottom: 8px;
   transition: color 0.3s;
 }
 
 .link-title:hover {
-  color: #764ba2;
+  color: var(--teal-ink);
 }
 
 .external-icon {

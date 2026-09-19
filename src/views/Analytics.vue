@@ -2,7 +2,7 @@
   <div>
     <div v-if="chartStore.loading" class="loading-overlay">
       <div class="loading-spinner"></div>
-      <p>Loading data...</p>
+      <p>Setting type&hellip;</p>
     </div>
 
     <div v-else-if="chartStore.error" class="error-message">
@@ -34,18 +34,18 @@
 
       <div class="charts-container">
         <ChartWrapper title="Win Rate Trend">
-          <LineChart 
+          <LineChart
             :chart-data="winrateData"
             label="Win Rate (%)"
-            color="rgb(17, 153, 142)"
+            :color="theme.colors.tealInk"
           />
         </ChartWrapper>
-        
+
         <ChartWrapper title="Pick Rate Trend">
-          <LineChart 
+          <LineChart
             :chart-data="attendanceData"
             label="Pick Rate (%)"
-            color="rgb(238, 9, 121)"
+            :color="theme.colors.oxblood"
           />
         </ChartWrapper>
       </div>
@@ -67,6 +67,7 @@ import EchoSelect from '@/components/EchoSelect.vue';
 import LineChart from '@/components/LineChart.vue';
 import ScatterChart from '@/components/ScatterChart.vue';
 import { useChartStore } from '@/stores/chartStore.js';
+import { ThemeTokens } from '@/services/themeTokens.js';
 import { computed, onMounted } from 'vue';
 import { useHead } from '@vueuse/head';
 
@@ -92,6 +93,7 @@ export default {
     });
 
     const chartStore = useChartStore();
+    const theme = ThemeTokens.tokens;
     
     const winrateData = computed(() => {
       return chartStore.tableData
@@ -135,6 +137,7 @@ export default {
     
     return {
       chartStore,
+      theme,
       winrateData,
       attendanceData,
       retryLoading: async () => {
@@ -178,23 +181,22 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(247, 240, 225, 0.95);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  border-radius: 15px;
 }
 
 .loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #667eea;
+  width: 46px;
+  height: 46px;
+  border: 3px solid rgba(42, 33, 24, 0.15);
+  border-top: 3px solid var(--oxblood);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 @keyframes spin {
@@ -203,9 +205,10 @@ export default {
 }
 
 .loading-overlay p {
-  font-size: 16px;
-  color: #495057;
-  font-weight: 600;
+  font-family: var(--font-type);
+  font-size: 15px;
+  color: var(--ink-faded);
+  letter-spacing: 0.1em;
 }
 
 .error-message {
@@ -218,26 +221,26 @@ export default {
 }
 
 .error-message p {
-  font-size: 18px;
-  color: #dc3545;
+  font-family: var(--font-serif);
+  font-size: 19px;
+  color: var(--oxblood);
   margin-bottom: 20px;
-  font-weight: 600;
 }
 
 .retry-button {
-  padding: 12px 30px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
+  padding: 10px 26px;
+  background: rgba(var(--accent-rgb), 0.1);
+  color: var(--oxblood);
+  border: 1px solid rgba(var(--accent-rgb), 0.5);
+  border-radius: 2px;
+  font-family: var(--font-type);
+  font-size: 15px;
+  letter-spacing: 0.08em;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: background 0.25s;
 }
 
 .retry-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  background: rgba(var(--accent-rgb), 0.2);
 }
 </style>

@@ -42,9 +42,9 @@ export default {
 
 <style scoped>
 .echo-select {
-  padding: 20px 30px;
-  background: #f8f9fa;
-  border-bottom: 2px solid #e9ecef;
+  padding: 18px 30px;
+  background: transparent;
+  border-bottom: 1px solid var(--rule);
 }
 
 .control-group {
@@ -54,30 +54,34 @@ export default {
 
 .control-group label {
   display: block;
-  font-weight: 600;
-  margin-bottom: 10px;
-  color: #495057;
-  font-size: 1.1em;
+  font-family: var(--font-type);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  color: var(--ink-faded);
+  font-size: 0.85em;
 }
 
 select {
   width: 100%;
-  padding: 12px 15px;
-  border: 2px solid #dee2e6;
-  border-radius: 8px;
-  font-size: 1em;
-  background: white;
+  padding: 10px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  font-family: var(--font-type);
+  font-size: 0.95em;
+  color: var(--ink);
+  background: var(--paper-light);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: border-color 0.25s;
 }
 
 select:hover {
-  border-color: #667eea;
+  border-color: var(--ink-faded);
 }
 
 select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  border-color: var(--gold-leaf);
+  box-shadow: 0 0 0 2px rgba(176, 141, 63, 0.25);
 }
 </style>

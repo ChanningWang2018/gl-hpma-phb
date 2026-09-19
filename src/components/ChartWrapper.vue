@@ -25,16 +25,17 @@ export default {
 
 <style scoped>
 .chart-wrapper {
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background: transparent;
+  border-top: 3px double var(--ink);
+  border-radius: 0;
+  padding: 18px 10px 12px;
 }
 
 .chart-wrapper h3 {
-  margin-bottom: 20px;
-  color: #495057;
-  font-size: 1.3em;
+  margin-bottom: 18px;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 1.25em;
   text-align: center;
 }
 
@@ -50,8 +51,7 @@ export default {
 
 @media (max-width: 768px) {
   .chart-wrapper {
-    padding: 15px;
-    border-radius: 8px;
+    padding: 14px 8px 10px;
   }
 
   .chart-wrapper h3 {
@@ -70,7 +70,7 @@ export default {
 
 @media (max-width: 480px) {
   .chart-wrapper {
-    padding: 12px;
+    padding: 12px 6px 8px;
   }
 
   .chart-wrapper h3 {
