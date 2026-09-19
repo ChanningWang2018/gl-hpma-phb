@@ -100,7 +100,7 @@ header {
   color: var(--ink);
   letter-spacing: 1px;
   /* Letterpress impression */
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 3px rgba(42, 33, 24, 0.28);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 3px rgba(var(--ink-rgb), 0.28);
   /* The plate is loose: slow drift with a hint of rotation */
   animation: masthead-drift 6.5s 1.2s ease-in-out infinite alternate;
 }

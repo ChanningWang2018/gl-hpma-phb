@@ -167,6 +167,7 @@ export default {
   },
   beforeUnmount() {
     if (this.inkTimer) clearTimeout(this.inkTimer)
+    if (this.inkFrame) cancelAnimationFrame(this.inkFrame)
     this.resizeObserver?.disconnect()
     this.motionQuery?.removeEventListener?.('change', this.onMotionPrefChange)
   },

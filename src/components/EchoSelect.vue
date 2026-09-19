@@ -82,6 +82,6 @@ select:hover {
 select:focus {
   outline: none;
   border-color: var(--gold-leaf);
-  box-shadow: 0 0 0 2px rgba(176, 141, 63, 0.25);
+  box-shadow: 0 0 0 2px rgba(var(--gold-rgb), 0.25);
 }
 </style>

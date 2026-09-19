@@ -206,7 +206,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(247, 240, 225, 0.95);
+  background: rgba(var(--paper-light-rgb), 0.95);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -217,7 +217,7 @@ export default {
 .loading-spinner {
   width: 46px;
   height: 46px;
-  border: 3px solid rgba(42, 33, 24, 0.15);
+  border: 3px solid rgba(var(--ink-rgb), 0.15);
   border-top: 3px solid var(--oxblood);
   border-radius: 50%;
   animation: spin 1s linear infinite;

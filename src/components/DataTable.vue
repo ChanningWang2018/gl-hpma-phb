@@ -160,8 +160,8 @@ tr:last-child td {
 }
 
 .attend-badge {
-  background: rgba(31, 95, 91, 0.1);
-  border: 1px solid rgba(31, 95, 91, 0.5);
+  background: rgba(var(--teal-rgb), 0.1);
+  border: 1px solid rgba(var(--teal-rgb), 0.5);
   color: var(--teal-ink);
 }
 </style>
