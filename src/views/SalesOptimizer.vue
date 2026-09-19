@@ -1016,23 +1016,22 @@ h2 {
 
 .solve-button {
   width: 100%;
-  padding: 18px;
-  font-size: 1.3em;
-  font-weight: 600;
-  background: var(--oxblood);
-  color: var(--ink);
-  border: none;
+  padding: 15px;
+  font-family: var(--font-type);
+  font-size: 1.05em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: rgba(var(--accent-rgb), 0.14);
+  color: var(--oxblood);
+  border: 1px solid rgba(var(--accent-rgb), 0.55);
   border-radius: 2px;
   cursor: pointer;
   margin-top: 20px;
-  transition: background 0.3s, transform 0.2s;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: background 0.25s;
 }
 
 .solve-button:hover:not(:disabled) {
-  background: rgba(var(--accent-rgb), 0.82);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  background: rgba(var(--accent-rgb), 0.26);
 }
 
 .solve-button:disabled {
@@ -1042,11 +1041,11 @@ h2 {
 }
 
 .results-panel {
-  background: var(--paper-light);
-  padding: 25px;
-  border-radius: 2px;
+  background: transparent;
+  padding: 22px 0 0;
+  border-top: 3px double var(--ink);
+  border-radius: 0;
   margin-top: 30px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .results-header {
@@ -1063,20 +1062,20 @@ h2 {
 }
 
 .copy-button {
-  padding: 10px 20px;
-  font-size: 0.95em;
-  font-weight: 600;
-  background: var(--oxblood);
-  color: var(--ink);
-  border: none;
-  border-radius: 6px;
+  padding: 8px 18px;
+  font-family: var(--font-type);
+  font-size: 0.9em;
+  letter-spacing: 0.06em;
+  background: rgba(var(--accent-rgb), 0.1);
+  color: var(--oxblood);
+  border: 1px solid rgba(var(--accent-rgb), 0.5);
+  border-radius: 2px;
   cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
+  transition: background 0.25s;
 }
 
 .copy-button:hover:not(:disabled) {
-  background: rgba(var(--accent-rgb), 0.82);
-  transform: translateY(-1px);
+  background: rgba(var(--accent-rgb), 0.2);
 }
 
 .copy-button:disabled {
