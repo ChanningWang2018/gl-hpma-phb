@@ -1,0 +1,16 @@
+dist/
+archive/
+public/
+node_modules/
+design-lab/
+package-lock.json
+index-origin.html
+
+# Raw API data snapshot — same nature as archive/, must never be reformatted
+snapshot.json
+
+# Local agent tooling, not project source
+.claude/
+
+# CI workflow YAML is infrastructure; keep it verbatim
+.github/
