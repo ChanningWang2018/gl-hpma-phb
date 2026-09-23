@@ -1,6 +1,5 @@
 <template>
   <div class="external-links-page">
-
     <div class="links-container">
       <div v-for="link in links" :key="link.id" class="link-item">
         <div class="link-content">
@@ -26,22 +25,26 @@ import { useHead } from '@vueuse/head';
 
 export default {
   name: 'ExternalLinks',
-  data() {
-    return {
-      links: []
-    };
-  },
   setup() {
     useHead({
       title: 'HPMA Resources - Created by HPMA community',
       meta: [
-        { name: 'description', content: 'Curated HPMA community resources including guides, calculators, and tools for Harry Potter: Magic Awakened players.' }
-      ]
+        {
+          name: 'description',
+          content:
+            'Curated HPMA community resources including guides, calculators, and tools for Harry Potter: Magic Awakened players.',
+        },
+      ],
     });
+  },
+  data() {
+    return {
+      links: [],
+    };
   },
   mounted() {
     this.links = LinksService.getAllLinks();
-  }
+  },
 };
 </script>
 

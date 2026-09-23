@@ -29,8 +29,12 @@ describe('ThemeTokens', () => {
   });
 
   it('converts hex tokens to rgba strings', () => {
-    expect(ThemeTokens.withAlpha('#8a2f2b', 0.1)).toBe('rgba(138, 47, 43, 0.1)');
-    expect(ThemeTokens.withAlpha('#efe5cf', 0.55)).toBe('rgba(239, 229, 207, 0.55)');
+    expect(ThemeTokens.withAlpha('#8a2f2b', 0.1)).toBe(
+      'rgba(138, 47, 43, 0.1)',
+    );
+    expect(ThemeTokens.withAlpha('#efe5cf', 0.55)).toBe(
+      'rgba(239, 229, 207, 0.55)',
+    );
   });
 
   it('builds shared chart paper fragments from the palette', () => {

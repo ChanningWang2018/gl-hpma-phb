@@ -1,5 +1,5 @@
-import SalesOptimizerLoader from "./salesOptimizerLoader.js";
-import solver from "javascript-lp-solver";
+import SalesOptimizerLoader from './salesOptimizerLoader.js';
+import solver from 'javascript-lp-solver';
 
 export default class SalesOptimizerSolver {
   static calculateAdjustedPrices(
@@ -15,10 +15,10 @@ export default class SalesOptimizerSolver {
       if (item[currency] <= 0) continue;
 
       const rateMultiplier =
-        item.type === "plants" ? 1 + plantsRate : 1 + dishesRate;
+        item.type === 'plants' ? 1 + plantsRate : 1 + dishesRate;
       let adjustedPrice;
 
-      if (item.type === "plants") {
+      if (item.type === 'plants') {
         adjustedPrice = Math.floor(item[currency] * rateMultiplier);
       } else {
         const talentMultiplier = 1 + talentBonus / 100;
@@ -34,7 +34,7 @@ export default class SalesOptimizerSolver {
     return prices;
   }
 
-static generateInventoryItems(
+  static generateInventoryItems(
     selectedPlants,
     selectedDishes,
     inventory,
@@ -56,7 +56,7 @@ static generateInventoryItems(
         items.push({
           name: plantName,
           tier,
-          type: "plants",
+          type: 'plants',
           price,
           count,
           isHVA,
@@ -76,7 +76,7 @@ static generateInventoryItems(
         items.push({
           name: dishName,
           tier,
-          type: "dishes",
+          type: 'dishes',
           price,
           count,
           isHVA,
@@ -87,13 +87,13 @@ static generateInventoryItems(
     return items;
   }
 
-static lpKnapsack(items, budget, strategy = 'minimize_stock') {
+  static lpKnapsack(items, budget, strategy = 'minimize_stock') {
     if (items.length === 0 || budget <= 0) {
       return { items: [], totalValue: 0, remaining: budget };
     }
 
     const validItems = items.filter(
-      (item) => item.price > 0 && item.price <= budget
+      (item) => item.price > 0 && item.price <= budget,
     );
     if (validItems.length === 0) {
       return { items: [], totalValue: 0, remaining: budget };
@@ -104,25 +104,25 @@ static lpKnapsack(items, budget, strategy = 'minimize_stock') {
       optimize: 'totalValue',
       opType: 'max',
       constraints: {
-        budget: { max: budget }
+        budget: { max: budget },
       },
       variables: {},
       ints: {},
       timeout: 3000,
-      tolerance: 1e-10
+      tolerance: 1e-10,
     };
 
     for (let i = 0; i < validItems.length; i++) {
       const item = validItems[i];
       const varName = `item_${i}`;
       const maxCountVarName = `max_${i}`;
-      
+
       stage1Model.variables[varName] = {
         totalValue: item.price,
         budget: item.price,
-        [maxCountVarName]: 1
+        [maxCountVarName]: 1,
       };
-      
+
       stage1Model.constraints[maxCountVarName] = { max: item.count };
       stage1Model.ints[varName] = 1;
     }
@@ -142,26 +142,26 @@ static lpKnapsack(items, budget, strategy = 'minimize_stock') {
       opType: strategy === 'minimize_stock' ? 'max' : 'min',
       constraints: {
         budget: { max: budget },
-        totalValue: { min: optimalValue - 0.01 } // Allow tiny floating point tolerance
+        totalValue: { min: optimalValue - 0.01 }, // Allow tiny floating point tolerance
       },
       variables: {},
       ints: {},
       timeout: 3000,
-      tolerance: 1e-10
+      tolerance: 1e-10,
     };
 
     for (let i = 0; i < validItems.length; i++) {
       const item = validItems[i];
       const varName = `item_${i}`;
       const maxCountVarName = `max_${i}`;
-      
+
       stage2Model.variables[varName] = {
         itemCount: 1,
         totalValue: item.price,
         budget: item.price,
-        [maxCountVarName]: 1
+        [maxCountVarName]: 1,
       };
-      
+
       stage2Model.constraints[maxCountVarName] = { max: item.count };
       stage2Model.ints[varName] = 1;
     }
@@ -182,17 +182,20 @@ static lpKnapsack(items, budget, strategy = 'minimize_stock') {
               tier: item.tier,
               type: item.type,
               price: item.price,
-              isHVA: item.isHVA
+              isHVA: item.isHVA,
             });
           }
         }
       }
-      
-      const totalValue = selectedItems.reduce((sum, item) => sum + item.price, 0);
+
+      const totalValue = selectedItems.reduce(
+        (sum, item) => sum + item.price,
+        0,
+      );
       return {
         items: selectedItems,
         totalValue,
-        remaining: budget - totalValue
+        remaining: budget - totalValue,
       };
     }
 
@@ -209,7 +212,7 @@ static lpKnapsack(items, budget, strategy = 'minimize_stock') {
             tier: item.tier,
             type: item.type,
             price: item.price,
-            isHVA: item.isHVA
+            isHVA: item.isHVA,
           });
         }
       }
@@ -220,7 +223,7 @@ static lpKnapsack(items, budget, strategy = 'minimize_stock') {
     return {
       items: selectedItems,
       totalValue,
-      remaining: budget - totalValue
+      remaining: budget - totalValue,
     };
   }
 
@@ -277,7 +280,7 @@ static lpKnapsack(items, budget, strategy = 'minimize_stock') {
         talentBonus,
       );
 
-const inventoryItems = this.generateInventoryItems(
+      const inventoryItems = this.generateInventoryItems(
         selectedPlants,
         selectedDishes,
         inventory,
@@ -295,7 +298,11 @@ const inventoryItems = this.generateInventoryItems(
         };
       }
 
-      const solution = this.lpKnapsack(inventoryItems, budget, strategy || 'minimize_stock');
+      const solution = this.lpKnapsack(
+        inventoryItems,
+        budget,
+        strategy || 'minimize_stock',
+      );
 
       const groupedResults = this.groupResults(solution.items);
 
@@ -307,7 +314,7 @@ const inventoryItems = this.generateInventoryItems(
         itemCount: groupedResults.itemCount,
       };
     } catch (error) {
-      console.error("Solver error:", error);
+      console.error('Solver error:', error);
       throw error;
     }
   }

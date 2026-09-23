@@ -4,15 +4,15 @@
 // here. Fallbacks mirror global.css so tests/SSR never see empty strings.
 
 const COLOR_FALLBACKS = {
-  paper: "#efe5cf",
-  paperDeep: "#e4d5b7",
-  paperLight: "#f7f0e1",
-  ink: "#2a2118",
-  inkFaded: "#6b5d4f",
-  rule: "#c9b896",
-  oxblood: "#8a2f2b",
-  tealInk: "#1f5f5b",
-  goldLeaf: "#b08d3f",
+  paper: '#efe5cf',
+  paperDeep: '#e4d5b7',
+  paperLight: '#f7f0e1',
+  ink: '#2a2118',
+  inkFaded: '#6b5d4f',
+  rule: '#c9b896',
+  oxblood: '#8a2f2b',
+  tealInk: '#1f5f5b',
+  goldLeaf: '#b08d3f',
 };
 
 const FONT_FALLBACKS = {
@@ -25,9 +25,11 @@ export class ThemeTokens {
   static #cache = null;
 
   // Read --token names from :root; fall back when unavailable (jsdom/SSR).
-  static resolve(root = typeof document !== "undefined" ? document.documentElement : null) {
+  static resolve(
+    root = typeof document !== 'undefined' ? document.documentElement : null,
+  ) {
     const read = (name, fallback) => {
-      if (!root || typeof getComputedStyle !== "function") return fallback;
+      if (!root || typeof getComputedStyle !== 'function') return fallback;
       const value = getComputedStyle(root).getPropertyValue(`--${name}`).trim();
       return value || fallback;
     };
@@ -38,9 +40,9 @@ export class ThemeTokens {
     }
 
     const fonts = {
-      serif: read("font-serif", FONT_FALLBACKS.serif),
-      typewriter: read("font-type", FONT_FALLBACKS.typewriter),
-      sans: read("font-sans", FONT_FALLBACKS.sans),
+      serif: read('font-serif', FONT_FALLBACKS.serif),
+      typewriter: read('font-type', FONT_FALLBACKS.typewriter),
+      sans: read('font-sans', FONT_FALLBACKS.sans),
     };
 
     this.#cache = { colors, fonts };
@@ -55,7 +57,7 @@ export class ThemeTokens {
 
   // 'rgba(r, g, b, a)' from a resolved hex token.
   static withAlpha(hex, alpha) {
-    const h = hex.replace("#", "");
+    const h = hex.replace('#', '');
     const r = parseInt(h.slice(0, 2), 16);
     const g = parseInt(h.slice(2, 4), 16);
     const b = parseInt(h.slice(4, 6), 16);
@@ -79,7 +81,7 @@ export class ThemeTokens {
       },
       axisTitle: {
         color: colors.inkFaded,
-        font: { family: fonts.typewriter, size: 12, weight: "400" },
+        font: { family: fonts.typewriter, size: 12, weight: '400' },
       },
       tooltip: {
         backgroundColor: colors.paperLight,

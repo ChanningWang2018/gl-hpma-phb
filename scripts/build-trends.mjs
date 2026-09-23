@@ -5,16 +5,16 @@
 // Usage:
 //   node scripts/build-trends.mjs           # (re)build public/archive/trends.json
 //   node scripts/build-trends.mjs --verify  # compare trends.json against raw archives
-import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(SCRIPT_DIR, "..");
+const REPO_ROOT = resolve(SCRIPT_DIR, '..');
 // Raw crawler snapshots live at the repo root (NOT deployed); only the
 // aggregated trends.json is served from public/archive/.
-const ARCHIVE_DIR = join(REPO_ROOT, "archive");
-const TRENDS_FILE = join(REPO_ROOT, "public", "archive", "trends.json");
+const ARCHIVE_DIR = join(REPO_ROOT, 'archive');
+const TRENDS_FILE = join(REPO_ROOT, 'public', 'archive', 'trends.json');
 
 const ARCHIVE_FILE_PATTERN = /^\d{8}-\d{6}\.json$/;
 
@@ -24,7 +24,7 @@ function readArchives() {
     .sort()
     .map((name) => ({
       name,
-      json: JSON.parse(readFileSync(join(ARCHIVE_DIR, name), "utf8")),
+      json: JSON.parse(readFileSync(join(ARCHIVE_DIR, name), 'utf8')),
     }));
 }
 
@@ -32,8 +32,8 @@ function readArchives() {
 // "YYYY/MM/DD - YYYY/MM/DD" from the snapshot's own date fields.
 function derivePeriod(records, fileName) {
   const first = records[0] || {};
-  const start = (first.starttimedate || "").trim();
-  const end = (first.endtimedate || "").trim();
+  const start = (first.starttimedate || '').trim();
+  const end = (first.endtimedate || '').trim();
   if (start && end) {
     return `${start} - ${end}`;
   }
@@ -44,7 +44,7 @@ function derivePeriod(records, fileName) {
 }
 
 function periodSortKey(period) {
-  const start = period.split(" - ")[0].replaceAll("/", "-");
+  const start = period.split(' - ')[0].replaceAll('/', '-');
   const parsed = Date.parse(start);
   return Number.isNaN(parsed) ? Infinity : parsed;
 }
@@ -53,12 +53,14 @@ function periodSortKey(period) {
 // over unchanged archives stay byte-identical (idempotent).
 function deriveGeneratedAt(fileNames, now = new Date()) {
   const newest = fileNames
-    .map((name) => name.match(/^(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})\.json$/))
+    .map((name) =>
+      name.match(/^(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})\.json$/),
+    )
     .filter(Boolean)
     .sort()
     .pop();
   if (!newest) {
-    return now.toISOString().replace(/\.\d{3}Z$/, "Z");
+    return now.toISOString().replace(/\.\d{3}Z$/, 'Z');
   }
   const [, y, mo, d, h, mi, s] = newest;
   return `${y}-${mo}-${d}T${h}:${mi}:${s}Z`;
@@ -76,7 +78,7 @@ export function derivePeriodEntries(archives) {
     .sort(
       (a, b) =>
         periodSortKey(a.period) - periodSortKey(b.period) ||
-        a.period.localeCompare(b.period)
+        a.period.localeCompare(b.period),
     );
 }
 
@@ -102,18 +104,23 @@ export function dedupeByPeriod(periodEntries) {
 
 export function buildTrends(archives, now = new Date()) {
   const { kept: periodEntries, skipped } = dedupeByPeriod(
-    derivePeriodEntries(archives)
+    derivePeriodEntries(archives),
   );
 
   const periods = periodEntries.map((entry) => entry.period);
   const modes = [
-    ...new Set(periodEntries.flatMap((entry) => entry.records.map((r) => r.type))),
+    ...new Set(
+      periodEntries.flatMap((entry) => entry.records.map((r) => r.type)),
+    ),
   ].sort();
 
   const rows = [];
   periodEntries.forEach((entry, periodIndex) => {
     for (const record of entry.records) {
-      if (!Number.isFinite(record.reverberationid) || typeof record.type !== "string") {
+      if (
+        !Number.isFinite(record.reverberationid) ||
+        typeof record.type !== 'string'
+      ) {
         continue;
       }
       const modeIndex = modes.indexOf(record.type);
@@ -134,7 +141,7 @@ export function buildTrends(archives, now = new Date()) {
   return {
     generatedAt: deriveGeneratedAt(
       archives.map((archive) => archive.name),
-      now
+      now,
     ),
     periods,
     modes,
@@ -144,49 +151,63 @@ export function buildTrends(archives, now = new Date()) {
 
 function verifyTrends() {
   if (!existsSync(TRENDS_FILE)) {
-    console.error(`verify failed: ${TRENDS_FILE} does not exist (run without --verify first)`);
+    console.error(
+      `verify failed: ${TRENDS_FILE} does not exist (run without --verify first)`,
+    );
     return false;
   }
-  const committed = JSON.parse(readFileSync(TRENDS_FILE, "utf8"));
+  const committed = JSON.parse(readFileSync(TRENDS_FILE, 'utf8'));
   const fresh = buildTrends(readArchives());
 
   const problems = [];
   if (JSON.stringify(committed.periods) !== JSON.stringify(fresh.periods)) {
-    problems.push("periods differ");
+    problems.push('periods differ');
   }
   if (JSON.stringify(committed.modes) !== JSON.stringify(fresh.modes)) {
-    problems.push("modes differ");
+    problems.push('modes differ');
   }
 
-  const committedRows = new Map(committed.rows.map((row) => [row.slice(0, 3).join("|"), row]));
-  const freshRows = new Map(fresh.rows.map((row) => [row.slice(0, 3).join("|"), row]));
+  const committedRows = new Map(
+    committed.rows.map((row) => [row.slice(0, 3).join('|'), row]),
+  );
+  const freshRows = new Map(
+    fresh.rows.map((row) => [row.slice(0, 3).join('|'), row]),
+  );
   const missing = fresh.rows.filter((row) => {
-    const other = committedRows.get(row.slice(0, 3).join("|"));
+    const other = committedRows.get(row.slice(0, 3).join('|'));
     return !other || JSON.stringify(other) !== JSON.stringify(row);
   });
-  const extra = committed.rows.filter((row) => !freshRows.has(row.slice(0, 3).join("|")));
+  const extra = committed.rows.filter(
+    (row) => !freshRows.has(row.slice(0, 3).join('|')),
+  );
   if (missing.length > 0) {
-    problems.push(`${missing.length} rows missing/differing, e.g. ${JSON.stringify(missing.slice(0, 3))}`);
+    problems.push(
+      `${missing.length} rows missing/differing, e.g. ${JSON.stringify(missing.slice(0, 3))}`,
+    );
   }
   if (extra.length > 0) {
-    problems.push(`${extra.length} stale rows, e.g. ${JSON.stringify(extra.slice(0, 3))}`);
+    problems.push(
+      `${extra.length} stale rows, e.g. ${JSON.stringify(extra.slice(0, 3))}`,
+    );
   }
 
   if (problems.length > 0) {
-    console.error(`verify failed: trends.json is out of sync with the raw archives in archive/:\n  - ${problems.join("\n  - ")}`);
-    console.error("Rebuild with: npm run build:trends");
+    console.error(
+      `verify failed: trends.json is out of sync with the raw archives in archive/:\n  - ${problems.join('\n  - ')}`,
+    );
+    console.error('Rebuild with: npm run build:trends');
     return false;
   }
 
   console.log(
     `verify ok: ${fresh.periods.length} periods x ${fresh.modes.length} modes, ` +
-      `${fresh.rows.length} rows match raw archives`
+      `${fresh.rows.length} rows match raw archives`,
   );
   return true;
 }
 
 function main() {
-  if (process.argv.includes("--verify")) {
+  if (process.argv.includes('--verify')) {
     process.exitCode = verifyTrends() ? 0 : 1;
     return;
   }
@@ -197,18 +218,19 @@ function main() {
   writeFileSync(TRENDS_FILE, JSON.stringify(trends));
   if (skipped.length > 0) {
     console.warn(
-      "skipped stale period re-serves (duplicate labels, kept first snapshot): " +
-        skipped.map((entry) => `${entry.name} (${entry.period})`).join(", ")
+      'skipped stale period re-serves (duplicate labels, kept first snapshot): ' +
+        skipped.map((entry) => `${entry.name} (${entry.period})`).join(', '),
     );
   }
   const sizeKb = (Buffer.byteLength(JSON.stringify(trends)) / 1024).toFixed(1);
   console.log(
-    `wrote ${TRENDS_FILE} (${trends.periods.length} periods, ${trends.rows.length} rows, ${sizeKb}KB)`
+    `wrote ${TRENDS_FILE} (${trends.periods.length} periods, ${trends.rows.length} rows, ${sizeKb}KB)`,
   );
 }
 
 const isDirectRun =
-  process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
 if (isDirectRun) {
   main();
 }

@@ -1,43 +1,53 @@
 <template>
   <div class="sales-optimizer-container">
     <div class="sales-optimizer-content">
-      
-      
       <div class="controls-panel">
         <div class="control-row">
           <div class="control-group">
             <label>{{ labels.ui?.currency?.label || 'Currency' }}</label>
             <select v-model="currency" @change="handleCurrencyChange">
-              <option value="gold">{{ labels.ui?.currency?.gold || 'Gold' }}</option>
-              <option value="gems">{{ labels.ui?.currency?.gems || 'Gems' }}</option>
+              <option value="gold">
+                {{ labels.ui?.currency?.gold || 'Gold' }}
+              </option>
+              <option value="gems">
+                {{ labels.ui?.currency?.gems || 'Gems' }}
+              </option>
             </select>
           </div>
         </div>
-        
+
         <div class="control-row">
           <div class="control-group">
             <label>{{ labels.ui?.budget?.label || 'Budget💸' }}</label>
-            <input 
-              type="number" 
+            <input
               v-model.number="budget"
-              :min="0" 
+              type="number"
+              :min="0"
               :max="20000"
               :step="1000"
-              @input="debouncedSave"
               placeholder="0"
+              @input="debouncedSave"
             />
           </div>
         </div>
-        
+
         <div class="control-row">
           <div class="control-group">
-            <label>{{ labels.ui?.strategy?.label || 'Selling Strategy📈📉' }}</label>
+            <label>{{
+              labels.ui?.strategy?.label || 'Selling Strategy📈📉'
+            }}</label>
             <select v-model="strategy" @change="debouncedSave">
               <option value="minimize_stock">
-                {{ labels.ui?.strategy?.minimize_stock || 'Prioritize low-priced items' }}
+                {{
+                  labels.ui?.strategy?.minimize_stock ||
+                  'Prioritize low-priced items'
+                }}
               </option>
               <option value="maximize_stock">
-                {{ labels.ui?.strategy?.maximize_stock || 'Prioritize high-priced items' }}
+                {{
+                  labels.ui?.strategy?.maximize_stock ||
+                  'Prioritize high-priced items'
+                }}
               </option>
             </select>
             <small v-if="labels.ui?.strategy?.info" class="help-text">
@@ -45,129 +55,143 @@
             </small>
           </div>
         </div>
-        
+
         <div class="inventory-section">
           <h3>{{ labels.ui?.inventory?.title || 'Inventory' }}</h3>
-          <p class="inventory-subtitle">{{ labels.ui?.inventory?.hva_info || 'Enter quantities for items sold to HVA shop' }}</p>
-          
+          <p class="inventory-subtitle">
+            {{
+              labels.ui?.inventory?.hva_info ||
+              'Enter quantities for items sold to HVA shop'
+            }}
+          </p>
+
           <!-- Plants Section -->
-          <CollapsibleSection 
+          <CollapsibleSection
             v-if="currencyPlants.length > 0"
             :title="'🌱 ' + (labels.ui?.plants_title || 'Plants')"
-            :badgeText="selectionBadgeText('plants')"
-            :defaultOpen="true"
+            :badge-text="selectionBadgeText('plants')"
+            :default-open="true"
           >
             <ImageSelector
+              v-model="selectedPlants"
               :items="currencyPlants"
               type="plants"
-              v-model="selectedPlants"
               :labels="labels"
             />
-            
+
             <!-- Tier Inputs (only for selected plants) -->
             <div v-if="selectedPlants.length > 0" class="selected-items-tiers">
-              <div 
-                v-for="item in selectedPlantItems" 
+              <div
+                v-for="item in selectedPlantItems"
                 :key="`plant-${item.name}`"
                 class="selected-item-row"
               >
-                <img 
-                  :src="getPlantImage(item.name)" 
+                <img
+                  :src="getPlantImage(item.name)"
                   :alt="getPlantLabel(item.name)"
                   class="item-image"
-                  @error="handleImageError"
                   :title="getPlantLabel(item.name)"
+                  @error="handleImageError"
                 />
                 <div class="tier-inputs-inline">
-                  <div 
-                    v-for="tier in item.availableTiers" 
+                  <div
+                    v-for="tier in item.availableTiers"
                     :key="`${item.name}-${tier}`"
                     class="tier-input-inline"
                     :class="getTierClass(tier)"
                   >
-<input 
-                      type="number"
+                    <input
                       v-model.number="inventory[`${item.name}_${tier}`]"
+                      type="number"
                       :min="0"
                       :max="2000"
                       :title="`${getTierLabel(tier)}: ${item.tierPrices[tier]} ${currency}`"
-                      @input="debouncedSave"
                       placeholder="0"
+                      @input="debouncedSave"
                     />
                   </div>
                 </div>
               </div>
             </div>
-            
+
             <div v-else class="no-selection-message">
-              {{ labels.ui?.no_selection || 'Select plants above to enter quantities' }}
+              {{
+                labels.ui?.no_selection ||
+                'Select plants above to enter quantities'
+              }}
             </div>
           </CollapsibleSection>
-          
+
           <!-- Dishes Section -->
-          <CollapsibleSection 
+          <CollapsibleSection
             v-if="currencyDishes.length > 0"
             :title="'🍽️ ' + (labels.ui?.dishes_title || 'Dishes')"
-            :badgeText="selectionBadgeText('dishes')"
-            :defaultOpen="true"
+            :badge-text="selectionBadgeText('dishes')"
+            :default-open="true"
           >
             <ImageSelector
+              v-model="selectedDishes"
               :items="currencyDishes"
               type="dishes"
-              v-model="selectedDishes"
               :labels="labels"
             />
-            
+
             <!-- Tier Inputs (only for selected dishes) -->
             <div v-if="selectedDishes.length > 0" class="selected-items-tiers">
-              <div 
-                v-for="item in selectedDishItems" 
+              <div
+                v-for="item in selectedDishItems"
                 :key="`dish-${item.name}`"
                 class="selected-item-row"
               >
-                <img 
-                  :src="getDishImage(item.name)" 
+                <img
+                  :src="getDishImage(item.name)"
                   :alt="getDishLabel(item.name)"
                   class="item-image"
-                  @error="handleImageError"
                   :title="getDishLabel(item.name)"
+                  @error="handleImageError"
                 />
                 <div class="tier-inputs-inline">
-                  <div 
-                    v-for="tier in item.availableTiers" 
+                  <div
+                    v-for="tier in item.availableTiers"
                     :key="`${item.name}-${tier}`"
                     class="tier-input-inline"
                     :class="getTierClass(tier)"
                   >
-<input 
-                      type="number"
+                    <input
                       v-model.number="inventory[`${item.name}_${tier}`]"
+                      type="number"
                       :min="0"
                       :max="2000"
                       :title="`${getTierLabel(tier)}: ${item.tierPrices[tier]} ${currency}`"
-                      @input="debouncedSave"
                       placeholder="0"
+                      @input="debouncedSave"
                     />
                   </div>
                 </div>
               </div>
             </div>
-            
+
             <div v-else class="no-selection-message">
-              {{ labels.ui?.no_selection || 'Select dishes above to enter quantities' }}
+              {{
+                labels.ui?.no_selection ||
+                'Select dishes above to enter quantities'
+              }}
             </div>
           </CollapsibleSection>
-          
-          <div v-if="currencyPlants.length === 0 && currencyDishes.length === 0" class="no-items">
+
+          <div
+            v-if="currencyPlants.length === 0 && currencyDishes.length === 0"
+            class="no-items"
+          >
             No items available for selected currency.
           </div>
         </div>
-        
+
         <div class="control-row">
           <div class="control-group">
             <label>{{ labels.ui?.blooms_rate?.label || 'Blooms Rate' }}</label>
             <select v-model="plantsRate" @change="debouncedSave">
-              <option 
+              <option
                 v-for="(option, index) in bloomsRateOptions"
                 :key="index"
                 :value="index"
@@ -176,11 +200,13 @@
               </option>
             </select>
           </div>
-          
+
           <div class="control-group">
-            <label>{{ labels.ui?.confiserie_rate?.label || 'Confiserie Rate' }}</label>
+            <label>{{
+              labels.ui?.confiserie_rate?.label || 'Confiserie Rate'
+            }}</label>
             <select v-model="dishesRate" @change="debouncedSave">
-              <option 
+              <option
                 v-for="(option, index) in confiserieRateOptions"
                 :key="index"
                 :value="index"
@@ -189,11 +215,13 @@
               </option>
             </select>
           </div>
-          
+
           <div class="control-group">
-            <label>{{ labels.ui?.talent_price_bonus?.label || 'Talent Bonus (%)' }}</label>
+            <label>{{
+              labels.ui?.talent_price_bonus?.label || 'Talent Bonus (%)'
+            }}</label>
             <select v-model="talentBonus" @change="debouncedSave">
-              <option 
+              <option
                 v-for="(option, index) in talentBonusOptions"
                 :key="index"
                 :value="option.value"
@@ -203,51 +231,74 @@
             </select>
           </div>
         </div>
-        
-        <button 
+
+        <button
           class="solve-button"
-          @click="handleSolve"
           :disabled="isSolving || !canSolve"
+          @click="handleSolve"
         >
-          {{ isSolving ? (labels.ui?.solving || 'Solving...') : (labels.ui?.solve_button || 'Solve') }}
+          {{
+            isSolving
+              ? labels.ui?.solving || 'Solving...'
+              : labels.ui?.solve_button || 'Solve'
+          }}
         </button>
       </div>
-      
-      <div class="results-panel" v-if="results">
+
+      <div v-if="results" class="results-panel">
         <div class="results-header">
           <h3>{{ labels.ui?.results?.label || 'Results' }}</h3>
-          <button 
+          <button
             class="copy-button"
-            @click="copyResults"
             :disabled="copySuccess"
+            @click="copyResults"
           >
-            {{ copySuccess ? (labels.ui?.results?.copied || 'Copied!') : (labels.ui?.results?.copy_results || 'Copy Results') }}
+            {{
+              copySuccess
+                ? labels.ui?.results?.copied || 'Copied!'
+                : labels.ui?.results?.copy_results || 'Copy Results'
+            }}
           </button>
         </div>
-        
+
         <div class="summary-stats">
           <div class="stat-item">
-            <span class="stat-label">{{ labels.ui?.results?.total_value || 'Total Value' }}</span>
-            <span class="stat-value">{{ formatNumber(results.totalValue) }}</span>
+            <span class="stat-label">{{
+              labels.ui?.results?.total_value || 'Total Value'
+            }}</span>
+            <span class="stat-value">{{
+              formatNumber(results.totalValue)
+            }}</span>
           </div>
           <div class="stat-item">
-            <span class="stat-label">{{ labels.ui?.results?.total_count || 'Total Count' }}</span>
+            <span class="stat-label">{{
+              labels.ui?.results?.total_count || 'Total Count'
+            }}</span>
             <span class="stat-value">{{ results.totalCount }}</span>
           </div>
           <div class="stat-item">
-            <span class="stat-label">{{ labels.ui?.results?.remaining_budget || 'Remaining Budget' }}</span>
-            <span class="stat-value">{{ formatNumber(results.remainingBudget) }}</span>
-            <span class="emoji">{{ results.remainingBudget ? '😞' : '😁' }}</span>
+            <span class="stat-label">{{
+              labels.ui?.results?.remaining_budget || 'Remaining Budget'
+            }}</span>
+            <span class="stat-value">{{
+              formatNumber(results.remainingBudget)
+            }}</span>
+            <span class="emoji">{{
+              results.remainingBudget ? '😞' : '😁'
+            }}</span>
           </div>
         </div>
-        
-        <div class="solution-list" v-if="results.solution && results.solution.length > 0">
+
+        <div
+          v-if="results.solution && results.solution.length > 0"
+          class="solution-list"
+        >
           <h4>{{ labels.ui?.results?.solution || 'Solution' }}</h4>
           <ul>
             <li v-for="(item, index) in results.solution" :key="index">
               <div class="solution-item-content">
-                <img 
-                  :src="getSolutionItemImage(item)" 
+                <img
+                  :src="getSolutionItemImage(item)"
                   :alt="getItemLabel(item)"
                   class="solution-item-image"
                   @error="handleImageError"
@@ -256,8 +307,13 @@
                   <span class="item-name">{{ getItemLabel(item) }}</span>
                   <div class="solution-item-details">
                     <span class="item-count">{{ item.count }}×</span>
-                    <span class="item-price">{{ formatNumber(item.price) }} {{ currency }}</span>
-                    <span class="item-tier" :class="'tier-' + item.tier.replace('_rarecolor', '')">
+                    <span class="item-price"
+                      >{{ formatNumber(item.price) }} {{ currency }}</span
+                    >
+                    <span
+                      class="item-tier"
+                      :class="'tier-' + item.tier.replace('_rarecolor', '')"
+                    >
                       {{ getTierLabel(item.tier) }}
                     </span>
                   </div>
@@ -283,19 +339,30 @@ export default {
   name: 'SalesOptimizer',
   components: {
     ImageSelector,
-    CollapsibleSection
+    CollapsibleSection,
   },
   setup() {
     useHead({
       title: 'HPMA Sales Optimizer - HVA Shop Calculator',
       meta: [
-        { name: 'description', content: 'Optimize your HVA shop sales in Harry Potter: Magic Awakened. Calculate the best items to sell for maximum gold or gems.' },
+        {
+          name: 'description',
+          content:
+            'Optimize your HVA shop sales in Harry Potter: Magic Awakened. Calculate the best items to sell for maximum gold or gems.',
+        },
         { property: 'og:title', content: 'HPMA Sales Optimizer' },
-        { property: 'og:description', content: 'Maximize your earnings with our HVA shop sales calculator for Harry Potter: Magic Awakened.' },
-        { property: 'og:url', content: 'https://hpma-phb.netlify.app/sales-optimizer' }
-      ]
+        {
+          property: 'og:description',
+          content:
+            'Maximize your earnings with our HVA shop sales calculator for Harry Potter: Magic Awakened.',
+        },
+        {
+          property: 'og:url',
+          content: 'https://hpma-phb.netlify.app/sales-optimizer',
+        },
+      ],
     });
-    
+
     const currency = ref('gold');
     const budget = ref(null);
     const inventory = ref({});
@@ -316,58 +383,64 @@ export default {
 
     // Get unique plant names preserving CSV order
     const currencyPlants = computed(() => {
-      const filtered = SalesOptimizerLoader.filterByCurrency(allPlants.value, currency.value);
+      const filtered = SalesOptimizerLoader.filterByCurrency(
+        allPlants.value,
+        currency.value,
+      );
       const uniqueNames = [];
       const seen = new Set();
-      
+
       for (const plant of filtered) {
         if (!seen.has(plant.name)) {
           seen.add(plant.name);
           uniqueNames.push(plant.name);
         }
       }
-      
-      return uniqueNames.map(name => {
-        const plantItems = filtered.filter(p => p.name === name);
-        const availableTiers = plantItems.map(p => p.tier);
+
+      return uniqueNames.map((name) => {
+        const plantItems = filtered.filter((p) => p.name === name);
+        const availableTiers = plantItems.map((p) => p.tier);
         const tierPrices = {};
-        plantItems.forEach(p => {
+        plantItems.forEach((p) => {
           tierPrices[p.tier] = p[currency.value];
         });
-        
+
         return {
           name,
           availableTiers,
-          tierPrices
+          tierPrices,
         };
       });
     });
 
     // Get unique dish names preserving CSV order
     const currencyDishes = computed(() => {
-      const filtered = SalesOptimizerLoader.filterByCurrency(allDishes.value, currency.value);
+      const filtered = SalesOptimizerLoader.filterByCurrency(
+        allDishes.value,
+        currency.value,
+      );
       const uniqueNames = [];
       const seen = new Set();
-      
+
       for (const dish of filtered) {
         if (!seen.has(dish.name)) {
           seen.add(dish.name);
           uniqueNames.push(dish.name);
         }
       }
-      
-      return uniqueNames.map(name => {
-        const dishItems = filtered.filter(d => d.name === name);
-        const availableTiers = dishItems.map(d => d.tier);
+
+      return uniqueNames.map((name) => {
+        const dishItems = filtered.filter((d) => d.name === name);
+        const availableTiers = dishItems.map((d) => d.tier);
         const tierPrices = {};
-        dishItems.forEach(d => {
+        dishItems.forEach((d) => {
           tierPrices[d.tier] = d[currency.value];
         });
-        
+
         return {
           name,
           availableTiers,
-          tierPrices
+          tierPrices,
         };
       });
     });
@@ -381,44 +454,51 @@ export default {
     });
 
     const selectedPlantItems = computed(() => {
-      return currencyPlants.value.filter(plant => 
-        selectedPlants.value.includes(plant.name)
+      return currencyPlants.value.filter((plant) =>
+        selectedPlants.value.includes(plant.name),
       );
     });
 
     const selectedDishItems = computed(() => {
-      return currencyDishes.value.filter(dish => 
-        selectedDishes.value.includes(dish.name)
+      return currencyDishes.value.filter((dish) =>
+        selectedDishes.value.includes(dish.name),
       );
     });
 
     const selectionBadgeText = (type) => {
-      const count = type === 'plants' ? selectedPlants.value.length : selectedDishes.value.length;
+      const count =
+        type === 'plants'
+          ? selectedPlants.value.length
+          : selectedDishes.value.length;
       return `${count} selected`;
     };
 
     const bloomsRateOptions = computed(() => {
-      return labels.value.ui?.blooms_rate?.options || [
-        '0',
-        '+100%',
-        '+200%',
-        '+300%'
-      ];
+      return (
+        labels.value.ui?.blooms_rate?.options || [
+          '0',
+          '+100%',
+          '+200%',
+          '+300%',
+        ]
+      );
     });
 
     const confiserieRateOptions = computed(() => {
-      return labels.value.ui?.confiserie_rate?.options || [
-        '0',
-        '+100%',
-        '+200%',
-        '+300%'
-      ];
+      return (
+        labels.value.ui?.confiserie_rate?.options || [
+          '0',
+          '+100%',
+          '+200%',
+          '+300%',
+        ]
+      );
     });
 
     const talentBonusOptions = computed(() => {
       return Array.from({ length: 11 }, (_, i) => ({
         value: i * 10,
-        label: `${i * 10}%`
+        label: `${i * 10}%`,
       }));
     });
 
@@ -440,14 +520,23 @@ export default {
       ui: {
         currency: { label: 'Currency', gold: 'Gold', gems: 'Gems' },
         budget: { label: 'Budget💸' },
-        inventory: { title: 'Inventory', hva_info: 'Enter quantities for items sold to HVA shop' },
-        blooms_rate: { label: 'Blooms Rate', options: ['0', '+100%', '+200%', '+300%'] },
-        confiserie_rate: { label: 'Confiserie Rate', options: ['0', '+100%', '+200%', '+300%'] },
+        inventory: {
+          title: 'Inventory',
+          hva_info: 'Enter quantities for items sold to HVA shop',
+        },
+        blooms_rate: {
+          label: 'Blooms Rate',
+          options: ['0', '+100%', '+200%', '+300%'],
+        },
+        confiserie_rate: {
+          label: 'Confiserie Rate',
+          options: ['0', '+100%', '+200%', '+300%'],
+        },
         talent_price_bonus: { label: 'Talent Bonus (%)' },
-        strategy: { 
+        strategy: {
           label: 'Strategy',
           minimize_stock: 'Prioritize low-priced items',
-          maximize_stock: 'Prioritize high-priced items'
+          maximize_stock: 'Prioritize high-priced items',
         },
         solve_button: 'Solve',
         solving: 'Solving...',
@@ -458,12 +547,12 @@ export default {
           remaining_budget: 'Remaining Budget',
           solution: 'Solution',
           copy_results: 'Copy Results',
-          copied: 'Copied!'
+          copied: 'Copied!',
         },
         select_all: 'Select All',
         clear_all: 'Clear All',
         selected: 'Selected',
-        no_selection: 'Select items above to enter quantities'
+        no_selection: 'Select items above to enter quantities',
       },
       tiers: {
         radiant: 'RADIANT',
@@ -474,8 +563,8 @@ export default {
         hardy_rarecolor: 'HARDY+RARE',
         legendary: 'LEGENDARY',
         epic: 'EPIC',
-        rare: 'RARE'
-      }
+        rare: 'RARE',
+      },
     });
 
     const updateLabels = () => {
@@ -483,7 +572,8 @@ export default {
       labels.value = {
         ...labels.value,
         title: langLabels.title || 'Sales Optimizer',
-        subtitle: langLabels.subtitle || 'Optimize your HPMA plant & dish sales'
+        subtitle:
+          langLabels.subtitle || 'Optimize your HPMA plant & dish sales',
       };
     };
 
@@ -493,55 +583,61 @@ export default {
       // 移除saveToStorage()调用，不保存状态
     };
 
-const resetItemInventory = (itemName, tiers) => {
-      tiers.forEach(tier => {
+    const resetItemInventory = (itemName, tiers) => {
+      tiers.forEach((tier) => {
         const key = `${itemName}_${tier}`;
         delete inventory.value[key];
       });
     };
 
     watch(selectedPlants, (newVal, oldVal) => {
-      const removedItems = oldVal ? oldVal.filter(item => !newVal.includes(item)) : [];
-      
+      const removedItems = oldVal
+        ? oldVal.filter((item) => !newVal.includes(item))
+        : [];
+
       // 只清除被移除物品的库存，新选择的物品不初始化任何值
-      removedItems.forEach(itemName => {
+      removedItems.forEach((itemName) => {
         const tiers = SalesOptimizerLoader.getPlantTiers();
         resetItemInventory(itemName, tiers);
       });
-      
+
       // 移除debouncedSave()调用
     });
 
     watch(selectedDishes, (newVal, oldVal) => {
-      const removedItems = oldVal ? oldVal.filter(item => !newVal.includes(item)) : [];
-      
+      const removedItems = oldVal
+        ? oldVal.filter((item) => !newVal.includes(item))
+        : [];
+
       // 只清除被移除物品的库存，新选择的物品不初始化任何值
-      removedItems.forEach(itemName => {
+      removedItems.forEach((itemName) => {
         const tiers = SalesOptimizerLoader.getDishTiers();
         resetItemInventory(itemName, tiers);
       });
-      
+
       // 移除debouncedSave()调用
     });
 
     watch(selectedDishes, (newVal, oldVal) => {
-      const removedItems = oldVal ? oldVal.filter(item => !newVal.includes(item)) : [];
-      
+      const removedItems = oldVal
+        ? oldVal.filter((item) => !newVal.includes(item))
+        : [];
+
       // 只清除被移除物品的库存，新选择的物品不初始化任何值
-      removedItems.forEach(itemName => {
+      removedItems.forEach((itemName) => {
         const tiers = SalesOptimizerLoader.getDishTiers();
         resetItemInventory(itemName, tiers);
       });
-      
+
       // 移除debouncedSave()调用
     });
 
     const handleSolve = async () => {
       isSolving.value = true;
       try {
-        const plantNames = currencyPlants.value.map(p => p.name);
-        const dishNames = currencyDishes.value.map(d => d.name);
-        
+        const plantNames = currencyPlants.value.map((p) => p.name);
+        const dishNames = currencyDishes.value.map((d) => d.name);
+
         results.value = await SalesOptimizerSolver.solve({
           budget: budget.value,
           strategy: strategy.value,
@@ -551,7 +647,7 @@ const resetItemInventory = (itemName, tiers) => {
           dishesRate: dishesRate.value,
           talentBonus: talentBonus.value,
           selectedPlants: plantNames,
-          selectedDishes: dishNames
+          selectedDishes: dishNames,
         });
       } catch (error) {
         console.error('Solve failed:', error);
@@ -562,22 +658,26 @@ const resetItemInventory = (itemName, tiers) => {
 
     const formatResultsAsText = () => {
       if (!results.value) return '';
-      
+
       const lines = [];
       lines.push(`Total Value: ${formatNumber(results.value.totalValue)}`);
       lines.push(`Total Count: ${results.value.totalCount}`);
-      lines.push(`Remaining Budget: ${formatNumber(results.value.remainingBudget)}`);
+      lines.push(
+        `Remaining Budget: ${formatNumber(results.value.remainingBudget)}`,
+      );
       lines.push('');
       lines.push('Solution:');
-      
+
       if (results.value.solution && results.value.solution.length > 0) {
-        results.value.solution.forEach(item => {
+        results.value.solution.forEach((item) => {
           const name = getItemLabel(item);
           const tier = getTierLabel(item.tier);
-          lines.push(`- ${name} (${tier}) x${item.count} ($${formatNumber(item.price)})`);
+          lines.push(
+            `- ${name} (${tier}) x${item.count} ($${formatNumber(item.price)})`,
+          );
         });
       }
-      
+
       return lines.join('\n');
     };
 
@@ -636,9 +736,9 @@ const resetItemInventory = (itemName, tiers) => {
     };
 
     const handleImageError = (event) => {
-      const key = event.target.src.includes('/plants/') ? 
-        `plant-${event.target.alt.replace(/_/g, ' ')}` : 
-        `dish-${event.target.alt.replace(/_/g, ' ')}`;
+      const key = event.target.src.includes('/plants/')
+        ? `plant-${event.target.alt.replace(/_/g, ' ')}`
+        : `dish-${event.target.alt.replace(/_/g, ' ')}`;
       imageLoaded.value[key] = false;
     };
 
@@ -697,9 +797,9 @@ const resetItemInventory = (itemName, tiers) => {
       getDishImage,
       getSolutionItemImage,
       handleImageError,
-      debouncedSave
+      debouncedSave,
     };
-  }
+  },
 };
 </script>
 
@@ -855,7 +955,9 @@ h2 {
   padding: 0;
   border-radius: 2px;
   border: 1px solid var(--rule);
-  transition: border-color 0.25s, background 0.25s;
+  transition:
+    border-color 0.25s,
+    background 0.25s;
   background: var(--paper-light);
 }
 
@@ -879,8 +981,6 @@ h2 {
   outline: none;
   background: rgba(var(--ink-rgb), 0.06);
 }
-
-
 
 /* Rarity washes: the game's tier hues re-inked in the paper palette */
 .tier-input-inline.tier-legendary,
@@ -1167,7 +1267,7 @@ h2 {
 }
 
 @media (max-width: 768px) {
-.sales-optimizer-container {
+  .sales-optimizer-container {
     padding: 10px;
   }
 
@@ -1187,33 +1287,33 @@ h2 {
     grid-template-columns: 1fr;
   }
 
-.tier-input-inline {
+  .tier-input-inline {
     width: 55px;
   }
-  
+
   .tier-input-inline input {
     padding: 7px 3px;
     font-size: 0.9em;
   }
-  
+
   .item-image {
     width: 40px;
     height: 40px;
   }
-  
-.selected-item-row {
+
+  .selected-item-row {
     gap: 6px;
     padding: 4px 8px;
   }
-  
+
   .tier-inputs-inline {
     gap: 6px;
   }
-  
+
   .summary-stats {
     grid-template-columns: 1fr;
   }
-  
+
   .solution-list li {
     flex-wrap: wrap;
     gap: 10px;
@@ -1232,57 +1332,56 @@ h2 {
   .subtitle {
     font-size: 0.9em;
   }
-  
+
   .tier-inputs-inline {
     gap: 5px;
   }
-  
+
   .tier-input-inline {
     width: 42px;
   }
-  
+
   .tier-input-inline input {
     padding: 6px 2px;
     font-size: 0.85em;
   }
-  
+
   .item-image {
     width: 35px;
     height: 35px;
   }
-  
+
   .selected-item-row {
     gap: 6px;
     padding: 5px 8px;
   }
-  
+
   .selected-item-row {
     flex-wrap: wrap;
   }
-  
+
   .item-image {
     margin-right: 0;
     margin-bottom: 5px;
   }
 }
 
-  .tier-inputs-compact {
-    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-    gap: 5px;
-  }
+.tier-inputs-compact {
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  gap: 5px;
+}
 
-  .selected-item-card {
-    padding: 10px;
-    margin-bottom: 10px;
-  }
+.selected-item-card {
+  padding: 10px;
+  margin-bottom: 10px;
+}
 
-  .item-header {
-    padding-bottom: 6px;
-  }
+.item-header {
+  padding-bottom: 6px;
+}
 
-  .solve-button {
-    padding: 14px;
-    font-size: 1.1em;
-  }
-
+.solve-button {
+  padding: 14px;
+  font-size: 1.1em;
+}
 </style>

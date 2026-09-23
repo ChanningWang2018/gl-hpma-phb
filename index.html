@@ -1,79 +1,111 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
     <!-- Masthead font: vendored, preloaded (no external font stylesheet) -->
-    <link rel="preload" href="/fonts/unifrakturmaguntia-normal-latin-400.woff2" as="font" type="font/woff2" crossorigin>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+      rel="preload"
+      href="/fonts/unifrakturmaguntia-normal-latin-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- DNS Prefetch and Preconnect -->
-    <link rel="dns-prefetch" href="https://hpma-phb.netlify.app">
-    <link rel="preconnect" href="https://hpma-phb.netlify.app">
+    <link rel="dns-prefetch" href="https://hpma-phb.netlify.app" />
+    <link rel="preconnect" href="https://hpma-phb.netlify.app" />
 
     <!-- Preload Important Resources -->
-    <link rel="preload" href="/favicon.ico" as="image">
-    <link rel="preload" href="/og-image.webp" as="image">
+    <link rel="preload" href="/favicon.ico" as="image" />
+    <link rel="preload" href="/og-image.webp" as="image" />
 
     <!-- SEO: Page Title -->
     <title>my little hpma bits</title>
-    
-    <meta name="google-site-verification" content="uGK4op9fcRd4DavVDggsuX2xvzyIaCT4rlNsRh4ynhU" />
+
+    <meta
+      name="google-site-verification"
+      content="uGK4op9fcRd4DavVDggsuX2xvzyIaCT4rlNsRh4ynhU"
+    />
     <!-- SEO: Meta Description -->
-    <meta name="description" content="Track Harry Potter: Magic Awakened character performance. Win rates, pick rates, and trends for all 18 Echoes across 1v1 and 2v2 modes.">
+    <meta
+      name="description"
+      content="Track Harry Potter: Magic Awakened character performance. Win rates, pick rates, and trends for all 18 Echoes across 1v1 and 2v2 modes."
+    />
 
     <!-- SEO: Keywords -->
-    <meta name="keywords" content="HPMA, Harry Potter Magic Awakened, Echo, Win Rate, Pick Rate, Analytics, Character Guide, Statistics">
+    <meta
+      name="keywords"
+      content="HPMA, Harry Potter Magic Awakened, Echo, Win Rate, Pick Rate, Analytics, Character Guide, Statistics"
+    />
 
     <!-- SEO: Robots -->
-    <meta name="robots" content="index, follow">
+    <meta name="robots" content="index, follow" />
 
     <!-- SEO: Canonical URL (update after deployment) -->
-    <link rel="canonical" href="https://hpma-phb.netlify.app">
+    <link rel="canonical" href="https://hpma-phb.netlify.app" />
 
     <!-- Open Graph: Social Media Preview -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://hpma-phb.netlify.app">
-    <meta property="og:title" content="HPMA Echo Analytics">
-    <meta property="og:description" content="Track character performance in Harry Potter: Magic Awakened. Win rates, pick rates, and trends for all Echoes.">
-    <meta property="og:image" content="https://hpma-phb.netlify.app/og-image.webp">
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://hpma-phb.netlify.app" />
+    <meta property="og:title" content="HPMA Echo Analytics" />
+    <meta
+      property="og:description"
+      content="Track character performance in Harry Potter: Magic Awakened. Win rates, pick rates, and trends for all Echoes."
+    />
+    <meta
+      property="og:image"
+      content="https://hpma-phb.netlify.app/og-image.webp"
+    />
 
     <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="HPMA Echo Analytics">
-    <meta name="twitter:description" content="Track character performance in HPMA. Win rates, pick rates, and trends for all Echoes.">
-    <meta name="twitter:image" content="https://hpma-phb.netlify.app/og-image.webp">
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="HPMA Echo Analytics" />
+    <meta
+      name="twitter:description"
+      content="Track character performance in HPMA. Win rates, pick rates, and trends for all Echoes."
+    />
+    <meta
+      name="twitter:image"
+      content="https://hpma-phb.netlify.app/og-image.webp"
+    />
 
     <!-- Structured Data: Schema.org WebApplication -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "HPMA Echo Analytics",
-      "description": "Track character performance metrics in Harry Potter: Magic Awakened. Win rates, pick rates, and historical trends for all 18 Echoes.",
-      "url": "https://hpma-phb.netlify.app",
-      "applicationCategory": "Game",
-      "operatingSystem": "Web Browser",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "featureList": [
-        "Win rate tracking",
-        "Pick rate analysis",
-        "Historical trend visualization",
-        "Multi-mode support (1v1 and 2v2)",
-        "Character performance comparison"
-      ]
-    }
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "HPMA Echo Analytics",
+        "description": "Track character performance metrics in Harry Potter: Magic Awakened. Win rates, pick rates, and historical trends for all 18 Echoes.",
+        "url": "https://hpma-phb.netlify.app",
+        "applicationCategory": "Game",
+        "operatingSystem": "Web Browser",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "featureList": [
+          "Win rate tracking",
+          "Pick rate analysis",
+          "Historical trend visualization",
+          "Multi-mode support (1v1 and 2v2)",
+          "Character performance comparison"
+        ]
+      }
     </script>
 
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WY2EH3KFV1"></script>
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-WY2EH3KFV1"
+    ></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
+      function gtag() {
+        dataLayer.push(arguments);
+      }
       gtag('js', new Date());
       gtag('config', 'G-WY2EH3KFV1');
     </script>

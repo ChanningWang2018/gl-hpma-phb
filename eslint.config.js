@@ -10,7 +10,12 @@ export default [
 
   // Shared language environment for the project's own sources.
   {
-    files: ['src/**/*.{js,vue}', 'scripts/**/*.{js,mjs}', 'tests/**/*.js', '*.{js,mjs}'],
+    files: [
+      'src/**/*.{js,vue}',
+      'scripts/**/*.{js,mjs}',
+      'tests/**/*.js',
+      '*.{js,mjs}',
+    ],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',

@@ -36,18 +36,18 @@ export default {
   props: {
     tableData: {
       type: Array,
-      required: true
+      required: true,
     },
     currentMode: {
       type: String,
-      required: true
+      required: true,
     },
     modeMapping: {
       type: Object,
-      required: true
-    }
-  }
-}
+      required: true,
+    },
+  },
+};
 </script>
 
 <style scoped>

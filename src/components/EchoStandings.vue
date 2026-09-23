@@ -7,7 +7,13 @@
           <th
             v-for="col in columns"
             :key="col.key"
-            :aria-sort="sortKey === col.key ? (sortDir === 'asc' ? 'ascending' : 'descending') : undefined"
+            :aria-sort="
+              sortKey === col.key
+                ? sortDir === 'asc'
+                  ? 'ascending'
+                  : 'descending'
+                : undefined
+            "
           >
             <button
               class="th-sort"
@@ -16,7 +22,9 @@
               @click="setSort(col.key)"
             >
               {{ col.label }}
-              <span v-if="sortKey === col.key" class="sort-arrow">{{ sortDir === 'asc' ? '▲' : '▼' }}</span>
+              <span v-if="sortKey === col.key" class="sort-arrow">{{
+                sortDir === 'asc' ? '▲' : '▼'
+              }}</span>
             </button>
           </th>
         </tr>
@@ -29,9 +37,13 @@
         >
           <td>{{ row.name }}</td>
           <td class="num-cell">{{ fmt(row.winrate) }}%</td>
-          <td :class="deltaClass(row.deltaWin)">{{ deltaLabel(row.deltaWin) }}</td>
+          <td :class="deltaClass(row.deltaWin)">
+            {{ deltaLabel(row.deltaWin) }}
+          </td>
           <td class="num-cell">{{ fmt(row.attendancerate) }}%</td>
-          <td :class="deltaClass(row.deltaPick)">{{ deltaLabel(row.deltaPick) }}</td>
+          <td :class="deltaClass(row.deltaPick)">
+            {{ deltaLabel(row.deltaPick) }}
+          </td>
         </tr>
       </tbody>
     </table>
@@ -46,23 +58,23 @@ export default {
     // ({ reverberationid, name, winrate, attendancerate })
     rows: {
       type: Array,
-      required: true
+      required: true,
     },
     // Same shape for the previous period, or null when there is none
     prevRows: {
       type: Array,
-      default: null
+      default: null,
     },
     mode: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
       sortKey: 'winrate',
-      sortDir: 'desc'
-    }
+      sortDir: 'desc',
+    };
   },
   computed: {
     columns() {
@@ -71,13 +83,13 @@ export default {
         { key: 'winrate', label: 'Win %' },
         { key: 'deltaWin', label: 'Δ Win' },
         { key: 'attendancerate', label: 'Pick %' },
-        { key: 'deltaPick', label: 'Δ Pick' }
-      ]
+        { key: 'deltaPick', label: 'Δ Pick' },
+      ];
     },
     modeLabel() {
       return this.mode
         .split('-')
-        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
         .join(' ');
     },
     // Decorate every row with its win-rate rank and week-over-week deltas.
@@ -85,11 +97,11 @@ export default {
     // rows but the ink depth always encodes the win-rate standing.
     decoratedRows() {
       const prevById = new Map(
-        (this.prevRows || []).map(row => [row.reverberationid, row])
+        (this.prevRows || []).map((row) => [row.reverberationid, row]),
       );
 
       return [...this.rows]
-        .filter(row => row && row.name)
+        .filter((row) => row && row.name)
         .sort((a, b) => (b.winrate ?? -Infinity) - (a.winrate ?? -Infinity))
         .map((row, index) => {
           const prev = prevById.get(row.reverberationid);
@@ -101,7 +113,7 @@ export default {
             ...row,
             winRank: index,
             deltaWin: deltaOf(row.winrate, prev?.winrate),
-            deltaPick: deltaOf(row.attendancerate, prev?.attendancerate)
+            deltaPick: deltaOf(row.attendancerate, prev?.attendancerate),
           };
         });
     },
@@ -113,12 +125,12 @@ export default {
         const av = a[key];
         const bv = b[key];
         if (av == null && bv == null) return 0;
-        if (av == null) return 1;   // missing values sink regardless of direction
+        if (av == null) return 1; // missing values sink regardless of direction
         if (bv == null) return -1;
         if (typeof av === 'string') return av.localeCompare(bv) * dir;
         return (av - bv) * dir;
       });
-    }
+    },
   },
   methods: {
     setSort(key) {
@@ -142,10 +154,10 @@ export default {
     },
     // Ink deepens toward the win-rate leader (rank-based tint)
     tintFor(winRank) {
-      return Math.max(0.02, 0.20 - winRank * 0.013).toFixed(3);
-    }
-  }
-}
+      return Math.max(0.02, 0.2 - winRank * 0.013).toFixed(3);
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -253,7 +265,8 @@ tbody tr:last-child td {
     padding: 4px 15px 20px;
   }
 
-  th, td {
+  th,
+  td {
     padding: 7px 8px;
     font-size: 0.8em;
   }

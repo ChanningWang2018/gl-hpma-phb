@@ -13,14 +13,14 @@ export default {
   props: {
     title: {
       type: String,
-      required: true
+      required: true,
     },
     containerClass: {
       type: String,
-      default: ''
-    }
-  }
-}
+      default: '',
+    },
+  },
+};
 </script>
 
 <style scoped>

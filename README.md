@@ -76,12 +76,14 @@ A Vue 3-based analytics dashboard for tracking character (Reverberation, Echo) p
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd gl-hpma-phb
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
@@ -89,6 +91,7 @@ npm install
 ### Development
 
 Run the development server:
+
 ```bash
 npm run dev
 ```
@@ -98,6 +101,7 @@ The application will be available at `http://localhost:5173` (or another port if
 ### Build for Production
 
 Create an optimized production build:
+
 ```bash
 npm run build
 ```
@@ -105,6 +109,7 @@ npm run build
 ### Preview Production Build
 
 Preview the production build locally:
+
 ```bash
 npm run preview
 ```
@@ -133,6 +138,7 @@ npm run preview
 ## 🎮 Game Modes
 
 The dashboard supports four game modes:
+
 - **1v1 Low**: 1v1 matches with ratings below 7500
 - **1v1 High**: 1v1 matches with ratings 7500 and above
 - **2v2 Low**: 2v2 matches with ratings below 7500
@@ -160,11 +166,13 @@ See [LICENSE](LICENSE) file for details.
 ## 🔧 Configuration
 
 ### Vite Configuration
+
 - Vue 3 plugin enabled for Single File Component support
 - Path alias: `@` points to `./src` directory
 - Vue DevTools integration for debugging
 
 ### Chart Configuration
+
 - Responsive chart sizing
 - Real-time data updates on filter changes
 - Customizable colors and styling per chart
@@ -189,12 +197,14 @@ When contributing to this project:
 ## ⚡ Performance Optimizations Completed
 
 ### Mobile Responsive Design
+
 - Adaptive chart sizes (500px → 350px on mobile, 300px on small screens)
 - Optimized table layouts with horizontal scrolling
 - Responsive control buttons and selectors
 - Better spacing and padding for touch interactions
 
 ### Chart.js Performance
+
 - Merged 18 separate datasets into single scatter dataset
 - Reduced animation duration (1s → 200-300ms)
 - Optimized tooltip rendering and font sizes
@@ -202,12 +212,14 @@ When contributing to this project:
 - Simplified grid configurations
 
 ### Image Optimization
+
 - WebP format support with PNG fallback
 - Preload all 18 avatar images on app initialization
 - Cached images in browser and service layer
 - Automatic fallback to generated canvas when images fail to load
 
 ### User Experience
+
 - Loading spinner during data initialization
 - Error messages with retry button
 - Better error handling throughout the data pipeline

@@ -1,11 +1,11 @@
-import { DataService } from "@/services/dataService.js";
-import { defineStore } from "pinia";
+import { DataService } from '@/services/dataService.js';
+import { defineStore } from 'pinia';
 
-export const useChartStore = defineStore("chart", {
+export const useChartStore = defineStore('chart', {
   state: () => ({
     // 响应式数据
     currentReverberation: 1,
-    currentMode: "2v2-high",
+    currentMode: '2v2-high',
     currentPeriod: null,
     periods: [],
     trends: null,
@@ -32,7 +32,7 @@ export const useChartStore = defineStore("chart", {
       return DataService.extractData(
         state.trends,
         state.currentReverberation,
-        state.currentMode
+        state.currentMode,
       );
     },
 
@@ -70,12 +70,15 @@ export const useChartStore = defineStore("chart", {
         this.periods = this.trends.periods;
 
         // 设置默认选中最新时期
-        if (this.periods.length > 0 && !this.periods.includes(this.currentPeriod)) {
+        if (
+          this.periods.length > 0 &&
+          !this.periods.includes(this.currentPeriod)
+        ) {
           this.currentPeriod = this.periods[this.periods.length - 1];
         }
       } catch (error) {
-        this.error = "Failed to load trends data";
-        console.error("Error loading trends data:", error);
+        this.error = 'Failed to load trends data';
+        console.error('Error loading trends data:', error);
         throw error;
       } finally {
         this.loading = false;
@@ -88,7 +91,7 @@ export const useChartStore = defineStore("chart", {
         this.scatterChartData = DataService.extractScatterData(
           this.trends,
           this.currentPeriod,
-          this.currentMode
+          this.currentMode,
         );
       }
     },

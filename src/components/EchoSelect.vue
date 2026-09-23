@@ -2,7 +2,11 @@
   <div class="echo-select">
     <div class="control-group">
       <label for="reverberation-select">Select Echo</label>
-      <select id="reverberation-select" :value="currentReverberation" @change="$emit('update:currentReverberation', $event.target.value)">
+      <select
+        id="reverberation-select"
+        :value="currentReverberation"
+        @change="$emit('update:currentReverberation', $event.target.value)"
+      >
         <option value="1">Hermione Granger</option>
         <option value="2">Harry Potter</option>
         <option value="3">Dobby</option>
@@ -33,11 +37,11 @@ export default {
   props: {
     currentReverberation: {
       type: [String, Number],
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['update:currentReverberation']
-}
+  emits: ['update:currentReverberation'],
+};
 </script>
 
 <style scoped>

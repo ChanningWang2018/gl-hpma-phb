@@ -7,7 +7,9 @@
     <p class="tagline">{{ headerContent.subtitle }}</p>
     <nav class="nav-tabs">
       <router-link to="/" class="nav-tab" exact>Analytics</router-link>
-      <router-link to="/sales-optimizer" class="nav-tab">Sales Optimizer</router-link>
+      <router-link to="/sales-optimizer" class="nav-tab"
+        >Sales Optimizer</router-link
+      >
       <router-link to="/resources" class="nav-tab">Other Resources</router-link>
     </nav>
   </header>
@@ -26,13 +28,13 @@ export default {
 
     const headerContent = computed(() => {
       const subtitles = {
-        'analytics': 'Data that matters (not really)',
+        analytics: 'Data that matters (not really)',
         'sales-optimizer': 'Math without tears',
-        'resources': 'Borrowed wisdom'
+        resources: 'Borrowed wisdom',
       };
       return {
         title: 'my little hpma bits',
-        subtitle: subtitles[route.name] || 'Data that matters (not really)'
+        subtitle: subtitles[route.name] || 'Data that matters (not really)',
       };
     });
 
@@ -46,8 +48,8 @@ export default {
     });
 
     return { headerContent, datelineText };
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
@@ -71,7 +73,7 @@ header {
 
 /* The telegraph key stays on the paper after typing */
 .dateline::after {
-  content: "";
+  content: '';
   display: inline-block;
   width: 7px;
   height: 1.05em;
@@ -82,14 +84,26 @@ header {
 }
 
 @keyframes dateline-type {
-  from { width: 0; }
-  to { width: 100%; }
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
 }
 
 @keyframes dateline-caret {
-  0%, 45% { opacity: 1; }
-  50%, 95% { opacity: 0; }
-  100% { opacity: 1; }
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  95% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .masthead {
@@ -100,14 +114,20 @@ header {
   color: var(--ink);
   letter-spacing: 1px;
   /* Letterpress impression */
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 3px rgba(var(--ink-rgb), 0.28);
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35),
+    0 2px 3px rgba(var(--ink-rgb), 0.28);
   /* The plate is loose: slow drift with a hint of rotation */
   animation: masthead-drift 6.5s 1.2s ease-in-out infinite alternate;
 }
 
 @keyframes masthead-drift {
-  from { transform: translate(0, 0) rotate(0deg); }
-  to { transform: translate(2.6px, -1.8px) rotate(0.22deg); }
+  from {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  to {
+    transform: translate(2.6px, -1.8px) rotate(0.22deg);
+  }
 }
 
 .tagline {
@@ -133,7 +153,9 @@ header {
   color: var(--ink-faded);
   padding: 4px 2px;
   border-bottom: 2px solid transparent;
-  transition: color 0.25s, border-color 0.25s;
+  transition:
+    color 0.25s,
+    border-color 0.25s;
 }
 
 .nav-tab:hover {

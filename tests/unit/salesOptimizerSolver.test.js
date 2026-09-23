@@ -13,10 +13,34 @@ const mockPlantsData = [
 ];
 
 const mockDishesData = [
-  { name: 'simple_seared_scallops', tier: 'legendary', gold: 200, gems: 0, type: 'dishes' },
-  { name: 'simple_seared_scallops', tier: 'epic', gold: 100, gems: 0, type: 'dishes' },
-  { name: 'simple_seared_scallops', tier: 'rare', gold: 50, gems: 0, type: 'dishes' },
-  { name: 'saltbaked_shrimp', tier: 'legendary', gold: 150, gems: 0, type: 'dishes' },
+  {
+    name: 'simple_seared_scallops',
+    tier: 'legendary',
+    gold: 200,
+    gems: 0,
+    type: 'dishes',
+  },
+  {
+    name: 'simple_seared_scallops',
+    tier: 'epic',
+    gold: 100,
+    gems: 0,
+    type: 'dishes',
+  },
+  {
+    name: 'simple_seared_scallops',
+    tier: 'rare',
+    gold: 50,
+    gems: 0,
+    type: 'dishes',
+  },
+  {
+    name: 'saltbaked_shrimp',
+    tier: 'legendary',
+    gold: 150,
+    gems: 0,
+    type: 'dishes',
+  },
   { name: 'saltbaked_shrimp', tier: 'epic', gold: 75, gems: 0, type: 'dishes' },
   { name: 'saltbaked_shrimp', tier: 'rare', gold: 35, gems: 0, type: 'dishes' },
 ];
@@ -30,7 +54,7 @@ describe('SalesOptimizerSolver', () => {
         'gold',
         1, // +100% plants rate
         0,
-        0
+        0,
       );
 
       // rose radiant: 100 * (1 + 1) = 200
@@ -48,7 +72,7 @@ describe('SalesOptimizerSolver', () => {
         'gold',
         0,
         1, // +100% dishes rate
-        50 // +50% talent bonus
+        50, // +50% talent bonus
       );
 
       // scallops legendary: 200 * (1 + 1) * (1 + 0.5) = 600
@@ -60,10 +84,22 @@ describe('SalesOptimizerSolver', () => {
     it('should skip items with zero or negative price', () => {
       const baseItems = [
         { name: 'test', tier: 'radiant', gold: 0, gems: 0, type: 'plants' },
-        { name: 'test2', tier: 'flourishing', gold: 50, gems: 0, type: 'plants' },
+        {
+          name: 'test2',
+          tier: 'flourishing',
+          gold: 50,
+          gems: 0,
+          type: 'plants',
+        },
       ];
-      const prices = SalesOptimizerSolver.calculateAdjustedPrices(baseItems, 'gold', 0, 0, 0);
-      
+      const prices = SalesOptimizerSolver.calculateAdjustedPrices(
+        baseItems,
+        'gold',
+        0,
+        0,
+        0,
+      );
+
       expect(prices['test_radiant']).toBeUndefined();
       expect(prices['test2_flourishing']).toBe(50);
     });
@@ -72,15 +108,15 @@ describe('SalesOptimizerSolver', () => {
   describe('generateInventoryItems', () => {
     it('should generate inventory items from selected plants and dishes', () => {
       const inventory = {
-        'rose_radiant': 2,
-        'rose_flourishing': 3,
-        'simple_seared_scallops_legendary': 1,
+        rose_radiant: 2,
+        rose_flourishing: 3,
+        simple_seared_scallops_legendary: 1,
       };
-      
+
       const adjustedPrices = {
-        'rose_radiant': 200,
-        'rose_flourishing': 100,
-        'simple_seared_scallops_legendary': 600,
+        rose_radiant: 200,
+        rose_flourishing: 100,
+        simple_seared_scallops_legendary: 600,
       };
 
       const items = SalesOptimizerSolver.generateInventoryItems(
@@ -89,24 +125,32 @@ describe('SalesOptimizerSolver', () => {
         inventory,
         new Set(),
         adjustedPrices,
-        'gold'
+        'gold',
       );
 
       expect(items).toHaveLength(3);
-      expect(items.find(i => i.name === 'rose' && i.tier === 'radiant').count).toBe(2);
-      expect(items.find(i => i.name === 'rose' && i.tier === 'flourishing').count).toBe(3);
-      expect(items.find(i => i.name === 'simple_seared_scallops' && i.tier === 'legendary').count).toBe(1);
+      expect(
+        items.find((i) => i.name === 'rose' && i.tier === 'radiant').count,
+      ).toBe(2);
+      expect(
+        items.find((i) => i.name === 'rose' && i.tier === 'flourishing').count,
+      ).toBe(3);
+      expect(
+        items.find(
+          (i) => i.name === 'simple_seared_scallops' && i.tier === 'legendary',
+        ).count,
+      ).toBe(1);
     });
 
     it('should skip items with zero count', () => {
       const inventory = {
-        'rose_radiant': 0,
-        'rose_flourishing': 5,
+        rose_radiant: 0,
+        rose_flourishing: 5,
       };
-      
+
       const adjustedPrices = {
-        'rose_radiant': 200,
-        'rose_flourishing': 100,
+        rose_radiant: 200,
+        rose_flourishing: 100,
       };
 
       const items = SalesOptimizerSolver.generateInventoryItems(
@@ -115,7 +159,7 @@ describe('SalesOptimizerSolver', () => {
         inventory,
         new Set(),
         adjustedPrices,
-        'gold'
+        'gold',
       );
 
       expect(items).toHaveLength(1);
@@ -130,13 +174,38 @@ describe('SalesOptimizerSolver', () => {
       // Or: A + C + C = 120 > budget
       // Or: B + B = 80, C + C + C = 90
       const items = [
-        { name: 'A', tier: 'legendary', type: 'dishes', price: 60, count: 2, isHVA: false },
-        { name: 'B', tier: 'epic', type: 'dishes', price: 40, count: 2, isHVA: false },
-        { name: 'C', tier: 'rare', type: 'dishes', price: 30, count: 3, isHVA: false },
+        {
+          name: 'A',
+          tier: 'legendary',
+          type: 'dishes',
+          price: 60,
+          count: 2,
+          isHVA: false,
+        },
+        {
+          name: 'B',
+          tier: 'epic',
+          type: 'dishes',
+          price: 40,
+          count: 2,
+          isHVA: false,
+        },
+        {
+          name: 'C',
+          tier: 'rare',
+          type: 'dishes',
+          price: 30,
+          count: 3,
+          isHVA: false,
+        },
       ];
 
-      const result = SalesOptimizerSolver.lpKnapsack(items, 100, 'minimize_stock');
-      
+      const result = SalesOptimizerSolver.lpKnapsack(
+        items,
+        100,
+        'minimize_stock',
+      );
+
       // Stage 1 should find optimal value = 100
       expect(result.totalValue).toBe(100);
     });
@@ -153,19 +222,44 @@ describe('SalesOptimizerSolver', () => {
       //   - B + B = 80 < 100 ❌
       // Actually: B(40) + C(30) + C(30) = 100 ✓ (3 items)
       const items = [
-        { name: 'A', tier: 'legendary', type: 'dishes', price: 60, count: 2, isHVA: false },
-        { name: 'B', tier: 'epic', type: 'dishes', price: 40, count: 2, isHVA: false },
-        { name: 'C', tier: 'rare', type: 'dishes', price: 30, count: 3, isHVA: false },
+        {
+          name: 'A',
+          tier: 'legendary',
+          type: 'dishes',
+          price: 60,
+          count: 2,
+          isHVA: false,
+        },
+        {
+          name: 'B',
+          tier: 'epic',
+          type: 'dishes',
+          price: 40,
+          count: 2,
+          isHVA: false,
+        },
+        {
+          name: 'C',
+          tier: 'rare',
+          type: 'dishes',
+          price: 30,
+          count: 3,
+          isHVA: false,
+        },
       ];
 
-      const result = SalesOptimizerSolver.lpKnapsack(items, 100, 'minimize_stock');
-      
+      const result = SalesOptimizerSolver.lpKnapsack(
+        items,
+        100,
+        'minimize_stock',
+      );
+
       expect(result.totalValue).toBe(100);
       // minimize_stock should prefer more items (lower prices)
       // B(40) + C(30) + C(30) = 100 with 3 items
       expect(result.items.length).toBe(3);
-      const bCount = result.items.filter(i => i.name === 'B').length;
-      const cCount = result.items.filter(i => i.name === 'C').length;
+      const bCount = result.items.filter((i) => i.name === 'B').length;
+      const cCount = result.items.filter((i) => i.name === 'C').length;
       expect(bCount).toBe(1);
       expect(cCount).toBe(2);
     });
@@ -178,26 +272,51 @@ describe('SalesOptimizerSolver', () => {
       //   - A + B = 100 (2 items) ✓ BEST for maximize_stock
       //   - B + C + C = 100 (3 items) ❌
       const items = [
-        { name: 'A', tier: 'legendary', type: 'dishes', price: 60, count: 2, isHVA: false },
-        { name: 'B', tier: 'epic', type: 'dishes', price: 40, count: 2, isHVA: false },
-        { name: 'C', tier: 'rare', type: 'dishes', price: 30, count: 3, isHVA: false },
+        {
+          name: 'A',
+          tier: 'legendary',
+          type: 'dishes',
+          price: 60,
+          count: 2,
+          isHVA: false,
+        },
+        {
+          name: 'B',
+          tier: 'epic',
+          type: 'dishes',
+          price: 40,
+          count: 2,
+          isHVA: false,
+        },
+        {
+          name: 'C',
+          tier: 'rare',
+          type: 'dishes',
+          price: 30,
+          count: 3,
+          isHVA: false,
+        },
       ];
 
-      const result = SalesOptimizerSolver.lpKnapsack(items, 100, 'maximize_stock');
-      
+      const result = SalesOptimizerSolver.lpKnapsack(
+        items,
+        100,
+        'maximize_stock',
+      );
+
       expect(result.totalValue).toBe(100);
       // maximize_stock should prefer fewer items (higher prices)
       // A(60) + B(40) = 100 with 2 items
       expect(result.items.length).toBe(2);
-      const aCount = result.items.filter(i => i.name === 'A').length;
-      const bCount = result.items.filter(i => i.name === 'B').length;
+      const aCount = result.items.filter((i) => i.name === 'A').length;
+      const bCount = result.items.filter((i) => i.name === 'B').length;
       expect(aCount).toBe(1);
       expect(bCount).toBe(1);
     });
 
     it('should handle empty inventory', () => {
       const result = SalesOptimizerSolver.lpKnapsack([], 100, 'minimize_stock');
-      
+
       expect(result.items).toHaveLength(0);
       expect(result.totalValue).toBe(0);
       expect(result.remaining).toBe(100);
@@ -205,11 +324,22 @@ describe('SalesOptimizerSolver', () => {
 
     it('should handle budget too small for any item', () => {
       const items = [
-        { name: 'A', tier: 'legendary', type: 'dishes', price: 100, count: 1, isHVA: false },
+        {
+          name: 'A',
+          tier: 'legendary',
+          type: 'dishes',
+          price: 100,
+          count: 1,
+          isHVA: false,
+        },
       ];
 
-      const result = SalesOptimizerSolver.lpKnapsack(items, 50, 'minimize_stock');
-      
+      const result = SalesOptimizerSolver.lpKnapsack(
+        items,
+        50,
+        'minimize_stock',
+      );
+
       expect(result.items).toHaveLength(0);
       expect(result.totalValue).toBe(0);
       expect(result.remaining).toBe(50);
@@ -217,25 +347,54 @@ describe('SalesOptimizerSolver', () => {
 
     it('should handle items with price > budget', () => {
       const items = [
-        { name: 'A', tier: 'legendary', type: 'dishes', price: 200, count: 1, isHVA: false },
-        { name: 'B', tier: 'epic', type: 'dishes', price: 50, count: 2, isHVA: false },
+        {
+          name: 'A',
+          tier: 'legendary',
+          type: 'dishes',
+          price: 200,
+          count: 1,
+          isHVA: false,
+        },
+        {
+          name: 'B',
+          tier: 'epic',
+          type: 'dishes',
+          price: 50,
+          count: 2,
+          isHVA: false,
+        },
       ];
 
-      const result = SalesOptimizerSolver.lpKnapsack(items, 100, 'minimize_stock');
-      
+      const result = SalesOptimizerSolver.lpKnapsack(
+        items,
+        100,
+        'minimize_stock',
+      );
+
       // A is too expensive, should only use B
       expect(result.items.length).toBe(2);
       expect(result.totalValue).toBe(100);
-      expect(result.items.every(i => i.name === 'B')).toBe(true);
+      expect(result.items.every((i) => i.name === 'B')).toBe(true);
     });
 
     it('should handle exact budget match', () => {
       const items = [
-        { name: 'A', tier: 'legendary', type: 'dishes', price: 50, count: 2, isHVA: false },
+        {
+          name: 'A',
+          tier: 'legendary',
+          type: 'dishes',
+          price: 50,
+          count: 2,
+          isHVA: false,
+        },
       ];
 
-      const result = SalesOptimizerSolver.lpKnapsack(items, 100, 'minimize_stock');
-      
+      const result = SalesOptimizerSolver.lpKnapsack(
+        items,
+        100,
+        'minimize_stock',
+      );
+
       expect(result.totalValue).toBe(100);
       expect(result.remaining).toBe(0);
       expect(result.items.length).toBe(2);
@@ -243,12 +402,30 @@ describe('SalesOptimizerSolver', () => {
 
     it('should handle fractional budget remainder', () => {
       const items = [
-        { name: 'A', tier: 'legendary', type: 'dishes', price: 30, count: 3, isHVA: false },
-        { name: 'B', tier: 'epic', type: 'dishes', price: 25, count: 2, isHVA: false },
+        {
+          name: 'A',
+          tier: 'legendary',
+          type: 'dishes',
+          price: 30,
+          count: 3,
+          isHVA: false,
+        },
+        {
+          name: 'B',
+          tier: 'epic',
+          type: 'dishes',
+          price: 25,
+          count: 2,
+          isHVA: false,
+        },
       ];
 
-      const result = SalesOptimizerSolver.lpKnapsack(items, 100, 'minimize_stock');
-      
+      const result = SalesOptimizerSolver.lpKnapsack(
+        items,
+        100,
+        'minimize_stock',
+      );
+
       // Best: A + A + A = 90, remaining = 10
       // Or: A + A + B = 85, remaining = 15
       // Or: A + B + B = 80, remaining = 20
@@ -260,28 +437,62 @@ describe('SalesOptimizerSolver', () => {
   describe('groupResults', () => {
     it('should group items by name and tier', () => {
       const items = [
-        { name: 'rose', tier: 'radiant', type: 'plants', price: 100, isHVA: false },
-        { name: 'rose', tier: 'radiant', type: 'plants', price: 100, isHVA: false },
-        { name: 'rose', tier: 'flourishing', type: 'plants', price: 50, isHVA: false },
-        { name: 'gillyweed', tier: 'radiant', type: 'plants', price: 80, isHVA: false },
+        {
+          name: 'rose',
+          tier: 'radiant',
+          type: 'plants',
+          price: 100,
+          isHVA: false,
+        },
+        {
+          name: 'rose',
+          tier: 'radiant',
+          type: 'plants',
+          price: 100,
+          isHVA: false,
+        },
+        {
+          name: 'rose',
+          tier: 'flourishing',
+          type: 'plants',
+          price: 50,
+          isHVA: false,
+        },
+        {
+          name: 'gillyweed',
+          tier: 'radiant',
+          type: 'plants',
+          price: 80,
+          isHVA: false,
+        },
       ];
 
       const result = SalesOptimizerSolver.groupResults(items);
 
       expect(result.itemCount).toBe(4);
       expect(result.solution).toHaveLength(3);
-      
-      const roseRadiant = result.solution.find(i => i.name === 'rose' && i.tier === 'radiant');
+
+      const roseRadiant = result.solution.find(
+        (i) => i.name === 'rose' && i.tier === 'radiant',
+      );
       expect(roseRadiant.count).toBe(2);
-      
-      const roseFlourishing = result.solution.find(i => i.name === 'rose' && i.tier === 'flourishing');
+
+      const roseFlourishing = result.solution.find(
+        (i) => i.name === 'rose' && i.tier === 'flourishing',
+      );
       expect(roseFlourishing.count).toBe(1);
     });
 
     it('should sort by price descending', () => {
       const items = [
         { name: 'C', tier: 'rare', type: 'dishes', price: 30, isHVA: false },
-        { name: 'A', tier: 'legendary', type: 'dishes', price: 100, isHVA: false },
+        {
+          name: 'A',
+          tier: 'legendary',
+          type: 'dishes',
+          price: 100,
+          isHVA: false,
+        },
         { name: 'B', tier: 'epic', type: 'dishes', price: 50, isHVA: false },
       ];
 
@@ -298,7 +509,7 @@ describe('SalesOptimizerSolver', () => {
       // Mock the loader methods
       const originalLoadPlants = SalesOptimizerLoader.loadPlantsData;
       const originalLoadDishes = SalesOptimizerLoader.loadDishesData;
-      
+
       SalesOptimizerLoader.loadPlantsData = async () => mockPlantsData;
       SalesOptimizerLoader.loadDishesData = async () => mockDishesData;
 
@@ -306,9 +517,9 @@ describe('SalesOptimizerSolver', () => {
         budget: 100,
         strategy: 'minimize_stock',
         inventory: {
-          'rose_radiant': 1,    // 100 gold
-          'rose_flourishing': 2, // 50 gold each
-          'rose_hardy': 4,      // 25 gold each
+          rose_radiant: 1, // 100 gold
+          rose_flourishing: 2, // 50 gold each
+          rose_hardy: 4, // 25 gold each
         },
         currency: 'gold',
         plantsRate: 0,
@@ -333,7 +544,7 @@ describe('SalesOptimizerSolver', () => {
     it('should solve with maximize_stock strategy', async () => {
       const originalLoadPlants = SalesOptimizerLoader.loadPlantsData;
       const originalLoadDishes = SalesOptimizerLoader.loadDishesData;
-      
+
       SalesOptimizerLoader.loadPlantsData = async () => mockPlantsData;
       SalesOptimizerLoader.loadDishesData = async () => mockDishesData;
 
@@ -341,9 +552,9 @@ describe('SalesOptimizerSolver', () => {
         budget: 100,
         strategy: 'maximize_stock',
         inventory: {
-          'rose_radiant': 1,    // 100 gold
-          'rose_flourishing': 2, // 50 gold each
-          'rose_hardy': 4,      // 25 gold each
+          rose_radiant: 1, // 100 gold
+          rose_flourishing: 2, // 50 gold each
+          rose_hardy: 4, // 25 gold each
         },
         currency: 'gold',
         plantsRate: 0,
@@ -368,7 +579,7 @@ describe('SalesOptimizerSolver', () => {
     it('should handle empty inventory', async () => {
       const originalLoadPlants = SalesOptimizerLoader.loadPlantsData;
       const originalLoadDishes = SalesOptimizerLoader.loadDishesData;
-      
+
       SalesOptimizerLoader.loadPlantsData = async () => mockPlantsData;
       SalesOptimizerLoader.loadDishesData = async () => mockDishesData;
 

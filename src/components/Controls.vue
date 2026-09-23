@@ -3,35 +3,35 @@
     <div class="control-group">
       <label>Select Mode</label>
       <div class="mode-toggles">
-        <button 
-          class="mode-btn" 
+        <button
+          class="mode-btn"
           :class="{ active: currentMode === '1v1-low' }"
-          @click="$emit('set-mode', '1v1-low')"
           data-mode="1v1-low"
+          @click="$emit('set-mode', '1v1-low')"
         >
           1v1: Below 7500
         </button>
-        <button 
-          class="mode-btn" 
+        <button
+          class="mode-btn"
           :class="{ active: currentMode === '1v1-high' }"
-          @click="$emit('set-mode', '1v1-high')"
           data-mode="1v1-high"
+          @click="$emit('set-mode', '1v1-high')"
         >
           1v1: Above 7500
         </button>
-        <button 
-          class="mode-btn" 
+        <button
+          class="mode-btn"
           :class="{ active: currentMode === '2v2-low' }"
-          @click="$emit('set-mode', '2v2-low')"
           data-mode="2v2-low"
+          @click="$emit('set-mode', '2v2-low')"
         >
           2v2: Below 7500
         </button>
-        <button 
-          class="mode-btn" 
+        <button
+          class="mode-btn"
           :class="{ active: currentMode === '2v2-high' }"
-          @click="$emit('set-mode', '2v2-high')"
           data-mode="2v2-high"
+          @click="$emit('set-mode', '2v2-high')"
         >
           2v2: Above 7500
         </button>
@@ -40,7 +40,11 @@
 
     <div class="control-group">
       <label for="period-select">Select Period</label>
-      <select id="period-select" :value="currentPeriod" @change="$emit('update:currentPeriod', $event.target.value)">
+      <select
+        id="period-select"
+        :value="currentPeriod"
+        @change="$emit('update:currentPeriod', $event.target.value)"
+      >
         <option v-for="period in periods" :key="period" :value="period">
           {{ period }}
         </option>
@@ -55,19 +59,19 @@ export default {
   props: {
     currentMode: {
       type: String,
-      required: true
+      required: true,
     },
     currentPeriod: {
       type: [String, Number],
-      required: true
+      required: true,
     },
     periods: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
-  emits: ['update:currentPeriod', 'set-mode']
-}
+  emits: ['update:currentPeriod', 'set-mode'],
+};
 </script>
 
 <style scoped>
@@ -138,7 +142,10 @@ select:focus {
   font-weight: 400;
   letter-spacing: 0.04em;
   cursor: pointer;
-  transition: background 0.25s, border-color 0.25s, color 0.25s;
+  transition:
+    background 0.25s,
+    border-color 0.25s,
+    color 0.25s;
   color: var(--ink-faded);
 }
 

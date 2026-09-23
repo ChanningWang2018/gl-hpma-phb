@@ -1,31 +1,31 @@
 <template>
   <div class="image-selector">
     <div class="selector-actions">
-      <button @click="selectAll" class="action-btn">
+      <button class="action-btn" @click="selectAll">
         {{ labels?.ui?.select_all || 'Select All' }}
       </button>
-      <button @click="clearAll" class="action-btn action-btn-secondary">
+      <button class="action-btn action-btn-secondary" @click="clearAll">
         {{ labels?.ui?.clear_all || 'Clear All' }}
       </button>
     </div>
-    
+
     <div class="image-grid">
-      <label 
-        v-for="item in items" 
+      <label
+        v-for="item in items"
         :key="item.name"
         class="image-item"
-        :class="{ 'selected': isSelected(item.name) }"
+        :class="{ selected: isSelected(item.name) }"
         :title="getLabel(item.name)"
       >
-        <input 
-          type="checkbox" 
-          :value="item.name"
+        <input
           v-model="selectedItems"
+          type="checkbox"
+          :value="item.name"
           class="hidden-checkbox"
         />
         <div class="item-thumbnail">
-          <img 
-            :src="getImagePath(item.name)" 
+          <img
+            :src="getImagePath(item.name)"
             :alt="getLabel(item.name)"
             @error="handleImageError(item.name)"
             @load="handleImageLoad(item.name)"
@@ -37,9 +37,10 @@
         <!-- <div class="item-tooltip">{{ getShortLabel(item.name) }}</div> -->
       </label>
     </div>
-    
+
     <div class="selection-info">
-      {{ labels?.ui?.selected || 'Selected' }}: {{ selectedItems.length }} / {{ items.length }}
+      {{ labels?.ui?.selected || 'Selected' }}: {{ selectedItems.length }} /
+      {{ items.length }}
     </div>
   </div>
 </template>
@@ -52,21 +53,21 @@ export default {
   props: {
     items: {
       type: Array,
-      required: true
+      required: true,
     },
     type: {
       type: String,
       required: true,
-      validator: (value) => ['plants', 'dishes'].includes(value)
+      validator: (value) => ['plants', 'dishes'].includes(value),
     },
     modelValue: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     labels: {
       type: Object,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
   emits: ['update:modelValue'],
   setup(props, { emit }) {
@@ -78,7 +79,7 @@ export default {
     };
 
     const selectAll = () => {
-      selectedItems.value = props.items.map(item => item.name);
+      selectedItems.value = props.items.map((item) => item.name);
     };
 
     const clearAll = () => {
@@ -110,19 +111,27 @@ export default {
       imageLoaded.value[name] = true;
     };
 
-    watch(selectedItems, (newVal, oldVal) => {
-      // 只有当数组内容真正发生变化时才emit，避免无限循环
-      if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
-        emit('update:modelValue', newVal);
-      }
-    }, { deep: true });
+    watch(
+      selectedItems,
+      (newVal, oldVal) => {
+        // 只有当数组内容真正发生变化时才emit，避免无限循环
+        if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
+          emit('update:modelValue', newVal);
+        }
+      },
+      { deep: true },
+    );
 
-    watch(() => props.modelValue, (newVal) => {
-      // 只有当props确实变化时才更新selectedItems
-      if (JSON.stringify(newVal) !== JSON.stringify(selectedItems.value)) {
-        selectedItems.value = [...newVal];
-      }
-    }, { deep: true });
+    watch(
+      () => props.modelValue,
+      (newVal) => {
+        // 只有当props确实变化时才更新selectedItems
+        if (JSON.stringify(newVal) !== JSON.stringify(selectedItems.value)) {
+          selectedItems.value = [...newVal];
+        }
+      },
+      { deep: true },
+    );
 
     return {
       selectedItems,
@@ -135,9 +144,9 @@ export default {
       getShortLabel,
       getPlaceholder,
       handleImageError,
-      handleImageLoad
+      handleImageLoad,
     };
-  }
+  },
 };
 </script>
 
@@ -281,20 +290,20 @@ export default {
     grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
     gap: 8px;
   }
-  
+
   .item-thumbnail {
     width: 50px;
     height: 50px;
   }
-  
+
   .item-tooltip {
     font-size: 0.65em;
   }
-  
+
   .selector-actions {
     gap: 8px;
   }
-  
+
   .action-btn {
     padding: 6px 12px;
     font-size: 0.85em;
@@ -306,16 +315,16 @@ export default {
     grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
     gap: 6px;
   }
-  
+
   .item-thumbnail {
     width: 45px;
     height: 45px;
   }
-  
+
   .item-tooltip {
     font-size: 0.6em;
   }
-  
+
   .action-btn {
     padding: 5px 10px;
     font-size: 0.8em;

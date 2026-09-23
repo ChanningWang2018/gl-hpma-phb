@@ -1,5 +1,5 @@
 // Data Service - Handles data loading and processing logic
-import { ThemeTokens } from "@/services/themeTokens.js";
+import { ThemeTokens } from '@/services/themeTokens.js';
 
 export class DataService {
   // Avatar cache
@@ -12,36 +12,36 @@ export class DataService {
 
   // Mode mapping (keep Chinese keys for data file compatibility)
   static modeMapping = {
-    "1v1-low": "1v1:7500分以下",
-    "1v1-high": "1v1:7500分以上",
-    "2v2-low": "2v2:7500分以下",
-    "2v2-high": "2v2:7500分以上",
+    '1v1-low': '1v1:7500分以下',
+    '1v1-high': '1v1:7500分以上',
+    '2v2-low': '2v2:7500分以下',
+    '2v2-high': '2v2:7500分以上',
   };
 
   // Get reverberation name
   static getReverberationName(id) {
     const names = {
-      1: "Hermione Granger",
-      2: "Harry Potter",
-      3: "Dobby",
-      4: "Rubeus Hagrid",
-      5: "Weasley Twins",
-      6: "Newt Scamander",
-      7: "Severus Snape",
-      8: "Neville Longbottom",
-      9: "Bellatrix Lestrange",
-      10: "Luna Lovegood",
-      11: "Filius Flitwick",
-      12: "Sirius Black",
-      13: "Ron Weasley",
-      14: "Ginny Weasley",
-      15: "Albus Dumbledore",
-      16: "Minerva McGonagall",
-      17: "Lord Voldemort",
-      18: "Cedric Diggory",
-      19: "Gellert Grindelwald",
+      1: 'Hermione Granger',
+      2: 'Harry Potter',
+      3: 'Dobby',
+      4: 'Rubeus Hagrid',
+      5: 'Weasley Twins',
+      6: 'Newt Scamander',
+      7: 'Severus Snape',
+      8: 'Neville Longbottom',
+      9: 'Bellatrix Lestrange',
+      10: 'Luna Lovegood',
+      11: 'Filius Flitwick',
+      12: 'Sirius Black',
+      13: 'Ron Weasley',
+      14: 'Ginny Weasley',
+      15: 'Albus Dumbledore',
+      16: 'Minerva McGonagall',
+      17: 'Lord Voldemort',
+      18: 'Cedric Diggory',
+      19: 'Gellert Grindelwald',
     };
-    return names[id] || "Unknown Echo";
+    return names[id] || 'Unknown Echo';
   }
 
   // 加载头像图片
@@ -53,41 +53,41 @@ export class DataService {
       }
 
       const img = new Image();
-      const idStr = id.toString().padStart(2, "0");
-      
+      const idStr = id.toString().padStart(2, '0');
+
       img.onload = function () {
         DataService.avatarCache[id] = img;
         resolve(img);
       };
-      
+
       img.onerror = function () {
-        console.error("Failed to load avatar image:", id);
-        const canvas = document.createElement("canvas");
+        console.error('Failed to load avatar image:', id);
+        const canvas = document.createElement('canvas');
         canvas.width = 40;
         canvas.height = 40;
-        const ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext('2d');
         ctx.fillStyle = ThemeTokens.tokens.colors.inkFaded;
         ctx.beginPath();
         ctx.arc(20, 20, 20, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = "white";
-        ctx.font = "14px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
+        ctx.fillStyle = 'white';
+        ctx.font = '14px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
         ctx.fillText(id, 20, 20);
         DataService.avatarCache[id] = canvas;
         resolve(canvas);
       };
-      
+
       img.src = `/images/avatars/echo${idStr}.webp`;
     });
   }
 
   // 加载聚合趋势数据（单请求替代逐个加载全部归档文件）
   static async loadTrendsData() {
-    const response = await fetch("/archive/trends.json");
+    const response = await fetch('/archive/trends.json');
     if (!response.ok) {
-      throw new Error("Failed to load trends data: HTTP " + response.status);
+      throw new Error('Failed to load trends data: HTTP ' + response.status);
     }
     return response.json();
   }
@@ -147,7 +147,7 @@ export class DataService {
     if (periodIndex === -1 || modeIndex === -1) return [];
 
     const rows = DataService.getRowIndex(trends).byPeriodMode.get(
-      `${periodIndex}|${modeIndex}`
+      `${periodIndex}|${modeIndex}`,
     );
     // Copy before sort: the grouped arrays are shared cache state
     return (rows ? [...rows] : [])

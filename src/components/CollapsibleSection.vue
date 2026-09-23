@@ -1,19 +1,12 @@
 <template>
   <div class="collapsible-section">
-    <button 
-      class="collapsible-header"
-      @click="toggle"
-      :aria-expanded="isOpen"
-    >
-      <span class="header-icon" :class="{ 'rotated': !isOpen }">▶</span>
+    <button class="collapsible-header" :aria-expanded="isOpen" @click="toggle">
+      <span class="header-icon" :class="{ rotated: !isOpen }">▶</span>
       <span class="header-title">{{ title }}</span>
       <span v-if="badgeText" class="header-badge">{{ badgeText }}</span>
     </button>
-    
-    <div 
-      class="collapsible-content"
-      :class="{ 'collapsed': !isOpen }"
-    >
+
+    <div class="collapsible-content" :class="{ collapsed: !isOpen }">
       <slot></slot>
     </div>
   </div>
@@ -27,16 +20,16 @@ export default {
   props: {
     title: {
       type: String,
-      required: true
+      required: true,
     },
     badgeText: {
       type: String,
-      default: ''
+      default: '',
     },
     defaultOpen: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
   setup(props) {
     const isOpen = ref(props.defaultOpen);
@@ -47,9 +40,9 @@ export default {
 
     return {
       isOpen,
-      toggle
+      toggle,
     };
-  }
+  },
 };
 </script>
 
@@ -72,7 +65,9 @@ export default {
   font-family: var(--font-serif);
   font-size: 1.15em;
   font-weight: 400;
-  transition: background 0.25s, border-color 0.25s;
+  transition:
+    background 0.25s,
+    border-color 0.25s;
 }
 
 .collapsible-header:hover {
@@ -114,7 +109,10 @@ export default {
 
 .collapsible-content {
   overflow: hidden;
-  transition: max-height 0.4s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out;
+  transition:
+    max-height 0.4s ease-out,
+    opacity 0.3s ease-out,
+    padding 0.3s ease-out;
   max-height: 5000px;
   opacity: 1;
   padding: 15px;
@@ -137,8 +135,8 @@ export default {
     padding: 12px 14px;
     font-size: 1em;
   }
-  
-.collapsible-content {
+
+  .collapsible-content {
     padding: 8px;
   }
 }
@@ -149,13 +147,13 @@ export default {
     font-size: 0.95em;
     gap: 8px;
   }
-  
+
   .header-badge {
     padding: 3px 10px;
     font-size: 0.8em;
   }
-  
-.collapsible-content {
+
+  .collapsible-content {
     padding: 6px;
   }
 }

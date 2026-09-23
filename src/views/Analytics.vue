@@ -7,15 +7,16 @@
 
     <div v-else-if="chartStore.error" class="error-message">
       <p>{{ chartStore.error }}</p>
-      <button @click="retryLoading" class="retry-button">Retry</button>
+      <button class="retry-button" @click="retryLoading">Retry</button>
     </div>
 
     <div v-else>
       <div class="charts-container">
-        <ChartWrapper title="Echo Distribution (Pick Rate vs Win Rate)" container-class="scatter-chart-container">
-          <ScatterChart
-            :chart-data="chartStore.scatterChartData"
-          />
+        <ChartWrapper
+          title="Echo Distribution (Pick Rate vs Win Rate)"
+          container-class="scatter-chart-container"
+        >
+          <ScatterChart :chart-data="chartStore.scatterChartData" />
         </ChartWrapper>
       </div>
 
@@ -25,7 +26,7 @@
         :mode="chartStore.currentMode"
       />
 
-      <Controls 
+      <Controls
         :current-mode="chartStore.currentMode"
         :current-period="chartStore.currentPeriod"
         :periods="chartStore.periods"
@@ -56,7 +57,7 @@
         </ChartWrapper>
       </div>
 
-      <DataTable 
+      <DataTable
         :table-data="chartStore.tableData"
         :current-mode="chartStore.currentMode"
         :mode-mapping="chartStore.modeMapping"
@@ -88,38 +89,49 @@ export default {
     EchoSelect,
     EchoStandings,
     LineChart,
-    ScatterChart
+    ScatterChart,
   },
   setup() {
     useHead({
       title: 'HPMA Echo Analytics - Win Rate & Pick Rate Statistics',
       meta: [
-        { name: 'description', content: 'Track Harry Potter: Magic Awakened character performance. Win rates, pick rates, and trends for all 18 Echoes across 1v1 and 2v2 modes.' },
-        { property: 'og:title', content: 'HPMA Echo Analytics - Character Performance Data' },
-        { property: 'og:description', content: 'Comprehensive win rate and pick rate statistics for all Echoes in Harry Potter: Magic Awakened.' },
-        { property: 'og:url', content: 'https://hpma-phb.netlify.app/' }
-      ]
+        {
+          name: 'description',
+          content:
+            'Track Harry Potter: Magic Awakened character performance. Win rates, pick rates, and trends for all 18 Echoes across 1v1 and 2v2 modes.',
+        },
+        {
+          property: 'og:title',
+          content: 'HPMA Echo Analytics - Character Performance Data',
+        },
+        {
+          property: 'og:description',
+          content:
+            'Comprehensive win rate and pick rate statistics for all Echoes in Harry Potter: Magic Awakened.',
+        },
+        { property: 'og:url', content: 'https://hpma-phb.netlify.app/' },
+      ],
     });
 
     const chartStore = useChartStore();
     const theme = ThemeTokens.tokens;
-    
+
     const winrateData = computed(() => {
       return chartStore.tableData
-        .map(item => ({
+        .map((item) => ({
           period: item.period,
-          value: item.winrate
+          value: item.winrate,
         }))
-        .filter(item => item.value !== null);
+        .filter((item) => item.value !== null);
     });
-    
+
     const attendanceData = computed(() => {
       return chartStore.tableData
-        .map(item => ({
+        .map((item) => ({
           period: item.period,
-          value: item.attendancerate
+          value: item.attendancerate,
         }))
-        .filter(item => item.value !== null);
+        .filter((item) => item.value !== null);
     });
 
     // Previous period's echo rows — the standings' Δ week column
@@ -133,10 +145,10 @@ export default {
       return DataService.extractScatterData(
         chartStore.trends,
         prevPeriod.value,
-        chartStore.currentMode
+        chartStore.currentMode,
       );
     });
-    
+
     onMounted(async () => {
       try {
         await chartStore.updateAllData();
@@ -149,7 +161,7 @@ export default {
     const preloadAvatarImages = () => {
       for (let i = 1; i <= 18; i++) {
         const idStr = i.toString().padStart(2, '0');
-        
+
         const link = document.createElement('link');
         link.rel = 'preload';
         link.as = 'image';
@@ -158,7 +170,7 @@ export default {
         document.head.appendChild(link);
       }
     };
-    
+
     return {
       chartStore,
       theme,
@@ -170,11 +182,11 @@ export default {
         try {
           await chartStore.updateAllData();
         } catch (error) {
-          console.error("重试失败:", error);
+          console.error('重试失败:', error);
         }
-      }
+      },
     };
-  }
+  },
 };
 </script>
 
@@ -225,8 +237,12 @@ export default {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-overlay p {
