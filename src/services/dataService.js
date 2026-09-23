@@ -5,6 +5,11 @@ export class DataService {
   // Avatar cache
   static avatarCache = {};
 
+  // Prebuilt indexes over trends.rows, keyed by trends object identity so a
+  // freshly loaded dataset (a new object on every load) always gets a fresh
+  // index — stale rows can never be served after a reload.
+  static rowIndexCache = new WeakMap();
+
   // Mode mapping (keep Chinese keys for data file compatibility)
   static modeMapping = {
     "1v1-low": "1v1:7500分以下",
@@ -91,15 +96,41 @@ export class DataService {
     return trends.modes.indexOf(DataService.modeMapping[mode]);
   }
 
+  // 构建并缓存 trends.rows 索引（懒加载，一次性 O(rows)）：
+  // - byRow: "periodIndex|echoId|modeIndex" -> row（重复 key 保留首行，与 find 语义一致）
+  // - byPeriodMode: "periodIndex|modeIndex" -> rows[]（保留原始行序，供散点提取使用）
+  static getRowIndex(trends) {
+    let index = DataService.rowIndexCache.get(trends);
+    if (!index) {
+      const byRow = new Map();
+      const byPeriodMode = new Map();
+      for (const row of trends.rows) {
+        const rowKey = `${row[0]}|${row[1]}|${row[2]}`;
+        if (!byRow.has(rowKey)) {
+          byRow.set(rowKey, row);
+        }
+        const groupKey = `${row[0]}|${row[2]}`;
+        let group = byPeriodMode.get(groupKey);
+        if (!group) {
+          group = [];
+          byPeriodMode.set(groupKey, group);
+        }
+        group.push(row);
+      }
+      index = { byRow, byPeriodMode };
+      DataService.rowIndexCache.set(trends, index);
+    }
+    return index;
+  }
+
   // 提取特定回响和模式的数据（trends.rows: [periodIndex, echoId, modeIndex, winrate, pickrate]）
   static extractData(trends, reverberationId, mode) {
     if (!trends) return [];
     const modeIndex = DataService.resolveModeIndex(trends, mode);
     const echoId = parseInt(reverberationId);
+    const { byRow } = DataService.getRowIndex(trends);
     return trends.periods.map((period, periodIndex) => {
-      const row = trends.rows.find(
-        (r) => r[0] === periodIndex && r[1] === echoId && r[2] === modeIndex
-      );
+      const row = byRow.get(`${periodIndex}|${echoId}|${modeIndex}`);
       return {
         period,
         winrate: row ? row[3] : null,
@@ -115,8 +146,11 @@ export class DataService {
     const modeIndex = DataService.resolveModeIndex(trends, mode);
     if (periodIndex === -1 || modeIndex === -1) return [];
 
-    return trends.rows
-      .filter((r) => r[0] === periodIndex && r[2] === modeIndex)
+    const rows = DataService.getRowIndex(trends).byPeriodMode.get(
+      `${periodIndex}|${modeIndex}`
+    );
+    // Copy before sort: the grouped arrays are shared cache state
+    return (rows ? [...rows] : [])
       .sort((a, b) => a[1] - b[1])
       .map((r) => ({
         reverberationid: r[1],
