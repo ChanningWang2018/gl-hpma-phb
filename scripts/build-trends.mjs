@@ -1,5 +1,6 @@
-// Aggregates all archive snapshots into a single compact trends.json so the
-// client needs one small request instead of fetching every archive file.
+// Aggregates all raw archive snapshots (repo-root archive/) into a single
+// compact public/archive/trends.json so the client needs one small request
+// instead of fetching every archive file.
 //
 // Usage:
 //   node scripts/build-trends.mjs           # (re)build public/archive/trends.json
@@ -9,8 +10,11 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
-const ARCHIVE_DIR = join(resolve(SCRIPT_DIR, ".."), "public", "archive");
-const TRENDS_FILE = join(ARCHIVE_DIR, "trends.json");
+const REPO_ROOT = resolve(SCRIPT_DIR, "..");
+// Raw crawler snapshots live at the repo root (NOT deployed); only the
+// aggregated trends.json is served from public/archive/.
+const ARCHIVE_DIR = join(REPO_ROOT, "archive");
+const TRENDS_FILE = join(REPO_ROOT, "public", "archive", "trends.json");
 
 const ARCHIVE_FILE_PATTERN = /^\d{8}-\d{6}\.json$/;
 
@@ -169,7 +173,7 @@ function verifyTrends() {
   }
 
   if (problems.length > 0) {
-    console.error(`verify failed: trends.json is out of sync with public/archive/:\n  - ${problems.join("\n  - ")}`);
+    console.error(`verify failed: trends.json is out of sync with the raw archives in archive/:\n  - ${problems.join("\n  - ")}`);
     console.error("Rebuild with: npm run build:trends");
     return false;
   }

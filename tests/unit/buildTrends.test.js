@@ -5,7 +5,9 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-const ARCHIVE_DIR = join(ROOT, "public", "archive");
+// Raw crawler snapshots live at the repo root; only trends.json is deployed
+const ARCHIVE_DIR = join(ROOT, "archive");
+const PUBLIC_ARCHIVE_DIR = join(ROOT, "public", "archive");
 
 // Helper: build an archive in the raw API response shape
 function makeArchive(starttimedate, endtimedate, records) {
@@ -184,7 +186,7 @@ describe("DataService trends extractors", () => {
 });
 
 describe("committed trends.json regression vs raw archives", () => {
-  const trendsFile = join(ARCHIVE_DIR, "trends.json");
+  const trendsFile = join(PUBLIC_ARCHIVE_DIR, "trends.json");
 
   it("matches a fresh aggregation of every archive file", () => {
     if (!existsSync(trendsFile)) {

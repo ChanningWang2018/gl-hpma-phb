@@ -33,6 +33,7 @@ A Vue 3-based analytics dashboard for tracking character (Reverberation, Echo) p
 ## 📁 Project Structure
 
 ```
+├── archive/                    # Raw crawler snapshots + manifest (NOT deployed)
 ├── src/
 │   ├── App.vue                 # Main application component
 │   ├── main.js                 # Application entry point
@@ -57,7 +58,7 @@ A Vue 3-based analytics dashboard for tracking character (Reverberation, Echo) p
 ├── public/
 │   ├── images/
 │   │   └── avatars/            # Character avatar images
-│   └── archive/                # Historical data snapshots
+│   └── archive/                # Deployed data: only the aggregated trends.json
 ├── vite.config.js              # Vite configuration
 ├── jsconfig.json               # JavaScript configuration
 ├── package.json                # Project dependencies
@@ -146,10 +147,10 @@ The dashboard supports four game modes:
 
 ## 💾 Data Storage
 
-- Historical data snapshots are stored in the `public/archive` directory and accessible at `/archive` URL path
+- Raw data snapshots are stored in the repo-root `archive/` directory (crawler output and build input, **not** deployed with the site)
 - Data files include timestamps for version tracking
 - Current working data is in `snapshot.json`
-- The client reads only `public/archive/trends.json`, a compact aggregate ([period, echo, mode, winrate, pickrate] rows) built from all snapshots with `npm run build:trends`; the crawler workflow regenerates it automatically on every new snapshot (`npm run verify:trends` re-checks it against the raw archives)
+- The client reads only `public/archive/trends.json` (served at `/archive/trends.json`), a compact aggregate ([period, echo, mode, winrate, pickrate] rows) built from all snapshots in `archive/` with `npm run build:trends`; the crawler workflow regenerates it automatically on every new snapshot (`npm run verify:trends` re-checks it against the raw archives)
 - Raw archive files are kept as the source of truth and download archive, but are no longer fetched by the app
 
 ## 📝 License
