@@ -5,7 +5,14 @@ import configPrettier from '@vue/eslint-config-prettier';
 export default [
   // Never lint build output, raw data snapshots, static assets or vendored code.
   {
-    ignores: ['dist/', 'archive/', 'public/', 'node_modules/', 'design-lab/'],
+    ignores: [
+      'dist/',
+      'archive/',
+      'public/',
+      'node_modules/',
+      'design-lab/',
+      '.vite/',
+    ],
   },
 
   // Shared language environment for the project's own sources.
