@@ -1,0 +1,8 @@
+# Normalize all text files to LF in the repo and on checkout.
+# Prettier (endOfLine: lf) and byte-for-byte data tests require LF working
+# files; without this, Windows autocrlf checkouts break lint and tests.
+* text=auto eol=lf
+
+# Windows helper scripts that must keep CRLF for cmd/PowerShell
+*.bat text eol=crlf
+*.ps1 text eol=crlf
