@@ -267,13 +267,13 @@ export default {
 
 <style scoped>
 /*
- * 稀有度 -> token 色映射（细色条 + 占位卡背底色共用）：
- *   common    普通 -> --rule      （中性纸边色：最常见，最低对比）
- *   rare      稀有 -> --teal-ink
- *   epic      史诗 -> --violet-ink
- *   legendary 传说 -> --gold-leaf
- *   brilliant 光辉 -> --gold-ink  （更深的金，区别于 legendary 的亮金）
- *   forbidden 禁忌 -> --oxblood
+ * 稀有度 -> 游戏内框色映射（全局 --rarity-* token，与占位卡背/详情徽标同源）：
+ *   common    普通 -> 灰白
+ *   rare      稀有 -> 蓝
+ *   epic      史诗 -> 紫
+ *   legendary 传说 -> 金
+ *   brilliant 光辉 -> 银白
+ *   forbidden 禁忌 -> 墨绿
  */
 .card-codex-page {
   padding: 26px 30px 40px;
@@ -543,22 +543,22 @@ export default {
 }
 
 .rarity-stripe.rarity-common {
-  background: var(--rule);
+  background: var(--rarity-common);
 }
 .rarity-stripe.rarity-rare {
-  background: var(--teal-ink);
+  background: var(--rarity-rare);
 }
 .rarity-stripe.rarity-epic {
-  background: var(--violet-ink);
+  background: var(--rarity-epic);
 }
 .rarity-stripe.rarity-legendary {
-  background: var(--gold-leaf);
+  background: var(--rarity-legendary);
 }
 .rarity-stripe.rarity-brilliant {
-  background: var(--gold-ink);
+  background: var(--rarity-brilliant);
 }
 .rarity-stripe.rarity-forbidden {
-  background: var(--oxblood);
+  background: var(--rarity-forbidden);
 }
 
 /* tile 下方卡名 */

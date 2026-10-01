@@ -48,6 +48,9 @@
   --gold-leaf: #b08d3f;
   --gold-ink: #7a5c1e;
   --violet-ink: #5d4378;
+  --blue-ink: #35608d;
+  --silver-ink: #a9b2b8;
+  --forest-ink: #2f5245;
 
   /* RGB triplets of the colors above, for rgba(var(--x-rgb), a) tints */
   --ink-rgb: 42, 33, 24;
@@ -56,6 +59,19 @@
   --gold-rgb: 176, 141, 63;
   --violet-rgb: 93, 67, 120;
   --paper-light-rgb: 247, 240, 225;
+  --rule-rgb: 201, 184, 150;
+  --blue-rgb: 53, 96, 141;
+  --silver-rgb: 169, 178, 184;
+  --forest-rgb: 47, 82, 69;
+
+  /* Card rarity frame colors — aligned with the in-game rarity palette:
+     common 灰白 | rare 蓝 | epic 紫 | legendary 金 | brilliant 银白 | forbidden 墨绿 */
+  --rarity-common: var(--rule);
+  --rarity-rare: var(--blue-ink);
+  --rarity-epic: var(--violet-ink);
+  --rarity-legendary: var(--gold-leaf);
+  --rarity-brilliant: var(--silver-ink);
+  --rarity-forbidden: var(--forest-ink);
 
   /* Type roles */
   --font-serif: 'IM Fell English', Georgia, 'Times New Roman', serif;

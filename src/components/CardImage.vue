@@ -126,9 +126,8 @@ export default {
   object-fit: cover;
 }
 
-/* L3 占位卡背：rarity token 色块（与色条同源映射）
- *   common 普通 -> ink | rare 稀有 -> teal | epic 史诗 -> violet
- *   legendary 传说 -> gold | brilliant 光辉 -> gold(浅) | forbidden 禁忌 -> oxblood/accent
+/* L3 占位卡背：游戏内框色 token 色块（与色条同源映射）
+ *   common 灰白 | rare 蓝 | epic 紫 | legendary 金 | brilliant 银白 | forbidden 墨绿
  */
 .card-image-fallback {
   width: 100%;
@@ -143,10 +142,10 @@ export default {
 }
 
 .card-image-fallback.rarity-common {
-  background: rgba(var(--ink-rgb), 0.07);
+  background: rgba(var(--rule-rgb), 0.35);
 }
 .card-image-fallback.rarity-rare {
-  background: rgba(var(--teal-rgb), 0.12);
+  background: rgba(var(--blue-rgb), 0.12);
 }
 .card-image-fallback.rarity-epic {
   background: rgba(var(--violet-rgb), 0.12);
@@ -155,10 +154,10 @@ export default {
   background: rgba(var(--gold-rgb), 0.16);
 }
 .card-image-fallback.rarity-brilliant {
-  background: rgba(var(--gold-rgb), 0.09);
+  background: rgba(var(--silver-rgb), 0.3);
 }
 .card-image-fallback.rarity-forbidden {
-  background: rgba(var(--accent-rgb), 0.12);
+  background: rgba(var(--forest-rgb), 0.12);
 }
 
 .card-image-fallback-id {

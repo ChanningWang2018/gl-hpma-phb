@@ -449,30 +449,30 @@ export default {
   border-color: rgba(var(--gold-rgb), 0.5);
 }
 
-/* rarity 徽标沿用既有 token 映射（与色条/占位卡背同源，浅色 wash + 描边） */
+/* rarity 徽标沿用游戏内框色 token（与色条/占位卡背同源，浅色 wash + 描边） */
 .badge-rarity.rarity-common {
-  border-color: var(--rule);
-  background: rgba(var(--ink-rgb), 0.06);
+  border-color: var(--rarity-common);
+  background: rgba(var(--rule-rgb), 0.22);
 }
 .badge-rarity.rarity-rare {
-  border-color: var(--teal-ink);
-  background: rgba(var(--teal-rgb), 0.1);
+  border-color: var(--rarity-rare);
+  background: rgba(var(--blue-rgb), 0.1);
 }
 .badge-rarity.rarity-epic {
-  border-color: var(--violet-ink);
+  border-color: var(--rarity-epic);
   background: rgba(var(--violet-rgb), 0.1);
 }
 .badge-rarity.rarity-legendary {
-  border-color: var(--gold-leaf);
+  border-color: var(--rarity-legendary);
   background: rgba(var(--gold-rgb), 0.14);
 }
 .badge-rarity.rarity-brilliant {
-  border-color: var(--gold-ink);
-  background: rgba(var(--gold-rgb), 0.08);
+  border-color: var(--rarity-brilliant);
+  background: rgba(var(--silver-rgb), 0.24);
 }
 .badge-rarity.rarity-forbidden {
-  border-color: var(--oxblood);
-  background: rgba(var(--accent-rgb), 0.1);
+  border-color: var(--rarity-forbidden);
+  background: rgba(var(--forest-rgb), 0.1);
 }
 
 /* ---- desc / quote ---- */
