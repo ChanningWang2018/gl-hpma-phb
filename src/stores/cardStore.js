@@ -27,7 +27,7 @@ export const useCardStore = defineStore('card', {
     // 筛选与搜索（'all' 表示不筛）
     filters: {
       type: 'all', // 'all' | 'spell' | 'summon' | 'companion'
-      rarity: 'all', // 'all' | rarity code (common...forbidden)
+      rarity: 'all', // 'all' | rarity code (common...mythic/dark)
       cost: 'all', // 'all' | number
       search: '', // zh/en 卡名、spell_word 跨语言匹配
     },

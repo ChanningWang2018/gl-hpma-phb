@@ -65,13 +65,13 @@
   --forest-rgb: 47, 82, 69;
 
   /* Card rarity frame colors — aligned with the in-game rarity palette:
-     common 灰白 | rare 蓝 | epic 紫 | legendary 金 | brilliant 银白 | forbidden 墨绿 */
+     common 灰白 | rare 蓝 | epic 紫 | legendary 金 | mythic 银白 | dark 墨绿 */
   --rarity-common: var(--rule);
   --rarity-rare: var(--blue-ink);
   --rarity-epic: var(--violet-ink);
   --rarity-legendary: var(--gold-leaf);
-  --rarity-brilliant: var(--silver-ink);
-  --rarity-forbidden: var(--forest-ink);
+  --rarity-mythic: var(--silver-ink);
+  --rarity-dark: var(--forest-ink);
 
   /* Type roles */
   --font-serif: 'IM Fell English', Georgia, 'Times New Roman', serif;

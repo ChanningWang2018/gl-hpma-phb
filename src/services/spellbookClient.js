@@ -20,7 +20,7 @@
  *   2. the `?img=<base>` query parameter of the browser URL (manual override)
  *   3. the `imageBase` field of the loaded version.json (single source of truth)
  *
- * Data model (schema_version 3):
+ * Data model (schema_version 4):
  *   cards.json    = { schema_version, data_version, generated_at, labels, cards }
  *   manifest.json = extraction metadata (coverage, source, notes, ...)
  *   version.json  = { tag, version, schemaVersion, dataVersion, imageBase, generatedAt }
@@ -31,13 +31,15 @@
  *   levels        = { "<lv>": [{ k, v, pct, k_en?, unit?, unit_en? }, ...] }
  *                   // k_en/unit_en (schema 3): per-row en translation of the
  *                   // stat label / subject entity; see formatLevelRows
+ *                   // schema 4: rarity codes brilliant/forbidden renamed to
+ *                   // mythic/dark (same tiers, zh labels unchanged in spirit)
  *
  * The data is Chinese-first: `en` strings may be missing or null, so text
  * lookups fall back to `zh` when the requested locale has no value.
  */
 
 /** Schema version this loader understands. Bump only on structural changes. */
-export const EXPECTED_SCHEMA_VERSION = 3;
+export const EXPECTED_SCHEMA_VERSION = 4;
 
 /** Default data base when neither an option nor `?img=`-style overrides apply. */
 export const DEFAULT_DATA_BASE_URL = '/data/spellbook/';
@@ -333,7 +335,7 @@ export function createClient(options = {}) {
       return requireLoaded().byType.get(type) ?? [];
     },
 
-    /** All cards of one rarity ("common" ... "forbidden"). */
+    /** All cards of one rarity ("common" ... "mythic"/"dark"). */
     byRarity(rarity) {
       return requireLoaded().byRarity.get(rarity) ?? [];
     },

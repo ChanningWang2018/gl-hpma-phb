@@ -137,7 +137,7 @@ describe('createClient (real committed data)', () => {
     expect(client.label('type', 'spell', 'en')).toBe('Spell');
     expect(client.label('rarity', 'legendary', 'zh')).toBe('传说');
     expect(client.label('rarity', 'legendary', 'en')).toBe('Legendary');
-    expect(client.label('rarity', 'brilliant', 'en')).toBe('Brilliant');
+    expect(client.label('rarity', 'mythic', 'en')).toBe('Mythic');
     expect(client.label('type', 'bogus', 'en')).toBe('bogus');
   });
 

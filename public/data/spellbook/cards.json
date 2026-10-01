@@ -1,7 +1,7 @@
 {
- "schema_version": 3,
+ "schema_version": 4,
  "data_version": 20261001,
- "generated_at": "2026-10-01T18:30:26+08:00",
+ "generated_at": "2026-10-01T20:57:07+08:00",
  "labels": {
   "type": {
    "spell": {
@@ -34,13 +34,13 @@
     "zh": "传说",
     "en": "Legendary"
    },
-   "brilliant": {
-    "zh": "光辉",
-    "en": "Brilliant"
+   "dark": {
+    "zh": "深渊",
+    "en": "Dark"
    },
-   "forbidden": {
-    "zh": "禁忌",
-    "en": "Forbidden"
+   "mythic": {
+    "zh": "光辉",
+    "en": "Mythic"
    }
   }
  },
@@ -24993,7 +24993,7 @@
   {
    "id": 1061,
    "type": "spell",
-   "rarity": "forbidden",
+   "rarity": "dark",
    "cost": 5,
    "img": "images/1061.png",
    "spell_word": "CRUCIO",
@@ -44695,7 +44695,7 @@
   {
    "id": 1086,
    "type": "spell",
-   "rarity": "forbidden",
+   "rarity": "dark",
    "cost": 6,
    "img": "images/1086.png",
    "spell_word": "AVADA_KEDAVRA",
@@ -77532,7 +77532,7 @@
   {
    "id": 1145,
    "type": "spell",
-   "rarity": "forbidden",
+   "rarity": "dark",
    "cost": 5,
    "img": "images/1145.png",
    "spell_word": "OBSCURUS",
@@ -102280,7 +102280,7 @@
   {
    "id": 1189,
    "type": "spell",
-   "rarity": "brilliant",
+   "rarity": "mythic",
    "cost": 3,
    "img": "images/1189.png",
    "spell_word": "FINITE",
@@ -110512,7 +110512,7 @@
    ],
    "i18n": {
     "zh": {
-     "name": "隐身衣",
+     "name": "隐形衣",
      "desc": "召唤隐形衣，使施法巫师隐身，并获得迅速消退的爆发性移速加成。隐身状态在一段时间后自动解除，施放咒语卡会提前结束该效果。\n*隐身状态下，接下来施放的第一个咒语的效果范围增加，对命中的所有单位造成一次立即伤害和“创伤”（单次施放中同单位仅可触发一次该效果）。身负“创伤”的单位在被施加任意恢复效果时，均需先治疗“创伤”，随即才可正常恢复生命值。\n*深渊、光辉以及部分特殊魔咒无法获得范围增益。\n*技能的范围增益效果不可与呼神护卫叠加。\n*隐身期间将无法普通攻击。",
      "quote": "召唤隐形衣，使施法巫师隐身，并获得迅速消退的爆发性移速加成。隐身状态在一段时间后自动解除，施放咒语卡会提前结束该效果。",
      "stats": "范围增幅 0→0.58；额外伤害 36→261；“创伤” 130→935；持续时间 4.4→10.2",
@@ -111316,7 +111316,7 @@
   {
    "id": 1198,
    "type": "spell",
-   "rarity": "brilliant",
+   "rarity": "mythic",
    "cost": 3,
    "img": "images/1198.png",
    "spell_word": "FELIX_FELICIS",
@@ -130225,7 +130225,7 @@
   {
    "id": 1234,
    "type": "spell",
-   "rarity": "brilliant",
+   "rarity": "mythic",
    "cost": 4,
    "img": "images/1234.png",
    "spell_word": "GUBRAITHIAN_FIRE",
@@ -141934,7 +141934,7 @@
   {
    "id": 1980,
    "type": "spell",
-   "rarity": "forbidden",
+   "rarity": "dark",
    "cost": 7,
    "img": "images/1980.png",
    "spell_word": "AZKABAN",
@@ -145879,7 +145879,7 @@
   {
    "id": 1998,
    "type": "spell",
-   "rarity": "brilliant",
+   "rarity": "mythic",
    "cost": 3,
    "img": "images/1998.png",
    "spell_word": "EXPECTO_PATRONUM",
@@ -163715,7 +163715,7 @@
   {
    "id": 2024,
    "type": "companion",
-   "rarity": "brilliant",
+   "rarity": "mythic",
    "cost": 0,
    "img": "images/2024.png",
    "spell_word": null,
@@ -171587,7 +171587,7 @@
   {
    "id": 2031,
    "type": "companion",
-   "rarity": "brilliant",
+   "rarity": "mythic",
    "cost": 0,
    "img": "images/2031.png",
    "spell_word": null,
@@ -171863,7 +171863,7 @@
   {
    "id": 2032,
    "type": "companion",
-   "rarity": "brilliant",
+   "rarity": "mythic",
    "cost": 0,
    "img": "images/2032.png",
    "spell_word": null,
@@ -173576,7 +173576,7 @@
   {
    "id": 2033,
    "type": "companion",
-   "rarity": "brilliant",
+   "rarity": "mythic",
    "cost": 0,
    "img": "images/2033.png",
    "spell_word": null,
@@ -173852,7 +173852,7 @@
   {
    "id": 2035,
    "type": "companion",
-   "rarity": "brilliant",
+   "rarity": "mythic",
    "cost": 0,
    "img": "images/2035.png",
    "spell_word": null,
@@ -175025,7 +175025,7 @@
   {
    "id": 2036,
    "type": "companion",
-   "rarity": "brilliant",
+   "rarity": "mythic",
    "cost": 0,
    "img": "images/2036.png",
    "spell_word": null,
@@ -181604,7 +181604,7 @@
   {
    "id": 2039,
    "type": "companion",
-   "rarity": "brilliant",
+   "rarity": "mythic",
    "cost": 0,
    "img": "images/2039.png",
    "spell_word": null,

@@ -29,9 +29,9 @@ gl-hpma-phb (本站) 新增 /cards 图鉴页
 {
   "schema_version": 1, "data_version": 1, "generated_at": "...",
   "labels": { "type": {"spell": {"zh": "咒语卡", "en": "Spell"}, ...},
-              "rarity": {"common".."forbidden": {"zh","en"}} },
+              "rarity": {"common".."mythic"/"dark": {"zh","en"}} },
   "cards": [ { "id": 1001, "type": "spell|summon|companion",
-               "rarity": "common|rare|epic|legendary|brilliant|forbidden",
+               "rarity": "common|rare|epic|legendary|mythic|dark",
                "cost": 5, "img": "images/1001.png", "spell_word": "GLACIUS",
                "tags": ["输出","控制"],
                "i18n": { "zh": {"name","desc","quote","stats"},
@@ -308,3 +308,22 @@ levels 外层形状（等级键 → 条目数组）均不变；破坏点与内�
 
 2026-10-01：暂维持 L1 直连（fastly.jsdelivr.net）为默认；大陆拨测待站长执行后裁决
 （工具 itdog.cn/17ce，判据见 §1.1）。
+
+### 2026-10-01 schema 3/4 适配（spellbook-v4.20261001.0 入库）
+
+上游同日连发 schema 3（i18n 双语补全：zh/en tags、en stats、levels 行级
+k_en/unit_en、en name 补满 141/141）与 schema 4（spellbook-v4.20261001.0）。
+schema 4 相对 3 的实质变化与适配：
+
+1. **稀有度枚举改名**：`brilliant`→`mythic`（11 张，zh 名仍"光辉"）、
+   `forbidden`→`dark`（4 张，"禁忌"→"深渊"）；等级成员不变，纯改名。
+2. 内容仅一处修正：1197 隐身衣→隐形衣；卡 id 集合、类型计数（65/52/24）、
+   levels、en 内容全部不变。
+3. 消费端适配：`EXPECTED_SCHEMA_VERSION` 3→4（spellbookClient.js +
+   fetch-spellbook.mjs）；稀有度 CSS token/类名跟随改名（global.css
+   `--rarity-mythic/--rarity-dark`，CardCodex 色条、CardDetail 徽标、
+   CardImage 占位卡背），颜色映射不变（mythic 继承银白、dark 继承墨绿）；
+   两个 label 集成断言跟随数据（mythic→Mythic、dark→深渊）。筛选下拉等
+   稀有度 UI 均由 labels 数据驱动，零改动。
+4. 管道：`fetch update` 一次入库 v4（sha256 过，netlify.toml `/cardimg/`
+   代理 tag 已同步 spellbook-v4.20261001.0），`--verify` 通过。

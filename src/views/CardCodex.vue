@@ -272,8 +272,8 @@ export default {
  *   rare      稀有 -> 蓝
  *   epic      史诗 -> 紫
  *   legendary 传说 -> 金
- *   brilliant 光辉 -> 银白
- *   forbidden 禁忌 -> 墨绿
+ *   mythic    光辉 -> 银白
+ *   dark      深渊 -> 墨绿
  */
 .card-codex-page {
   padding: 26px 30px 40px;
@@ -554,11 +554,11 @@ export default {
 .rarity-stripe.rarity-legendary {
   background: var(--rarity-legendary);
 }
-.rarity-stripe.rarity-brilliant {
-  background: var(--rarity-brilliant);
+.rarity-stripe.rarity-mythic {
+  background: var(--rarity-mythic);
 }
-.rarity-stripe.rarity-forbidden {
-  background: var(--rarity-forbidden);
+.rarity-stripe.rarity-dark {
+  background: var(--rarity-dark);
 }
 
 /* tile 下方卡名 */

@@ -127,7 +127,7 @@ export default {
 }
 
 /* L3 占位卡背：游戏内框色 token 色块（与色条同源映射）
- *   common 灰白 | rare 蓝 | epic 紫 | legendary 金 | brilliant 银白 | forbidden 墨绿
+ *   common 灰白 | rare 蓝 | epic 紫 | legendary 金 | mythic 银白 | dark 墨绿
  */
 .card-image-fallback {
   width: 100%;
@@ -153,10 +153,10 @@ export default {
 .card-image-fallback.rarity-legendary {
   background: rgba(var(--gold-rgb), 0.16);
 }
-.card-image-fallback.rarity-brilliant {
+.card-image-fallback.rarity-mythic {
   background: rgba(var(--silver-rgb), 0.3);
 }
-.card-image-fallback.rarity-forbidden {
+.card-image-fallback.rarity-dark {
   background: rgba(var(--forest-rgb), 0.12);
 }
 

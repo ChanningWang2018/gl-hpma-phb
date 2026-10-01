@@ -398,7 +398,7 @@ describe('SpellbookService facade over the real committed data', () => {
   });
 
   it('label()/text() delegate with zh fallback', () => {
-    expect(SpellbookService.label('rarity', 'forbidden')).toBe('禁忌');
+    expect(SpellbookService.label('rarity', 'dark')).toBe('深渊');
     const card = SpellbookService.client.byId(1001);
     // v3 在数据侧补全了 en.stats，text() 直接返回 en 值（不再回退 zh）
     expect(SpellbookService.text(card, 'en', 'stats')).toBe(card.i18n.en.stats);

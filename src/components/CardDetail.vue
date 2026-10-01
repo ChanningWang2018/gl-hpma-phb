@@ -466,12 +466,12 @@ export default {
   border-color: var(--rarity-legendary);
   background: rgba(var(--gold-rgb), 0.14);
 }
-.badge-rarity.rarity-brilliant {
-  border-color: var(--rarity-brilliant);
+.badge-rarity.rarity-mythic {
+  border-color: var(--rarity-mythic);
   background: rgba(var(--silver-rgb), 0.24);
 }
-.badge-rarity.rarity-forbidden {
-  border-color: var(--rarity-forbidden);
+.badge-rarity.rarity-dark {
+  border-color: var(--rarity-dark);
   background: rgba(var(--forest-rgb), 0.1);
 }
 
