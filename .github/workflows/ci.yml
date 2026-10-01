@@ -29,6 +29,12 @@ jobs:
           node-version: 22
           cache: npm
 
+      # Guard against hand-edited spellbook data drifting from the upstream
+      # release: audits local sha256 against the pinned tag's checksums.txt.
+      # Needs no npm dependencies, only node + network.
+      - name: Verify spellbook data integrity
+        run: node scripts/fetch-spellbook.mjs --verify
+
       - name: Install dependencies
         run: npm ci
 

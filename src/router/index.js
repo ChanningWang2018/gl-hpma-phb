@@ -12,6 +12,11 @@ const routes = [
     name: 'sales-optimizer',
   },
   {
+    path: '/cards',
+    component: () => import('@/views/CardCodex.vue'),
+    name: 'cards',
+  },
+  {
     path: '/resources',
     component: () => import('@/views/ExternalLinks.vue'),
     name: 'resources',

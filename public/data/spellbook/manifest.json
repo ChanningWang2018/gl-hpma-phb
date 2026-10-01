@@ -1,0 +1,39 @@
+{
+ "schema_version": 3,
+ "data_version": 20261001,
+ "generated_at": "2026-10-01T18:30:26+08:00",
+ "locales": [
+  "zh",
+  "en"
+ ],
+ "image_spec": "375x500 RGBA PNG, transparent background",
+ "source": {
+  "game": "哈利波特：魔法觉醒 PC 客户端 (NeoX)",
+  "card_table": "dbx_new/card (via dbx_lib)",
+  "spellbook_table": "out/spellbook.json (extract_spellbook.py)",
+  "text_tables": [
+   "language_name_text_cn/_en",
+   "language_text_cn/_en",
+   "language_text_old_cn/_en",
+   "old_language_text_cn/_en",
+   "term_text_cn/_en",
+   "comm/data/card_skill_attr_finalized.py (SKILL_ATTR_NAME)"
+  ],
+  "card_art": "out/card_art (static npk faces + official spine-runtime renders)"
+ },
+ "coverage": {
+  "cards": 141,
+  "images": 141,
+  "en_name": 141,
+  "en_desc": 141,
+  "en_quote": 141,
+  "en_tags": 141,
+  "en_stats": 139,
+  "missing_images": []
+ },
+ "notes": [
+  "levels 属性键为游戏中文原值，k_en/unit_en 为 term_text_en 英文对译，无对译时省略该字段",
+  "en 字段缺失表示游戏英文表无对应文案（CN-first 文案）",
+  "仅供个人研究展示，卡面图著作权属网易及版权方"
+ ]
+}

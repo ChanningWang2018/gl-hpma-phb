@@ -60,6 +60,17 @@
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
 
+# ====== 卡面透明代理（卡牌图鉴 L2 降级源） ======
+# 代理 jsDelivr 上锁定 tag 的 spellbook 卡面（版权口径：CDN 式缓存，本站不存图源字节）。
+# 必须放在下方 catch-all 之前 —— Netlify redirects 先到先得，被 /* 吞掉就失效了。
+# 版本升级时此处的 tag 与 public/data/spellbook/version.json 的 imageBase 同步换。
+
+[[redirects]]
+  from = "/cardimg/*"
+  to = "https://fastly.jsdelivr.net/gh/ChanningWang2018/hpma-data@spellbook-v3.20261001.0/spellbook/:splat"
+  status = 200
+  force = true
+
 # ====== 路由重定向 ======
 
 [[redirects]]

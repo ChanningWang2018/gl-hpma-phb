@@ -1,0 +1,69 @@
+name: Spellbook Data Update
+
+on:
+  schedule:
+    # Run every Monday at 03:00 UTC (11:00 Beijing time)
+    - cron: '0 3 * * 1'
+  workflow_dispatch:  # Manual trigger to pull new spellbook data on demand
+
+# Needs write access to commit the updated spellbook data
+permissions:
+  contents: write
+
+# Weekly runs must not trample each other; a stuck run finishes, later ones queue
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  update-spellbook:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15  # Prevent infinite hangs
+
+    steps:
+      # ========== 1. Repository Setup ==========
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # ========== 2. Data Update ==========
+      - name: Fetch latest spellbook release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Raise API rate limit
+        run: node scripts/fetch-spellbook.mjs update | tee spellbook-update.log
+
+      # ========== 3. Commit & Push ==========
+      - name: Commit data if changed
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          VERSION=$(node -p "JSON.parse(require('fs').readFileSync('public/data/spellbook/version.json','utf8')).version")
+
+          if [ -n "$(git status --porcelain -- public/data/spellbook)" ]; then
+            git add public/data/spellbook
+            git commit -m "chore(spellbook): data ${VERSION}"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Committed spellbook data ${VERSION} (push triggers Netlify deploy)"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No spellbook data changes - nothing to commit (noop)."
+          fi
+
+      # ========== 4. Job Summary ==========
+      - name: Write job summary
+        if: always()
+        run: |
+          {
+            echo "## Spellbook data update"
+            echo ""
+            echo '```'
+            cat spellbook-update.log 2>/dev/null || echo "(update log unavailable)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

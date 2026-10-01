@@ -114,6 +114,15 @@ Preview the production build locally:
 npm run preview
 ```
 
+### Spellbook Data Updates
+
+Card Codex data (`public/data/spellbook/`) auto-syncs from upstream [hpma-data](https://github.com/ChanningWang2018/hpma-data) releases: publishing there (3 commands after a game hotfix) → the scheduled `Spellbook Data Update` workflow (Mondays 03:00 UTC) pulls the new tag, commits it → the push triggers the Netlify deploy. To pull immediately, trigger the workflow from the Actions tab (`workflow_dispatch`) or run locally:
+
+```bash
+node scripts/fetch-spellbook.mjs update
+```
+
+
 ## 📊 Supported Characters (Reverberations)
 
 1. Hermione Granger (赫敏·格兰杰)
