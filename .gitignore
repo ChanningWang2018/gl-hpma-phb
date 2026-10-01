@@ -39,3 +39,6 @@ __screenshots__/
 AGENTS.md
 .opencode/
 design-lab/
+
+# Vite dev cache
+.vite/
