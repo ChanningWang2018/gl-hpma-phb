@@ -67,7 +67,7 @@
 
 [[redirects]]
   from = "/cardimg/*"
-  to = "https://fastly.jsdelivr.net/gh/ChanningWang2018/hpma-data@spellbook-v4.20261001.0/spellbook/:splat"
+  to = "https://fastly.jsdelivr.net/gh/ChanningWang2018/hpma-data@spellbook-v5.20261002.0/spellbook/:splat"
   status = 200
   force = true
 

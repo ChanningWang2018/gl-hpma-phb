@@ -372,13 +372,17 @@ describe('SpellbookService facade over the real committed data', () => {
     expect(units).toContain('增益效果');
   });
 
-  it('keeps non-contiguous level keys (card 1002: 1..30 then 41..60)', () => {
-    const rows = SpellbookService.formatLevelRows(
-      SpellbookService.client.byId(1002),
-    );
-    expect(rows).toHaveLength(50); // 30 + 20 keys, the 31..40 gap is not fabricated
-    expect(rows[29].lv).toBe('30');
-    expect(rows[30].lv).toBe('41'); // the gap is preserved, order numeric
+  it('keeps non-contiguous level keys ordered without fabricating the gap', () => {
+    // v5 rebalanced 1002 (the old non-contiguous real fixture) down to 1..30;
+    // the gap behaviour is covered with a synthetic card instead.
+    const rows = SpellbookService.formatLevelRows({
+      levels: {
+        1: [{ k: '伤害', v: 10, pct: false }],
+        3: [{ k: '伤害', v: 30, pct: false }],
+      },
+    });
+    expect(rows).toHaveLength(2);
+    expect(rows.map((row) => row.lv)).toEqual(['1', '3']); // the 2 gap is not fabricated
   });
 
   it('returns [] for the two cards that have no levels (1108, 1176)', () => {
@@ -395,6 +399,35 @@ describe('SpellbookService facade over the real committed data', () => {
       readFileSync('public/data/spellbook/version.json', 'utf8'),
     );
     expect(SpellbookService.imageUrl(1001)).toBe(`${imageBase}images/1001.png`);
+  });
+
+  it('exposes the native frame table and derives every frame URL from imageBase', () => {
+    const frames = SpellbookService.frames;
+    // 6 rarities, spec shape { file, size, inner } (schema 5 frames table)
+    expect(Object.keys(frames).sort()).toEqual([
+      'common',
+      'dark',
+      'epic',
+      'legendary',
+      'mythic',
+      'rare',
+    ]);
+    for (const meta of Object.values(frames)) {
+      expect(meta.file).toMatch(/^frame_[a-z]+\.png$/);
+      expect(meta.size).toHaveLength(2);
+      expect(meta.inner).toHaveLength(4);
+    }
+    // frameUrl() = version.json imageBase + frames/<file>, derived per entry
+    const { imageBase } = JSON.parse(
+      readFileSync('public/data/spellbook/version.json', 'utf8'),
+    );
+    for (const [rarity, meta] of Object.entries(frames)) {
+      expect(SpellbookService.frameUrl(rarity)).toBe(
+        `${imageBase}frames/${meta.file}`,
+      );
+    }
+    // unknown rarity -> null without throwing (decorative, CSS fallback)
+    expect(SpellbookService.frameUrl('nonexistent')).toBe(null);
   });
 
   it('label()/text() delegate with zh fallback', () => {

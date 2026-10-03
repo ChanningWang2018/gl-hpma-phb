@@ -267,7 +267,8 @@ export default {
 
 <style scoped>
 /*
- * 稀有度 -> 游戏内框色映射（全局 --rarity-* token，与占位卡背/详情徽标同源）：
+ * 稀有度视觉：主视觉是 CardImage 叠加的游戏原生品质边框（schema 5 frames 表）；
+ * CSS 色条（全局 --rarity-* token）降级兜底——仅当边框图两级加载都失败时显示。
  *   common    普通 -> 灰白
  *   rare      稀有 -> 蓝
  *   epic      史诗 -> 紫
@@ -507,9 +508,13 @@ export default {
   outline-offset: 2px;
 }
 
-/* 悬停抬升作用在 CardImage 根元素（scoped 可达子组件根节点） */
+/* 悬停抬升作用在 CardImage 根元素（scoped 可达子组件根节点）；发丝边提亮
+ * 只对无边框降级态有意义——带原生边框时描边由花纹承担，边已透明 */
 .tile-hit:hover .card-image {
   transform: translateY(-2px);
+}
+
+.tile-hit:hover .card-image:not(.card-image--framed) {
   border-color: var(--ink-faded);
 }
 
@@ -532,7 +537,8 @@ export default {
   border-radius: 2px;
 }
 
-/* 稀有度细色条：贴 tile 底边 */
+/* 稀有度细色条：贴 tile 底边——原生边框显示中时隐藏（frameShown 由
+ * CardImage 根类 card-image--framed 反映），边框加载失败后自动恢复 */
 .rarity-stripe {
   position: absolute;
   left: 0;
@@ -540,6 +546,10 @@ export default {
   bottom: 0;
   height: 4px;
   z-index: 2;
+}
+
+.card-image--framed .rarity-stripe {
+  display: none;
 }
 
 .rarity-stripe.rarity-common {

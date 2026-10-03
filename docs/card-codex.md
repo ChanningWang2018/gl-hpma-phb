@@ -327,3 +327,29 @@ schema 4 相对 3 的实质变化与适配：
    稀有度 UI 均由 labels 数据驱动，零改动。
 4. 管道：`fetch update` 一次入库 v4（sha256 过，netlify.toml `/cardimg/`
    代理 tag 已同步 spellbook-v4.20261001.0），`--verify` 通过。
+
+### 2026-10-03 schema 5 适配（spellbook-v5.20261002.0 入库）
+
+上游发布 `spellbook-v5.20261002.0`（schema_version 5，data_version 20261002，
+游戏平衡补丁后的内容刷新）。结构 diff 结论：
+
+1. **新增顶层 `frames` 表**：按稀有度给出品质
+   边框图规格 `{ file, size, inner }`，指向 release 新增的 `frames/`
+   目录（frame_common.png 等 6 张，208×272 RGBA，花纹带 + 透明卡面窗口，
+   `inner` 即窗口矩形）。入库时未消费（CSS 色条当主视觉）；
+   **2026-10-03 已采用**：CardImage 叠加原生边框层（tile 与详情大图共用），
+   卡面按 `inner` 缩进定位还原游戏内构图，容器比例锁定 208:272，URL 走
+   与卡面相同的 jsDelivr 外链口径（imageBase + `frames/<file>`，
+   `/cardimg/` 代理透传）；边框加载失败逐级降级，两级皆失败回退 CSS
+   稀有度视觉（tile 色条自动恢复显示）。
+2. **卡数据形状零变化**：id 集合 141 张、类型/稀有度计数、labels、
+   i18n/levels 键全部不变；仅 ~18 张卡的 stats 摘要与 levels 数值随
+   平衡补丁刷新（并修正了 v4 的两个提取错误：1068 生命值 12114199→1161、
+   1087 伤害 10→12247→22→156）。1002 石礅出动等级表从 1..30+41..60
+   （50 级）重做为连续 1..30，全数据集已无非连续等级键的卡——原真数据
+   断言改为合成 fixture 用例（保留空隙不补齐的行为覆盖）。
+3. 消费端适配：`EXPECTED_SCHEMA_VERSION` 4→5（spellbookClient.js +
+   fetch-spellbook.mjs）。fetch 脚本 checksums.txt 为按路径查表，新增的
+   frames/* 校验行不影响三文件校验。
+4. 管道：`fetch update` 入库 v5（sha256 过，netlify.toml `/cardimg/`
+   代理 tag 已同步 spellbook-v5.20261002.0），`--verify` 通过。

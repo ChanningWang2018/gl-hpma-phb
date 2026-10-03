@@ -15,6 +15,8 @@ export const useCardStore = defineStore('card', {
     // spellbook data (populated by loadCards(); empty until then)
     cards: [],
     labels: {},
+    // 原生品质边框表（schema 5，cards.json 顶层 frames；缺失时保持空对象）
+    frames: {},
 
     // UI 语言（'zh' | 'en'）：初次进入按 localStorage > 浏览器语言解析，
     // 之后由 setLocale 更新并持久化；数据侧文案由 lookup* 按 locale 取
@@ -42,6 +44,9 @@ export const useCardStore = defineStore('card', {
       SpellbookService.filterCards(state.cards, state.filters),
 
     totalCards: (state) => state.cards.length,
+
+    // 某稀有度的原生边框规格（{ file, size, inner } | null），CardImage 叠加层用
+    frameFor: (state) => (rarity) => state.frames?.[rarity] ?? null,
 
     // 类型分段选项：'all' 置顶，其后按 labels.type 的声明顺序（spell/summon/companion）
     typeOptions: (state) => {
@@ -114,6 +119,7 @@ export const useCardStore = defineStore('card', {
         const snapshot = await SpellbookService.load();
         this.cards = snapshot.cards;
         this.labels = snapshot.labels;
+        this.frames = snapshot.frames ?? {};
         this.error = null;
       } catch (error) {
         console.error('Failed to load spellbook data:', error);

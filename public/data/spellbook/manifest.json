@@ -1,12 +1,13 @@
 {
- "schema_version": 4,
- "data_version": 20261001,
- "generated_at": "2026-10-01T20:57:07+08:00",
+ "schema_version": 5,
+ "data_version": 20261002,
+ "generated_at": "2026-10-03T02:13:44+08:00",
  "locales": [
   "zh",
   "en"
  ],
- "image_spec": "375x500 RGBA PNG, transparent background",
+ "image_spec": "375x500 RGBA PNG（spine 官方渲染直出；静态小图 Lanczos 放大+轻锐化，cover 居中裁切）",
+ "frame_spec": "品质边框（书页正框）frames/frame_{rarity}.png （208x272 RGBA）：inner=内窗矩形 [x,y,w,h]，卡面 cover-fit 填满 inner（居中裁切），框图叠满画布",
  "source": {
   "game": "哈利波特：魔法觉醒 PC 客户端 (NeoX)",
   "card_table": "dbx_new/card (via dbx_lib)",
@@ -20,7 +21,8 @@
    "term_text_cn/_en",
    "comm/data/card_skill_attr_finalized.py (SKILL_ATTR_NAME)"
   ],
-  "card_art": "out/card_art (static npk faces + official spine-runtime renders)"
+  "card_art": "out/card_art (static npk faces + official spine-runtime renders)",
+  "card_frames": "ui.npk _bigbg/pic_fashukuang_01..06.dds (运行时寻址 ui/_bigbg/pic_fashukuang_0{rarity})"
  },
  "coverage": {
   "cards": 141,
@@ -34,8 +36,10 @@
  },
  "notes": [
   "levels 属性键为游戏中文原值，k_en/unit_en 为 term_text_en 英文对译，无对译时省略该字段",
+  "levels 仅含 1~30 级（魔咒书游戏内上限）；card_skill_attr 中 31+ 的行属其他玩法系统，不属于 spellbook，未入包，stats 汇总同口径",
   "type/rarity 枚举码与游戏显示词同步（v4 起稀有度 5/6 为 dark/mythic，原 forbidden/brilliant）；显示名取自游戏 ui_text（sousuo_lv_01..06、card_design_contest_text2..4）",
+  "v5: frames 品质边框按 rarity 一一对应（common..mythic = pic_fashukuang_01..06 书页正框，内窗全透明），消费端将卡面全幅铺底后叠加框图即为游戏内书页卡观感",
   "en 字段缺失表示游戏英文表无对应文案（CN-first 文案）",
-  "仅供个人研究展示，卡面图著作权属网易及版权方"
+  "仅供个人研究展示，卡面图与边框素材著作权属网易及版权方"
  ]
 }

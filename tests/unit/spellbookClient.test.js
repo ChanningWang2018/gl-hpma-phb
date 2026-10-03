@@ -200,6 +200,97 @@ describe('createClient (real committed data)', () => {
     ).toBe('https://x.example/images/1001.png');
   });
 
+  it('frames exposes the schema-5 frame table of the real data', () => {
+    const frames = client.frames;
+    expect(Object.keys(frames).sort()).toEqual([
+      'common',
+      'dark',
+      'epic',
+      'legendary',
+      'mythic',
+      'rare',
+    ]);
+    for (const meta of Object.values(frames)) {
+      expect(meta.file).toMatch(/^frame_[a-z]+\.png$/);
+      expect(meta.size).toHaveLength(2);
+      expect(meta.inner).toHaveLength(4);
+    }
+    // every rarity that appears on a real card has a frame entry
+    for (const card of client.cards) {
+      expect(frames[card.rarity]).toBeDefined();
+    }
+  });
+
+  it('frameUrl() resolves live with the same base priority as imageUrl()', async () => {
+    const jsDelivrBase = client.versionInfo.imageBase;
+    const file = client.frames.legendary.file;
+
+    // 3rd priority: loaded version.json imageBase + frames/<file>.
+    expect(client.frameUrl('legendary')).toBe(`${jsDelivrBase}frames/${file}`);
+
+    // 1st priority: explicit imageBaseUrl option wins over everything.
+    // (frameUrl needs the loaded frames table for the file name, unlike
+    // imageUrl which can resolve a bare id against an explicit base alone.)
+    const pinned = createClient({
+      dataBaseUrl: DATA_BASE,
+      imageBaseUrl: 'https://cdn.example.com/pkg',
+    });
+    await pinned.load();
+    expect(pinned.frameUrl('legendary')).toBe(
+      `https://cdn.example.com/pkg/frames/${file}`,
+    );
+
+    // 2nd priority: ?img= query param beats version.json but loses to the option.
+    globalThis.location = new URL(
+      'https://demo.test/?img=https://query.example/base/',
+    );
+    expect(client.frameUrl('legendary')).toBe(
+      `https://query.example/base/frames/${file}`,
+    );
+    expect(pinned.frameUrl('legendary')).toBe(
+      `https://cdn.example.com/pkg/frames/${file}`,
+    );
+
+    // Empty ?img= is ignored (falls through to version.json).
+    globalThis.location = new URL('https://demo.test/?img=');
+    expect(client.frameUrl('legendary')).toBe(`${jsDelivrBase}frames/${file}`);
+  });
+
+  it('frameUrl() returns null instead of throwing on every unresolvable case', async () => {
+    // Before load(): no frames, no base — decorative, so null (not a throw).
+    const fresh = createClient({ dataBaseUrl: DATA_BASE });
+    expect(fresh.frameUrl('legendary')).toBe(null);
+    // After load(): unknown rarity code.
+    expect(client.frameUrl('nonexistent')).toBe(null);
+
+    // Loaded data without an image base (version.json has no imageBase).
+    const dir = await mkdtemp(path.join(tmpdir(), 'hpma-frame-nobase-'));
+    await writeFile(
+      path.join(dir, 'cards.json'),
+      JSON.stringify({
+        schema_version: EXPECTED_SCHEMA_VERSION,
+        data_version: 1,
+        labels: {},
+        frames: {
+          legendary: {
+            file: 'frame_legendary.png',
+            size: [208, 272],
+            inner: [21, 24, 168, 232],
+          },
+        },
+        cards: [],
+      }),
+    );
+    await writeFile(path.join(dir, 'manifest.json'), JSON.stringify({}));
+    await writeFile(
+      path.join(dir, 'version.json'),
+      JSON.stringify({ tag: 'spellbook-v1.0.0', imageBase: '' }),
+    );
+    const noBase = createClient({ dataBaseUrl: dir });
+    await noBase.load();
+    expect(noBase.frameUrl('legendary')).toBe(null);
+  });
+
   it('throws a helpful error when accessing data before load()', () => {
     const fresh = createClient({ dataBaseUrl: DATA_BASE });
     expect(() => fresh.cards).toThrow(/load\(\)/);

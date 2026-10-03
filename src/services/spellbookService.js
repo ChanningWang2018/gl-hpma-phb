@@ -45,6 +45,25 @@ export class SpellbookService {
     return client.labels;
   }
 
+  /**
+   * Native quality-frame table from cards.json (schema 5):
+   * { <rarity>: { file, size, inner } }, or null when absent.
+   * Throws before load() — same contract as the labels getter.
+   */
+  static get frames() {
+    return client.frames;
+  }
+
+  /**
+   * Resolved URL of the native quality frame for a rarity (image base +
+   * `frames/<file>`), or null when unresolvable — never throws (safe even
+   * before load()), the UI degrades to its CSS rarity visual.
+   * See client.frameUrl.
+   */
+  static frameUrl(rarity) {
+    return client.frameUrl(rarity);
+  }
+
   /** version.json content ({ tag, version, imageBase, ... }). */
   static get versionInfo() {
     return client.versionInfo;

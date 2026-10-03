@@ -20,8 +20,12 @@
  *   2. the `?img=<base>` query parameter of the browser URL (manual override)
  *   3. the `imageBase` field of the loaded version.json (single source of truth)
  *
- * Data model (schema_version 4):
- *   cards.json    = { schema_version, data_version, generated_at, labels, cards }
+ * Data model (schema_version 5):
+ *   cards.json    = { schema_version, data_version, generated_at, labels,
+ *                     frames?, cards }   // frames (schema 5): per-rarity
+ *                     // frame art specs { file, size, inner } pointing at the
+ *                     // release's frames/ dir; resolved via frameUrl() with
+ *                     // the same image-base priority as imageUrl()
  *   manifest.json = extraction metadata (coverage, source, notes, ...)
  *   version.json  = { tag, version, schemaVersion, dataVersion, imageBase, generatedAt }
  *   labels        = { type: { <code>: { zh, en } }, rarity: { <code>: { zh, en } } }
@@ -39,7 +43,7 @@
  */
 
 /** Schema version this loader understands. Bump only on structural changes. */
-export const EXPECTED_SCHEMA_VERSION = 4;
+export const EXPECTED_SCHEMA_VERSION = 5;
 
 /** Default data base when neither an option nor `?img=`-style overrides apply. */
 export const DEFAULT_DATA_BASE_URL = '/data/spellbook/';
@@ -194,6 +198,7 @@ function prepareDoc(cardsDoc, manifest, versionInfo) {
     dataVersion: cardsDoc.data_version,
     generatedAt: cardsDoc.generated_at,
     labels: cardsDoc.labels ?? {},
+    frames: cardsDoc.frames ?? null,
     cards: cardsDoc.cards,
     manifest: manifest ?? null,
     versionInfo: versionInfo ?? null,
@@ -219,6 +224,7 @@ function prepareDoc(cardsDoc, manifest, versionInfo) {
  *   client.label('rarity', 'epic', 'en');
  *   client.text(card, 'en', 'name'); // falls back to zh
  *   client.imageUrl(card);           // image base + card.img (resolved live)
+   client.frameUrl(card.rarity);    // image base + frames/<file> (or null)
  *   client.versionInfo;              // version.json content
  *
  * @param {{
@@ -270,6 +276,7 @@ export function createClient(options = {}) {
       dataVersion: d.dataVersion,
       generatedAt: d.generatedAt,
       labels: d.labels,
+      frames: d.frames,
       cards: d.cards,
       manifest: d.manifest,
       versionInfo: d.versionInfo,
@@ -312,6 +319,16 @@ export function createClient(options = {}) {
     /** labels map from cards.json ({ type: {...}, rarity: {...} }). Throws before load(). */
     get labels() {
       return requireLoaded().labels;
+    },
+
+    /**
+     * Native quality-frame table from cards.json (schema 5):
+     * { <rarity>: { file, size: [w, h], inner: [x, y, w, h] } } — `inner` is
+     * the art window inside the frame, in frame-PNG pixels. Null when the
+     * loaded document carries no frames table.
+     */
+    get frames() {
+      return requireLoaded().frames;
     },
 
     /** Raw manifest.json document (null when unavailable). Throws before load(). */
@@ -368,6 +385,25 @@ export function createClient(options = {}) {
         );
       }
       return resolveImageUrl(base, cardOrId);
+    },
+
+    /**
+     * Fully-resolved URL of the native quality frame for a rarity, or null.
+     *
+     * Unlike imageUrl() this never throws: the frame is decorative and the UI
+     * falls back to its CSS rarity visual, so every unresolvable case (no
+     * frames table, unknown rarity, image base not ready) just yields null.
+     * The base itself resolves live with the same priority as imageUrl()
+     * (explicit option > `?img=` > version.json imageBase).
+     */
+    frameUrl(rarity) {
+      // loaded? (not requireLoaded): pre-load callers get null, not a throw —
+      // the frame is decorative and its absence just keeps the CSS fallback.
+      const frame = loaded?.frames?.[rarity];
+      if (!frame || typeof frame.file !== 'string' || !frame.file) return null;
+      const base = currentImageBaseUrl();
+      if (!base) return null;
+      return joinUrl(base, joinUrl('frames', frame.file));
     },
   };
 }

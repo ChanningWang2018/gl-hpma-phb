@@ -1,11 +1,17 @@
 <template>
   <div
     class="card-image"
-    :class="[`card-image--${size}`, `rarity-${card.rarity}`]"
+    :class="[
+      `card-image--${size}`,
+      `rarity-${card.rarity}`,
+      { 'card-image--framed': frameShown },
+    ]"
   >
     <img
       v-if="stage !== 'placeholder'"
       class="card-image-img"
+      :class="{ 'card-image-img--inset': insetStyle }"
+      :style="insetStyle"
       :src="currentUrl"
       :alt="cardName"
       :loading="size === 'detail' ? 'eager' : 'lazy'"
@@ -17,6 +23,19 @@
       <span class="card-image-fallback-id">No. {{ card.id }}</span>
       <span class="card-image-fallback-name">{{ cardName }}</span>
     </div>
+    <!-- 游戏原生品质边框（schema 5 frames 表，imageBase/frames/<file> 外链）：
+         花纹带 + 透明卡面窗口，窗口内卡面按 frame.inner 缩进定位。加载失败
+         逐级降级，两级都失败时整体回退 CSS 稀有度视觉（色条/发丝边）。 -->
+    <img
+      v-if="frameShown"
+      class="card-image-frame"
+      :src="currentFrameUrl"
+      alt=""
+      aria-hidden="true"
+      :loading="size === 'detail' ? 'eager' : 'lazy'"
+      decoding="async"
+      @error="onFrameError"
+    />
     <!-- 网格 tile 的费用徽标 / 稀有度色条等覆盖件由宿主经 slot 注入 -->
     <slot></slot>
   </div>
@@ -28,8 +47,9 @@ import { SpellbookService } from '@/services/spellbookService.js';
 import { useCardStore } from '@/stores/cardStore.js';
 
 // L2 本站透明代理基地址（netlify.toml: /cardimg/* -> 锁定 tag 的 jsDelivr）。
-// 注意红线：L1 默认图源必须经 SpellbookService.imageUrl 解析（version.json
-// imageBase / ?img= 覆盖），这里只拼本站同源路径，不手拼任何 CDN 域名。
+// 注意红线：L1 默认图源必须经 SpellbookService.imageUrl / frameUrl 解析
+//（version.json imageBase / ?img= 覆盖），这里只拼本站同源路径，不手拼任何
+// CDN 域名。
 const CARDIMG_BASE = '/cardimg/';
 
 export default {
@@ -57,6 +77,8 @@ export default {
     return {
       // 图片降级阶段：'primary'(L1 直连) | 'proxy'(L2 本站代理) | 'placeholder'(L3 占位)
       stage: 'primary',
+      // 原生边框降级阶段：'primary'(L1 直连) | 'proxy'(L2 本站代理) | 'off'(回退 CSS 视觉)
+      frameStage: 'primary',
     };
   },
   computed: {
@@ -83,6 +105,48 @@ export default {
       if (this.stage === 'proxy') return this.proxyUrl;
       return this.primaryUrl ?? this.proxyUrl;
     },
+    // 原生边框规格（{ file, size, inner } | null），cards.json frames 表经 store 透传
+    frame() {
+      return this.cardStore.frameFor(this.card.rarity);
+    },
+    // L1 路径：imageBase + frames/<file>；无 frames 表 / 未就绪时为 null
+    //（frameUrl 不抛错——边框是装饰件，未就绪即走 CSS 兜底）
+    framePrimaryUrl() {
+      return SpellbookService.frameUrl(this.card.rarity);
+    },
+    // L2 路径：本站同源代理（/cardimg/* 透传 frames/ 子目录）
+    frameProxyUrl() {
+      return this.frame?.file
+        ? joinUrl(CARDIMG_BASE, `frames/${this.frame.file}`)
+        : null;
+    },
+    currentFrameUrl() {
+      if (this.frameStage === 'off') return null;
+      if (this.frameStage === 'proxy') return this.frameProxyUrl;
+      return this.framePrimaryUrl ?? this.frameProxyUrl;
+    },
+    frameShown() {
+      return Boolean(this.currentFrameUrl);
+    },
+    // 卡面窗口定位：边框显示中且规格齐全时，把卡面绝对定位到 frame.inner
+    //（frame-PNG 像素换算成容器百分比），还原游戏内「花纹压住卡面四缘」的
+    // 构图；边框缺席/降级关闭时返回 null，卡面铺满整个容器（原行为）
+    insetStyle() {
+      const meta = this.frame;
+      if (!this.currentFrameUrl || !meta?.inner || !meta?.size) return null;
+      const [x, y, w, h] = meta.inner;
+      const [sw, sh] = meta.size;
+      const numeric = [x, y, w, h, sw, sh].every(
+        (n) => Number.isFinite(n) && n >= 0,
+      );
+      if (!numeric || w <= 0 || h <= 0 || sw <= 0 || sh <= 0) return null;
+      return {
+        left: `${(x / sw) * 100}%`,
+        top: `${(y / sh) * 100}%`,
+        width: `${(w / sw) * 100}%`,
+        height: `${(h / sh) * 100}%`,
+      };
+    },
   },
   methods: {
     onImageError() {
@@ -97,19 +161,31 @@ export default {
         this.stage = 'placeholder';
       }
     },
+    onFrameError() {
+      // 与卡面同构的降级：L1 -> L2 一次代理重试，再失败关掉边框层——
+      // 宿主的稀有度色条与容器发丝边随之自动恢复（CSS 兜底视觉）
+      if (this.frameStage === 'primary') {
+        const primary = this.framePrimaryUrl;
+        this.frameStage =
+          primary && primary !== this.frameProxyUrl ? 'proxy' : 'off';
+      } else {
+        this.frameStage = 'off';
+      }
+    },
   },
 };
 </script>
 
 <style scoped>
 /*
- * 3:4 卡面框：网格 tile 与详情大图共用同一实现（docs/card-codex.md §1.1）。
- * 宽度由宿主容器决定，size 变体只承载语义钩子与加载策略差异。
- * 覆盖件（费用徽标/稀有度色条）为 slot 内容，样式留在宿主组件。
+ * 卡面框：网格 tile 与详情大图共用同一实现（docs/card-codex.md §1.1）。
+ * 比例锁定为原生边框 PNG 的 frames.size（208:272）——花纹带 1:1 贴合不失真，
+ * 无边框降级态同为近 3:4。宽度由宿主容器决定，size 变体只承载语义钩子与
+ * 加载策略差异。覆盖件（费用徽标/稀有度色条）为 slot 内容，样式留在宿主组件。
  */
 .card-image {
   position: relative;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 208 / 272;
   overflow: hidden;
   background: var(--paper-deep);
   border: 1px solid var(--rule);
@@ -119,11 +195,34 @@ export default {
     border-color 0.25s;
 }
 
+/* 边框显示中：原生花纹自带描边，隐藏占位发丝边（保留 1px 占位避免跳动） */
+.card-image--framed {
+  border-color: transparent;
+}
+
 .card-image-img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* 边框窗口模式：卡面缩进 frame.inner（left/top/width/height 由内联样式给出） */
+.card-image-img--inset {
+  position: absolute;
+}
+
+/* 原生品质边框层：整幅覆盖容器，透明窗口露出下层卡面；z 序在卡面之上、
+ * 宿主 slot 覆盖件（z-index 2）之下 */
+.card-image-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  /* 容器比例已锁定为 PNG 比例，fill 保证花纹与窗口严格 1:1 贴合 */
+  object-fit: fill;
+  pointer-events: none;
 }
 
 /* L3 占位卡背：游戏内框色 token 色块（与色条同源映射）
