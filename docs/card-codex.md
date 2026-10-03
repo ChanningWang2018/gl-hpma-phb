@@ -89,6 +89,15 @@ L1 直连为默认（L2 仅作自动降级）；不稳则把 version.json 的 `i
 
 2026-10-01：暂维持 L1 直连（fastly.jsdelivr.net）为默认；大陆拨测待站长执行后裁决（工具 itdog.cn/17ce，判据见上）。
 
+2026-10-04：**卡面格式优化上线（WebP 副本集）**。上游 release 起新增
+`images_webp/{id}.webp`（与 `images/` 同名同分辨率，q82，35MB→2.8MB），
+manifest 以 `webp_images` 声明能力、经 version.json `imagesWebp` 下发；
+消费端 L1 优先加载 WebP，**任一张失败即扳全局闩回落 PNG**（WebP 可用性是
+整个 release 的属性），PNG 再走原 L2 代理 → L3 占位阶梯。帧边框/详情页
+不变；`?img=` 覆盖与降级链全部兼容（实测旧 tag 覆盖 → 全量回落 PNG 正常）。
+首屏字节从约 35MB（全部滚动加载完）降到约 3MB。jsDelivr 对 tag immutable
+缓存，WebP 副本与 PNG 同生命周期。大陆拨测裁决（L1 直连 vs L2 默认）仍待执行。
+
 ### 1.2 明确不做（续）
 
 明确不做：图片本地化/自建代理（需重估版权）；cards.json 分片压缩（gzip 后体积可接受，先不过度设计）；组件级 UI 测试（vitest 是 node 环境，与现状一致只测逻辑层）。

@@ -27,7 +27,11 @@
  *                     // release's frames/ dir; resolved via frameUrl() with
  *                     // the same image-base priority as imageUrl()
  *   manifest.json = extraction metadata (coverage, source, notes, ...)
- *   version.json  = { tag, version, schemaVersion, dataVersion, imageBase, generatedAt }
+ *   version.json  = { tag, version, schemaVersion, dataVersion, imageBase,
+ *                     imagesWebp, generatedAt }  // imagesWebp: dir of the
+ *                     // release's card-art WebP copy set (e.g.
+ *                     // "images_webp/") or null when the release has none;
+ *                     // see imageUrl(…, 'webp')
  *   labels        = { type: { <code>: { zh, en } }, rarity: { <code>: { zh, en } } }
  *   Card          = { id, type, rarity, cost, img, spell_word, tags, i18n, levels? }
  *   i18n          = { zh: { name, desc, quote, stats, tags },
@@ -112,6 +116,22 @@ export function lookupTags(card, locale) {
 export function cardImagePath(cardOrId) {
   if (cardOrId !== null && typeof cardOrId === 'object') return cardOrId.img;
   return `images/${cardOrId}.png`;
+}
+
+/**
+ * Path of the card's WebP copy for a given capability dir, or null when the
+ * card's `img` path doesn't follow the `images/<id>.png` convention the
+ * mirror set is built from (same ids, `.webp` extension).
+ *
+ *   webpImagePath('images/1001.png', 'images_webp/') -> 'images_webp/1001.webp'
+ */
+export function webpImagePath(img, webpDir) {
+  if (typeof img !== 'string' || !/^images\/[^/]+\.png$/.test(img)) return null;
+  if (typeof webpDir !== 'string' || !webpDir) return null;
+  return `${webpDir.replace(/\/+$/, '')}/${img.slice(
+    'images/'.length,
+    -'.png'.length,
+  )}.webp`;
 }
 
 /** Absolute (base-resolved) image URL for a card object or bare id. */
@@ -294,12 +314,14 @@ export function createClient(options = {}) {
    * Resolve the card-image base right now.
    * Priority: explicit option > `?img=` query param > version.json imageBase.
    * Returns null when none applies (version.json not loaded yet and no
-   * explicit/queried base).
+   * explicit/queried base). `allowUnloaded` skips the requireLoaded() throw —
+   * for the webp form, which returns null instead of throwing at every stage.
    */
-  function currentImageBaseUrl() {
+  function currentImageBaseUrl({ allowUnloaded = false } = {}) {
     if (explicitImageBase) return explicitImageBase;
     const fromQuery = readImageBaseOverride();
     if (fromQuery) return normalizeBaseUrl(fromQuery);
+    if (allowUnloaded && !loaded) return null;
     const fromVersion = requireLoaded().versionInfo?.imageBase;
     return fromVersion ? normalizeBaseUrl(fromVersion) : null;
   }
@@ -370,13 +392,30 @@ export function createClient(options = {}) {
     /**
      * Fully-resolved image URL for a card object or bare id.
      *
-     * The image base is resolved live on every call (option > `?img=` >
-     * version.json imageBase). Throws when no base can be resolved — i.e.
-     * called before `load()` completed and without an explicit `imageBaseUrl`
-     * option or `?img=` query param; callers treat that as a bug, the UI's
-     * broken-image fallback chain handles network failures instead.
+     * `format: 'png'` (default) is the canonical art URL: the image base is
+     * resolved live on every call (option > `?img=` > version.json imageBase)
+     * and it throws when no base can be resolved — i.e. called before `load()`
+     * completed and without an explicit `imageBaseUrl` option or `?img=` query
+     * param; callers treat that as a bug, the UI's broken-image fallback chain
+     * handles network failures instead.
+     *
+     * `format: 'webp'` returns the URL of the release's WebP copy set
+     * (version.json `imagesWebp` dir, same ids/resolution). It NEVER throws
+     * and returns null whenever the variant isn't available — release without
+     * a WebP set, non-conventional `img` path, or no resolvable base. Like
+     * frameUrl(), this is a progressive enhancement: callers fall back to the
+     * PNG URL instead of handling an error.
      */
-    imageUrl(cardOrId) {
+    imageUrl(cardOrId, format = 'png') {
+      if (format === 'webp') {
+        const webpPath = webpImagePath(
+          cardImagePath(cardOrId),
+          loaded?.versionInfo?.imagesWebp,
+        );
+        if (!webpPath) return null;
+        const base = currentImageBaseUrl({ allowUnloaded: true });
+        return base ? joinUrl(base, webpPath) : null;
+      }
       const base = currentImageBaseUrl();
       if (!base) {
         throw new Error(

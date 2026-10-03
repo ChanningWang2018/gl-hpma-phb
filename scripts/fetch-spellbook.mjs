@@ -158,6 +158,9 @@ export function validateCardsPayload(cardsJson) {
 }
 
 // Assembles the version.json document consumed by the UI and --verify.
+// imagesWebp mirrors manifest.webp_images (the card-art WebP copy set,
+// e.g. "images_webp/") — null when the release carries no WebP set, which
+// is the consumer's signal to load PNG directly.
 // Key order matches the T1-committed file byte for byte.
 export function buildVersionJson({ tag, manifest, previousImageBase }) {
   return {
@@ -166,6 +169,10 @@ export function buildVersionJson({ tag, manifest, previousImageBase }) {
     schemaVersion: manifest.schema_version,
     dataVersion: manifest.data_version,
     imageBase: swapTagInImageBase(previousImageBase, tag),
+    imagesWebp:
+      typeof manifest.webp_images === 'string' && manifest.webp_images
+        ? manifest.webp_images
+        : null,
     generatedAt: manifest.generated_at,
   };
 }
@@ -493,6 +500,20 @@ async function runVerify(repo) {
       problems.push(
         `imageBase 未包含当前 tag（@${tag}）：${JSON.stringify(local.imageBase ?? null)}`,
       );
+    }
+    {
+      // imagesWebp must mirror manifest.webp_images verbatim (null included).
+      const expected = buildVersionJson({
+        tag,
+        manifest: manifestJson,
+        previousImageBase: local.imageBase,
+      }).imagesWebp;
+      if (local.imagesWebp !== expected) {
+        problems.push(
+          `imagesWebp 不一致：version.json=${JSON.stringify(local.imagesWebp ?? null)}，` +
+            `manifest.webp_images=${JSON.stringify(manifestJson.webp_images ?? null)}`,
+        );
+      }
     }
     if (manifestJson.schema_version !== EXPECTED_SCHEMA_VERSION) {
       problems.push(

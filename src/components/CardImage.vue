@@ -15,6 +15,7 @@
       :src="currentUrl"
       :alt="cardName"
       :loading="size === 'detail' ? 'eager' : 'lazy'"
+      :fetchpriority="size === 'detail' ? 'high' : 'auto'"
       decoding="async"
       @error="onImageError"
     />
@@ -89,8 +90,14 @@ export default {
         `No. ${this.card.id}`
       );
     },
-    // L1 路径：service 解析默认图源；解析不出时返回 null（交给代理兜底）
+    // L1 路径：优先 WebP 副本（version.json imagesWebp 能力 + store 闩），
+    // 不可用回落 PNG 原图；service 解析不出 PNG 时返回 null（交给代理兜底）
     primaryUrl() {
+      if (!this.cardStore.webpOff) {
+        // webp 解析永不抛错：无能力/未就绪/路径不规则一律 null
+        const webp = SpellbookService.imageUrl(this.card, 'webp');
+        if (webp) return webp;
+      }
       try {
         return SpellbookService.imageUrl(this.card);
       } catch (error) {
@@ -151,9 +158,25 @@ export default {
   methods: {
     onImageError() {
       if (this.stage === 'primary') {
-        // L1 -> L2：代理重试只发生一次。若默认图源本身就是代理路径
+        // 失败的是 WebP 副本（闩未扳 + 能力仍在）→ 全局回落 PNG：WebP 可用性
+        // 是整个 release 的属性，一张 404 即整套不可信。stage 保持 primary，
+        // primaryUrl 重算为 PNG，src 换绑后浏览器自动改拉 PNG（在途 WebP 请求
+        // 随 src 变更被浏览器中止，其余瓦片同理一并切换）。
+        if (
+          !this.cardStore.webpOff &&
+          SpellbookService.imageUrl(this.card, 'webp')
+        ) {
+          this.cardStore.disableWebpImages();
+          return;
+        }
+        // L1(PNG) -> L2：代理重试只发生一次。若默认图源本身就是代理路径
         //（T5 拨测后可能把 imageBase 改为 /cardimg/），重试同 URL 无意义，直达 L3。
-        const primary = this.primaryUrl;
+        let primary = null;
+        try {
+          primary = SpellbookService.imageUrl(this.card);
+        } catch {
+          primary = null;
+        }
         this.stage =
           primary && primary !== this.proxyUrl ? 'proxy' : 'placeholder';
       } else {

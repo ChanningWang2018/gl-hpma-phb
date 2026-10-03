@@ -18,6 +18,12 @@ export const useCardStore = defineStore('card', {
     // 原生品质边框表（schema 5，cards.json 顶层 frames；缺失时保持空对象）
     frames: {},
 
+    // 卡面 WebP 全局降级闩：false = 优先加载 WebP 副本（version.json
+    // imagesWebp 声明能力）；任一张 WebP 加载失败即置 true——WebP 可用性是
+    // 整个 release 的属性（整目录有或没有），一张 404 意味着整套不可信，
+    // 全局回退 PNG 比逐卡重试省心。会话级不持久化：下次进入重新尝试。
+    webpOff: false,
+
     // UI 语言（'zh' | 'en'）：初次进入按 localStorage > 浏览器语言解析，
     // 之后由 setLocale 更新并持久化；数据侧文案由 lookup* 按 locale 取
     locale: resolveInitialLocale(),
@@ -133,6 +139,11 @@ export const useCardStore = defineStore('card', {
     // 合并式更新筛选（setFilter({ type: 'spell' }) 等）
     setFilter(patch) {
       Object.assign(this.filters, patch);
+    },
+
+    // 全局关闭卡面 WebP（CardImage 的 @error 降级链调用），全部卡面回落 PNG
+    disableWebpImages() {
+      this.webpOff = true;
     },
 
     // 切换 UI 语言并持久化（非法值忽略，保持当前语言）

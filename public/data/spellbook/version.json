@@ -1,8 +1,9 @@
 {
-  "tag": "spellbook-v5.20261002.0",
-  "version": "5.20261002.0",
+  "tag": "spellbook-v5.20261004.0",
+  "version": "5.20261004.0",
   "schemaVersion": 5,
-  "dataVersion": 20261002,
-  "imageBase": "https://fastly.jsdelivr.net/gh/ChanningWang2018/hpma-data@spellbook-v5.20261002.0/spellbook/",
-  "generatedAt": "2026-10-03T02:13:44+08:00"
+  "dataVersion": 20261004,
+  "imageBase": "https://fastly.jsdelivr.net/gh/ChanningWang2018/hpma-data@spellbook-v5.20261004.0/spellbook/",
+  "imagesWebp": "images_webp/",
+  "generatedAt": "2026-10-04T02:58:33+08:00"
 }

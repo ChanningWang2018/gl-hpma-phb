@@ -305,6 +305,7 @@ describe('buildVersionJson', () => {
       dataVersion: 2,
       imageBase:
         'https://fastly.jsdelivr.net/gh/ChanningWang2018/hpma-data@spellbook-v1.2.0/spellbook/',
+      imagesWebp: null,
       generatedAt: '2026-10-01T00:43:59+08:00',
     });
     // Key order matches the T1-committed file shape.
@@ -314,8 +315,38 @@ describe('buildVersionJson', () => {
       'schemaVersion',
       'dataVersion',
       'imageBase',
+      'imagesWebp',
       'generatedAt',
     ]);
+  });
+
+  it('mirrors manifest.webp_images into imagesWebp (WebP copy-set capability)', () => {
+    const info = buildVersionJson({
+      tag: 'spellbook-v5.20261004.0',
+      manifest: {
+        ...manifest,
+        schema_version: 5,
+        data_version: 20261004,
+        webp_images: 'images_webp/',
+      },
+      previousImageBase,
+    });
+    expect(info.imagesWebp).toBe('images_webp/');
+    // Absent / empty / non-string -> null (consumer loads PNG directly).
+    expect(
+      buildVersionJson({
+        tag: 'spellbook-v5.20261004.0',
+        manifest: { ...manifest, webp_images: '' },
+        previousImageBase,
+      }).imagesWebp,
+    ).toBe(null);
+    expect(
+      buildVersionJson({
+        tag: 'spellbook-v5.20261004.0',
+        manifest: { ...manifest, webp_images: 42 },
+        previousImageBase,
+      }).imagesWebp,
+    ).toBe(null);
   });
 
   it('serializes byte for byte to the committed version.json (real data)', () => {

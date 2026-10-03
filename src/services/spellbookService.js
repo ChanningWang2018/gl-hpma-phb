@@ -90,12 +90,15 @@ export class SpellbookService {
   }
 
   /**
-   * Image URL for a card object or bare id. Throws when no image base can be
-   * resolved (load() not done, no explicit base, no ?img= override) — see
-   * spellbookClient.createClient for the resolution priority.
+   * Image URL for a card object or bare id. `format: 'png'` (default) is the
+   * canonical art URL and throws when no image base can be resolved (load()
+   * not done, no explicit base, no ?img= override); `format: 'webp'` returns
+   * the release's WebP copy URL or null when the variant is unavailable —
+   * never throws. See spellbookClient.createClient for the resolution
+   * priority and the imagesWebp capability.
    */
-  static imageUrl(cardOrId) {
-    return client.imageUrl(cardOrId);
+  static imageUrl(cardOrId, format = 'png') {
+    return client.imageUrl(cardOrId, format);
   }
 
   /**

@@ -15,6 +15,7 @@ import {
   lookupLabel,
   lookupText,
   readImageBaseOverride,
+  webpImagePath,
 } from '../../src/services/spellbookClient.js';
 
 const DATA_BASE = 'public/data/spellbook/';
@@ -347,5 +348,136 @@ describe('createClient (real committed data)', () => {
     const snap = await broken.load();
     expect(snap.cards).toHaveLength(0);
     expect(snap.versionInfo.tag).toBe('spellbook-v1.0.0');
+  });
+});
+
+describe('webpImagePath (pure helper)', () => {
+  it('derives the mirror-set path from a conventional img path', () => {
+    expect(webpImagePath('images/1001.png', 'images_webp/')).toBe(
+      'images_webp/1001.webp',
+    );
+    // Trailing slash on the capability dir is optional, normalized away.
+    expect(webpImagePath('images/1001.png', 'images_webp')).toBe(
+      'images_webp/1001.webp',
+    );
+  });
+
+  it('returns null for non-conventional paths or a missing capability dir', () => {
+    // Only the release's flat images/<id>.png convention has a WebP mirror.
+    expect(webpImagePath('custom/1001.png', 'images_webp/')).toBe(null);
+    expect(webpImagePath('images/dir/1001.png', 'images_webp/')).toBe(null);
+    expect(webpImagePath('images/1001.webp', 'images_webp/')).toBe(null);
+    expect(webpImagePath('images/1001.gif', 'images_webp/')).toBe(null);
+    expect(webpImagePath('', 'images_webp/')).toBe(null);
+    expect(webpImagePath(undefined, 'images_webp/')).toBe(null);
+    // Capability absent -> no derivation.
+    expect(webpImagePath('images/1001.png', '')).toBe(null);
+    expect(webpImagePath('images/1001.png', null)).toBe(null);
+    expect(webpImagePath('images/1001.png', undefined)).toBe(null);
+  });
+});
+
+describe("imageUrl(…, 'webp') — release WebP copy-set capability", () => {
+  const WEBP_BASE =
+    'https://fastly.jsdelivr.net/gh/x/hpma-data@spellbook-v5.0.0/spellbook/';
+
+  // Minimal release fixture; versionInfo carries/omits the imagesWebp dir.
+  async function writeWebpFixture(versionInfo) {
+    const dir = await mkdtemp(path.join(tmpdir(), 'hpma-webp-'));
+    await writeFile(
+      path.join(dir, 'cards.json'),
+      JSON.stringify({
+        schema_version: EXPECTED_SCHEMA_VERSION,
+        data_version: 1,
+        labels: {},
+        cards: [
+          {
+            id: 1001,
+            type: 'spell',
+            rarity: 'common',
+            cost: 1,
+            img: 'images/1001.png',
+            spell_word: null,
+            tags: [],
+            i18n: { zh: { name: '冰冻咒' } },
+          },
+        ],
+      }),
+    );
+    await writeFile(path.join(dir, 'manifest.json'), JSON.stringify({}));
+    await writeFile(
+      path.join(dir, 'version.json'),
+      JSON.stringify(versionInfo),
+    );
+    return dir;
+  }
+
+  it('derives images_webp/<id>.webp when the release declares the set', async () => {
+    const dir = await writeWebpFixture({
+      tag: 'spellbook-v5.0.0',
+      imageBase: WEBP_BASE,
+      imagesWebp: 'images_webp/',
+    });
+    const c = createClient({ dataBaseUrl: dir });
+    await c.load();
+    expect(c.imageUrl(1001, 'webp')).toBe(`${WEBP_BASE}images_webp/1001.webp`);
+    expect(c.imageUrl(c.byId(1001), 'webp')).toBe(
+      `${WEBP_BASE}images_webp/1001.webp`,
+    );
+    // The PNG default is unchanged by the capability.
+    expect(c.imageUrl(1001)).toBe(`${WEBP_BASE}images/1001.png`);
+  });
+
+  it('base follows the live priority while the capability comes from version.json', async () => {
+    const dir = await writeWebpFixture({
+      tag: 'spellbook-v5.0.0',
+      imageBase: WEBP_BASE,
+      imagesWebp: 'images_webp/',
+    });
+    const c = createClient({ dataBaseUrl: dir });
+    await c.load();
+    globalThis.location = new URL(
+      'https://demo.test/?img=https://query.example/b/',
+    );
+    expect(c.imageUrl(1001, 'webp')).toBe(
+      'https://query.example/b/images_webp/1001.webp',
+    );
+  });
+
+  it('returns null — never throws — on every unavailable case', async () => {
+    // Release without the copy set (imagesWebp null / absent).
+    const dir = await writeWebpFixture({
+      tag: 'spellbook-v5.0.0',
+      imageBase: WEBP_BASE,
+      imagesWebp: null,
+    });
+    const c = createClient({ dataBaseUrl: dir });
+    await c.load();
+    expect(c.imageUrl(1001, 'webp')).toBe(null);
+
+    // No image base at all.
+    const dir2 = await writeWebpFixture({
+      tag: 'spellbook-v5.0.0',
+      imageBase: '',
+      imagesWebp: 'images_webp/',
+    });
+    const c2 = createClient({ dataBaseUrl: dir2 });
+    await c2.load();
+    expect(c2.imageUrl(1001, 'webp')).toBe(null);
+
+    // Before load(): null, unlike the throwing PNG form.
+    const fresh = createClient({ dataBaseUrl: dir });
+    expect(fresh.imageUrl(1001, 'webp')).toBe(null);
+  });
+
+  it('mirrors the committed release capability (real data)', () => {
+    const base = client.versionInfo.imageBase;
+    const capability = client.versionInfo.imagesWebp ?? null;
+    const url = client.imageUrl(1001, 'webp');
+    if (capability) {
+      expect(url).toBe(`${base}images_webp/1001.webp`);
+    } else {
+      expect(url).toBe(null);
+    }
   });
 });

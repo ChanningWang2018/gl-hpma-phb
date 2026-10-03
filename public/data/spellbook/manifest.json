@@ -1,12 +1,14 @@
 {
  "schema_version": 5,
- "data_version": 20261002,
- "generated_at": "2026-10-03T02:13:44+08:00",
+ "data_version": 20261004,
+ "generated_at": "2026-10-04T02:58:33+08:00",
  "locales": [
   "zh",
   "en"
  ],
  "image_spec": "375x500 RGBA PNG（spine 官方渲染直出；静态小图 Lanczos 放大+轻锐化，cover 居中裁切）",
+ "webp_images": "images_webp/",
+ "webp_spec": "卡面 WebP 副本集 images_webp/{id}.webp（375x500 q82，与 images/ 同名同分辨率）；消费端优先加载、失败回退 PNG",
  "frame_spec": "品质边框（书页正框）frames/frame_{rarity}.png （208x272 RGBA）：inner=内窗矩形 [x,y,w,h]，卡面 cover-fit 填满 inner（居中裁切），框图叠满画布",
  "source": {
   "game": "哈利波特：魔法觉醒 PC 客户端 (NeoX)",
@@ -27,6 +29,7 @@
  "coverage": {
   "cards": 141,
   "images": 141,
+  "images_webp": 141,
   "en_name": 141,
   "en_desc": 141,
   "en_quote": 141,

@@ -16,6 +16,10 @@
     <!-- DNS Prefetch and Preconnect -->
     <link rel="dns-prefetch" href="https://hpma-phb.netlify.app" />
     <link rel="preconnect" href="https://hpma-phb.netlify.app" />
+    <!-- 卡面图源（version.json imageBase）：无 crossorigin，匹配 <img> 的
+         no-cors 请求才能复用预热连接 -->
+    <link rel="dns-prefetch" href="https://fastly.jsdelivr.net" />
+    <link rel="preconnect" href="https://fastly.jsdelivr.net" />
 
     <!-- Preload Important Resources -->
     <link rel="preload" href="/favicon.ico" as="image" />
