@@ -37,6 +37,8 @@
  *   i18n          = { zh: { name, desc, quote, stats, tags },
  *                     en: { name, desc, quote, stats, tags } }
  *   levels        = { "<lv>": [{ k, v, pct, k_en?, unit?, unit_en? }, ...] }
+ *                   // pct: upstream legacy misnomer — actually the in-game
+ *                   // spellbook headline flag (battle_show), not a percentage
  *                   // k_en/unit_en (schema 3): per-row en translation of the
  *                   // stat label / subject entity; see formatLevelRows
  *                   // schema 4: rarity codes brilliant/forbidden renamed to

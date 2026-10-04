@@ -96,18 +96,15 @@
                         {{ statUnitLabel(unitGroup) }}
                       </p>
                       <dl class="level-rows">
+                        <!-- entry.pct 是上游误名（实为游戏魔咒书头显标志，见
+                             formatLevelRows 注释）：不做单位加工，也不做高亮 -->
                         <div
                           v-for="(entry, index) in unitGroup.entries"
                           :key="`${entry.k}-${index}`"
                           class="level-row"
                         >
                           <dt class="level-k">{{ statLabel(entry) }}</dt>
-                          <dd class="level-v">
-                            {{ displayValue(entry)
-                            }}<span v-if="showPct(entry)" class="level-pct"
-                              >%</span
-                            >
-                          </dd>
+                          <dd class="level-v">{{ displayValue(entry) }}</dd>
                         </div>
                       </dl>
                     </div>
@@ -273,13 +270,6 @@ export default {
     },
     onKeydown(event) {
       if (event.key === 'Escape') this.closeCard();
-    },
-
-    // pct 是百分比型数值的标记：只对数值行补 %。字符串行按数据原样渲染
-    //（如 "40%" 已含百分号、"air&ground" 等目标值也带 pct 标志），
-    // 二次加工反而出错——见 formatLevelRows 的数据形状注释。
-    showPct(entry) {
-      return entry.pct === true && typeof entry.v === 'number';
     },
 
     // schema 2 的 unit = 数值所属主体：把同级 entries 按 unit 切成连续块，
@@ -578,12 +568,6 @@ export default {
   color: var(--ink);
   text-align: right;
   overflow-wrap: anywhere;
-}
-
-.level-pct {
-  font-size: 11px;
-  font-weight: 400;
-  color: var(--ink-faded);
 }
 
 /* ---- 响应式：768 两栏 -> 上下堆叠；480 全宽贴底 ---- */

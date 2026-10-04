@@ -161,7 +161,11 @@ export class SpellbookService {
    *   - keys are level numbers as strings, NOT always contiguous: several
    *     cards jump 30 -> 41, one runs to 68 — iterate actual keys, sort numerically.
    *   - row.v is a number | string union ("ground", "speed_fast", ...).
-   *   - row.pct marks percentage-type stats (display convention left to the UI).
+   *   - row.pct is an upstream legacy MISNOMER kept for v1 compatibility: it
+   *     actually flags rows headlined on the in-game spellbook face
+   *     (card_skill_attr.battle_show) — NOT a percentage marker (attack
+   *     interval / HP rows carry it too). Use it for emphasis only, never to
+   *     append a unit; the schema description documents the real meaning.
    *   - row.unit (optional) names the entity the stat belongs to —
    *     one card can list stats for several subjects (e.g. 挪威脊背龙蛋 vs the
    *     hatched 挪威脊背龙); absent unit means the card's own effect. The UI
