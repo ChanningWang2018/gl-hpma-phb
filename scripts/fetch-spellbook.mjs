@@ -36,7 +36,7 @@ const FETCH_TIMEOUT_MS = 60_000;
 const DIFF_PREVIEW_LIMIT = 15;
 // Keep in sync with EXPECTED_SCHEMA_VERSION in src/services/spellbookClient.js:
 // a schema bump requires consumer-code adaptation BEFORE new data is ingested.
-export const EXPECTED_SCHEMA_VERSION = 5;
+export const EXPECTED_SCHEMA_VERSION = 6;
 
 const TAG_PATTERN = /^spellbook-v(\d+\.\d+\.\d+)$/;
 

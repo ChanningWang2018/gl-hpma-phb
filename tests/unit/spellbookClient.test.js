@@ -98,6 +98,8 @@ describe('createClient (real committed data)', () => {
     expect(snap.cards).toHaveLength(141);
     expect(snap.manifest && typeof snap.manifest === 'object').toBe(true);
     expect(snap.versionInfo.tag).toMatch(/^spellbook-v\d+\.\d+\.\d+$/);
+    // schema 6: the headline attr-name tuple rides along in the snapshot.
+    expect(snap.faceAttrs).toEqual(['hp', 'damage', 'shield', 'duration']);
     // Second call is served from cache (same array identity).
     const again = await client.load();
     expect(again.cards).toBe(snap.cards);
@@ -348,6 +350,8 @@ describe('createClient (real committed data)', () => {
     const snap = await broken.load();
     expect(snap.cards).toHaveLength(0);
     expect(snap.versionInfo.tag).toBe('spellbook-v1.0.0');
+    // A document without face_attrs degrades to null (the getter stays total).
+    expect(snap.faceAttrs).toBe(null);
   });
 });
 

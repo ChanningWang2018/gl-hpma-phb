@@ -362,3 +362,36 @@ schema 4 相对 3 的实质变化与适配：
    frames/* 校验行不影响三文件校验。
 4. 管道：`fetch update` 入库 v5（sha256 过，netlify.toml `/cardimg/`
    代理 tag 已同步 spellbook-v5.20261002.0），`--verify` 通过。
+
+### 2026-10-04 schema 6 适配（spellbook-v6.20261004.0 入库）
+
+上游发布 `spellbook-v6.20261004.0`（schema_version 6，data_version 20261004，
+与 v5 卡面 WebP 优化同日）。这是 v1 遗留误名 `pct` 的根治重构（§2026-10-04
+pct 排查的"根治待办"兑现，但上游最终方案不是改名 headline，而是删字段 + 换口径）。
+结构 diff 结论：
+
+1. **levels 条目重构**：每级从行数组改为 `{ battle_show?, rows }` 块。
+   `rows` 与游戏 attr_val_list 逐行 1:1（不再按中文标签去重合并），
+   行增 `attr_name`（SKILL_ATTR_NAME，locale 无关稳定标识，未知 idx 省略；
+   实测 v6 全部 25020 行均有值）。`battle_show` 为游戏原字段原样——
+   1-based 行位（rows[b-1]），可能含越界脏值，消费端自行防御。
+2. **新增顶层 `face_attrs`**：`["hp","damage","shield","duration"]`
+   （运行时读自游戏 PageCardAttribute 常量元组）。卡面头显判定 =
+   行 attr_name ∈ face_attrs；`pct` 字段删除——其语义本是把 battle_show
+   按 0-based 误读（实测卡 1001 lv1：battle_show=[1,3]→第 1/3 行"伤害/二段
+   伤害"，旧 pct 恰好标在第 2/4 行"宽度/范围半径"），三口径
+   （旧 pct / battle_show / face_attrs）互不相同。
+3. **UI 显示数据零影响**（v5→v6 逐行 diff 实测）：141 卡集合、头部字段
+   （zh/en 名称、desc、quote、tags、cost、type、rarity、spell_word）、
+   每级每行 (k, v, unit) 三元组、levels 覆盖（139 卡）、en 行标签、
+   枚举字符串值集合全部一致，零行数值变化、零行增删（"去重合并"在
+   本数据集上本就是 no-op）；images/frames/images_webp 素材 sha256
+   全部不变。本站对 pct 本就不渲染（纯文本决议），故无可见变化。
+4. 消费端适配：`EXPECTED_SCHEMA_VERSION` 5→6（spellbookClient.js +
+   fetch-spellbook.mjs）；client/service 透出 `faceAttrs` getter；
+   `formatLevelRows` 改读 `block.rows`（缺块/坏块降级为空 entries，
+   battle_show 不消费——防御即不读）；entries 不再携带 pct。
+   CardDetail 渲染逻辑零改动（仅注释更新）。
+5. 管道：`fetch update` 入库 v6（sha256 过，netlify.toml `/cardimg/`
+   代理 tag 已同步 spellbook-v6.20261004.0），`--verify` 通过。
+   137 测试 + lint + build 绿。

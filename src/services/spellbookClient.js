@@ -20,9 +20,13 @@
  *   2. the `?img=<base>` query parameter of the browser URL (manual override)
  *   3. the `imageBase` field of the loaded version.json (single source of truth)
  *
- * Data model (schema_version 5):
- *   cards.json    = { schema_version, data_version, generated_at, labels,
- *                     frames?, cards }   // frames (schema 5): per-rarity
+ * Data model (schema_version 6):
+ *   cards.json    = { schema_version, data_version, generated_at, face_attrs,
+ *                     labels, frames, cards }
+ *                   // face_attrs (schema 6): the in-game spellbook headline
+ *                   // attr-name tuple (["hp","damage","shield","duration"]) —
+ *                   // a level row is headlined when its attr_name is in here
+ *                   // frames (schema 5): per-rarity
  *                     // frame art specs { file, size, inner } pointing at the
  *                     // release's frames/ dir; resolved via frameUrl() with
  *                     // the same image-base priority as imageUrl()
@@ -36,9 +40,21 @@
  *   Card          = { id, type, rarity, cost, img, spell_word, tags, i18n, levels? }
  *   i18n          = { zh: { name, desc, quote, stats, tags },
  *                     en: { name, desc, quote, stats, tags } }
- *   levels        = { "<lv>": [{ k, v, pct, k_en?, unit?, unit_en? }, ...] }
- *                   // pct: upstream legacy misnomer — actually the in-game
- *                   // spellbook headline flag (battle_show), not a percentage
+ *   levels        = { "<lv>": { battle_show?: number[], rows: Row[] }, ... }
+ *                   // schema 6: each level is a block object, not a flat row
+ *                   // array. rows mirrors the game's attr_val_list 1:1:
+ *                   //   Row = { attr_name?, k, v, k_en?, unit?, unit_en? }
+ *                   // attr_name is the locale-independent SKILL_ATTR_NAME
+ *                   // identifier (omitted when the game idx is unknown);
+ *                   // k/k_en are the zh display name and its en translation.
+ *                   // battle_show is the raw game field, verbatim: 1-BASED
+ *                   // row positions into rows (rows[b-1]), possibly dirty
+ *                   // (out-of-range values possible) — defensive consumers
+ *                   // only. The spellbook headline rule is face_attrs, not
+ *                   // battle_show: a row is headlined iff
+ *                   // rows[].attr_name ∈ face_attrs (this replaces schema ≤5's
+ *                   // per-row `pct` flag, which was battle_show misread as
+ *                   // 0-based and is gone in v6).
  *                   // k_en/unit_en (schema 3): per-row en translation of the
  *                   // stat label / subject entity; see formatLevelRows
  *                   // schema 4: rarity codes brilliant/forbidden renamed to
@@ -49,7 +65,7 @@
  */
 
 /** Schema version this loader understands. Bump only on structural changes. */
-export const EXPECTED_SCHEMA_VERSION = 5;
+export const EXPECTED_SCHEMA_VERSION = 6;
 
 /** Default data base when neither an option nor `?img=`-style overrides apply. */
 export const DEFAULT_DATA_BASE_URL = '/data/spellbook/';
@@ -221,6 +237,9 @@ function prepareDoc(cardsDoc, manifest, versionInfo) {
     generatedAt: cardsDoc.generated_at,
     labels: cardsDoc.labels ?? {},
     frames: cardsDoc.frames ?? null,
+    // schema 6 headline attr-name tuple (null when the document omits it —
+    // the release notes guarantee it, but a null keeps the getter total).
+    faceAttrs: Array.isArray(cardsDoc.face_attrs) ? cardsDoc.face_attrs : null,
     cards: cardsDoc.cards,
     manifest: manifest ?? null,
     versionInfo: versionInfo ?? null,
@@ -247,6 +266,7 @@ function prepareDoc(cardsDoc, manifest, versionInfo) {
  *   client.text(card, 'en', 'name'); // falls back to zh
  *   client.imageUrl(card);           // image base + card.img (resolved live)
    client.frameUrl(card.rarity);    // image base + frames/<file> (or null)
+ *   client.faceAttrs;                // headline attr names (schema 6, or null)
  *   client.versionInfo;              // version.json content
  *
  * @param {{
@@ -299,6 +319,7 @@ export function createClient(options = {}) {
       generatedAt: d.generatedAt,
       labels: d.labels,
       frames: d.frames,
+      faceAttrs: d.faceAttrs,
       cards: d.cards,
       manifest: d.manifest,
       versionInfo: d.versionInfo,
@@ -353,6 +374,19 @@ export function createClient(options = {}) {
      */
     get frames() {
       return requireLoaded().frames;
+    },
+
+    /**
+     * Headline attr-name tuple from cards.json (schema 6):
+     * ["hp", "damage", "shield", "duration"] — the in-game spellbook face
+     * headlines exactly those level rows whose `attr_name` is in this list.
+     * Null when the loaded document omits the table. This is the v6
+     * replacement for schema ≤5's per-row `pct` flag (a 0-based misreading
+     * of the raw `battle_show` field, which the data still carries verbatim
+     * for reference).
+     */
+    get faceAttrs() {
+      return requireLoaded().faceAttrs;
     },
 
     /** Raw manifest.json document (null when unavailable). Throws before load(). */

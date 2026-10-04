@@ -9,8 +9,9 @@ import { SpellbookService } from '../../src/services/spellbookService.js';
 // is served); tests read the committed files from the repo instead.
 SpellbookService.configure({ dataBaseUrl: 'public/data/spellbook/' });
 
-// A card fixture shaped exactly like cards.json entries (levels = object keyed
-// by level-number strings; v is a number|string union).
+// A card fixture shaped exactly like cards.json entries (schema 6: levels is
+// an object of { battle_show?, rows } blocks keyed by level-number strings;
+// v is a number|string union).
 function makeCard(overrides = {}) {
   return {
     id: 9001,
@@ -25,11 +26,14 @@ function makeCard(overrides = {}) {
       en: { name: 'Test Spell', desc: null, quote: null },
     },
     levels: {
-      1: [
-        { k: '伤害', v: 24, pct: false },
-        { k: '目标', v: 'ground', pct: false },
-      ],
-      2: [{ k: '伤害', v: 25, pct: false }],
+      1: {
+        battle_show: [1],
+        rows: [
+          { attr_name: 'damage', k: '伤害', k_en: 'Damage', v: 24 },
+          { attr_name: 'targets', k: '目标', k_en: 'Target', v: 'ground' },
+        ],
+      },
+      2: { rows: [{ attr_name: 'damage', k: '伤害', v: 25 }] },
     },
     ...overrides,
   };
@@ -143,11 +147,14 @@ describe('SpellbookService.formatLevelRows', () => {
     const rows = SpellbookService.formatLevelRows(
       makeCard({
         levels: {
-          10: [{ k: '伤害', v: 33, pct: false }],
-          2: [
-            { k: '宽度', v: 28, pct: true },
-            { k: '目标', v: 'speed_fast', pct: false },
-          ],
+          10: { rows: [{ k: '伤害', v: 33 }] },
+          2: {
+            battle_show: [1], // raw 1-based game field: passed over, not consumed
+            rows: [
+              { attr_name: 'width', k: '宽度', v: 28 },
+              { attr_name: 'targets', k: '目标', v: 'speed_fast' },
+            ],
+          },
         },
       }),
     );
@@ -156,7 +163,6 @@ describe('SpellbookService.formatLevelRows', () => {
       {
         k: '宽度',
         v: 28,
-        pct: true,
         unit: null,
         kEn: null,
         unitEn: null,
@@ -165,7 +171,6 @@ describe('SpellbookService.formatLevelRows', () => {
       {
         k: '目标',
         v: 'speed_fast',
-        pct: false,
         unit: null,
         kEn: null,
         unitEn: null,
@@ -175,7 +180,6 @@ describe('SpellbookService.formatLevelRows', () => {
     expect(rows[1].entries[0]).toEqual({
       k: '伤害',
       v: 33,
-      pct: false,
       unit: null,
       kEn: null,
       unitEn: null,
@@ -187,10 +191,12 @@ describe('SpellbookService.formatLevelRows', () => {
     const rows = SpellbookService.formatLevelRows(
       makeCard({
         levels: {
-          1: [
-            { k: '生命值', v: 100, pct: false, unit: '挪威脊背龙蛋' },
-            { k: '伤害', v: 24, pct: false },
-          ],
+          1: {
+            rows: [
+              { k: '生命值', v: 100, unit: '挪威脊背龙蛋' },
+              { k: '伤害', v: 24 },
+            ],
+          },
         },
       }),
     );
@@ -202,17 +208,18 @@ describe('SpellbookService.formatLevelRows', () => {
     const rows = SpellbookService.formatLevelRows(
       makeCard({
         levels: {
-          1: [
-            {
-              k: '生命值',
-              v: 100,
-              pct: false,
-              k_en: 'HP',
-              unit: '挪威脊背龙蛋',
-              unit_en: 'Norwegian Ridgeback Egg',
-            },
-            { k: '伤害', v: 24, pct: false, k_en: 'Damage' },
-          ],
+          1: {
+            rows: [
+              {
+                k: '生命值',
+                v: 100,
+                k_en: 'HP',
+                unit: '挪威脊背龙蛋',
+                unit_en: 'Norwegian Ridgeback Egg',
+              },
+              { k: '伤害', v: 24, k_en: 'Damage' },
+            ],
+          },
         },
       }),
     );
@@ -221,6 +228,33 @@ describe('SpellbookService.formatLevelRows', () => {
       unitEn: 'Norwegian Ridgeback Egg',
     });
     expect(rows[0].entries[1]).toMatchObject({ kEn: 'Damage', unitEn: null });
+  });
+
+  it('reads only block.rows: a dirty battle_show never leaks into the output', () => {
+    // battle_show is the raw 1-based game field and may carry out-of-range
+    // values; the defense is not consuming it (headline rule = face_attrs).
+    const rows = SpellbookService.formatLevelRows(
+      makeCard({
+        levels: {
+          1: { battle_show: [0, 99], rows: [{ k: '伤害', v: 24 }] },
+        },
+      }),
+    );
+    expect(rows[0].entries).toEqual([
+      { k: '伤害', v: 24, unit: null, kEn: null, unitEn: null, display: '24' },
+    ]);
+  });
+
+  it('degrades a malformed level block to no entries instead of crashing', () => {
+    const rows = SpellbookService.formatLevelRows(
+      makeCard({
+        levels: { 1: {}, 2: null, 3: { rows: [{ k: '伤害', v: 1 }] } },
+      }),
+    );
+    expect(rows.map((r) => r.lv)).toEqual(['1', '2', '3']);
+    expect(rows[0].entries).toEqual([]);
+    expect(rows[1].entries).toEqual([]);
+    expect(rows[2].entries).toHaveLength(1);
   });
 
   it('returns [] for cards without levels (or null/undefined input)', () => {
@@ -308,7 +342,6 @@ describe('SpellbookService facade over the real committed data', () => {
         {
           k: '伤害',
           v: 24,
-          pct: false,
           unit: null,
           kEn: 'Damage',
           unitEn: null,
@@ -317,7 +350,6 @@ describe('SpellbookService facade over the real committed data', () => {
         {
           k: '宽度',
           v: 28,
-          pct: true,
           unit: null,
           kEn: 'Width',
           unitEn: null,
@@ -326,7 +358,6 @@ describe('SpellbookService facade over the real committed data', () => {
         {
           k: '二段伤害',
           v: 96,
-          pct: false,
           unit: null,
           kEn: 'Secondary',
           unitEn: null,
@@ -335,7 +366,6 @@ describe('SpellbookService facade over the real committed data', () => {
         {
           k: '范围半径',
           v: 25,
-          pct: true,
           unit: null,
           kEn: 'Range',
           unitEn: null,
@@ -344,7 +374,6 @@ describe('SpellbookService facade over the real committed data', () => {
         {
           k: '控制时间',
           v: 3,
-          pct: false,
           unit: null,
           kEn: 'Control Duration',
           unitEn: null,
@@ -353,7 +382,6 @@ describe('SpellbookService facade over the real committed data', () => {
         {
           k: '目标',
           v: 'ground',
-          pct: false,
           unit: null,
           kEn: 'Target',
           unitEn: null,
@@ -361,6 +389,21 @@ describe('SpellbookService facade over the real committed data', () => {
         },
       ],
     });
+  });
+
+  it('exposes the schema-6 face_attrs headline tuple of the real data', () => {
+    expect(SpellbookService.faceAttrs).toEqual([
+      'hp',
+      'damage',
+      'shield',
+      'duration',
+    ]);
+    // The headline rule it encodes: rows with these attr_names exist on the
+    // real cards and are exactly the ones the game face headlines.
+    const rows1001 = SpellbookService.formatLevelRows(
+      SpellbookService.client.byId(1001),
+    )[0].entries;
+    expect(rows1001.some((e) => e.k === '伤害')).toBe(true); // attr_name damage
   });
 
   it('carries the schema-2 unit subjects of the real data (1011 自身 + 增益效果)', () => {
@@ -373,12 +416,12 @@ describe('SpellbookService facade over the real committed data', () => {
   });
 
   it('keeps non-contiguous level keys ordered without fabricating the gap', () => {
-    // v5 rebalanced 1002 (the old non-contiguous real fixture) down to 1..30;
-    // the gap behaviour is covered with a synthetic card instead.
+    // v6 keeps every level key contiguous 1..30; the gap behaviour is covered
+    // with a synthetic card instead.
     const rows = SpellbookService.formatLevelRows({
       levels: {
-        1: [{ k: '伤害', v: 10, pct: false }],
-        3: [{ k: '伤害', v: 30, pct: false }],
+        1: { rows: [{ k: '伤害', v: 10 }] },
+        3: { rows: [{ k: '伤害', v: 30 }] },
       },
     });
     expect(rows).toHaveLength(2);

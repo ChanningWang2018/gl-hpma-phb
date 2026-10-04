@@ -96,8 +96,9 @@
                         {{ statUnitLabel(unitGroup) }}
                       </p>
                       <dl class="level-rows">
-                        <!-- entry.pct 是上游误名（实为游戏魔咒书头显标志，见
-                             formatLevelRows 注释）：不做单位加工，也不做高亮 -->
+                        <!-- schema 6 起 pct 字段已删：头显口径 = 行 attr_name ∈
+                             face_attrs，本站按 2026-10-04 决议纯文本渲染——
+                             不做单位加工，也不做高亮 -->
                         <div
                           v-for="(entry, index) in unitGroup.entries"
                           :key="`${entry.k}-${index}`"
@@ -188,7 +189,9 @@ export default {
     hasTags() {
       return this.localizedTags.length > 0;
     },
-    // [{ lv, entries: [{ k, v, pct, unit, display }] }]，等级升序、保留空洞
+    // [{ lv, entries: [{ k, v, unit, display }] }]，等级升序、保留空洞
+    //（schema 6：数据侧 levels 为 { battle_show?, rows } 块，entries 只来自
+    // rows；头显口径见 spellbookService faceAttrs 注释，UI 不渲染该标志）
     levelRows() {
       return SpellbookService.formatLevelRows(this.card);
     },

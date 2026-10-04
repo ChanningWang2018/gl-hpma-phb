@@ -1,7 +1,13 @@
 {
- "schema_version": 5,
+ "schema_version": 6,
+ "face_attrs": [
+  "hp",
+  "damage",
+  "shield",
+  "duration"
+ ],
  "data_version": 20261004,
- "generated_at": "2026-10-04T02:58:33+08:00",
+ "generated_at": "2026-10-04T13:36:58+08:00",
  "locales": [
   "zh",
   "en"
@@ -38,6 +44,9 @@
   "missing_images": []
  },
  "notes": [
+  "v6: levels 条目重构为 {battle_show?, rows}——rows 与游戏 attr_val_list 逐行 1:1（不再按中文标签去重合并），battle_show 为游戏原字段原样（1-based 行位置，b 即 rows[b-1]，可能含越界脏值，消费端自行防御）",
+  "v6: 卡面头显判定 = 行 attr_name ∈ 顶层 face_attrs（hp/damage/shield/duration，运行时读自游戏 PageCardAttribute 常量元组）；pct 字段删除——其语义本是把 battle_show 按 0-based 误读且误当卡面头显口径，两条游戏口径见 schema 说明",
+  "v6: 行增 attr_name=SKILL_ATTR_NAME 属性名（locale 无关稳定标识，未知 idx 省略）；k/k_en 为中文显示名与英文对译",
   "levels 属性键为游戏中文原值，k_en/unit_en 为 term_text_en 英文对译，无对译时省略该字段",
   "levels 仅含 1~30 级（魔咒书游戏内上限）；card_skill_attr 中 31+ 的行属其他玩法系统，不属于 spellbook，未入包，stats 汇总同口径",
   "type/rarity 枚举码与游戏显示词同步（v4 起稀有度 5/6 为 dark/mythic，原 forbidden/brilliant）；显示名取自游戏 ui_text（sousuo_lv_01..06、card_design_contest_text2..4）",

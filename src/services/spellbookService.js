@@ -55,6 +55,16 @@ export class SpellbookService {
   }
 
   /**
+   * Headline attr-name tuple from cards.json (schema 6):
+   * ["hp", "damage", "shield", "duration"] — level rows whose attr_name is in
+   * this list are the ones the in-game spellbook face headlines. Null when
+   * the document omits it. Throws before load() — same contract as frames.
+   */
+  static get faceAttrs() {
+    return client.faceAttrs;
+  }
+
+  /**
    * Resolved URL of the native quality frame for a rarity (image base +
    * `frames/<file>`), or null when unresolvable — never throws (safe even
    * before load()), the UI degrades to its CSS rarity visual.
@@ -156,16 +166,27 @@ export class SpellbookService {
   /**
    * Format a card's `levels` into UI-ready rows.
    *
-   * Real data shape (verified against cards.json v3.20261001, schema 3):
-   *   levels = { "1": [{ k, v, pct, k_en?, unit?, unit_en? }, ...], "2": [...], ... }
-   *   - keys are level numbers as strings, NOT always contiguous: several
-   *     cards jump 30 -> 41, one runs to 68 — iterate actual keys, sort numerically.
+   * Real data shape (schema 6, verified against cards.json v6.20261004):
+   *   levels = { "1": { battle_show?: number[], rows: Row[] },
+   *              "2": { ... }, ... }
+   *   - keys are level numbers as strings; the spellbook data only covers
+   *     1..30 (the in-game cap) and is contiguous in v6, but iterate actual
+   *     keys and sort numerically regardless.
+   *   - block.rows mirrors the game's attr_val_list 1:1:
+   *     Row = { attr_name?, k, v, k_en?, unit?, unit_en? }.
+   *   - row.attr_name (schema 6) is the locale-independent SKILL_ATTR_NAME
+   *     identifier (omitted when the game idx is unknown). The spellbook
+   *     headline rule is: a row is headlined iff attr_name ∈ the document's
+   *     top-level face_attrs (["hp","damage","shield","duration"]) — exposed
+   *     as SpellbookService.faceAttrs. This replaces schema ≤5's
+   *     per-row `pct` flag, which misread the raw game field battle_show as
+   *     0-based and carried no percentage semantics; it is gone in v6 and
+   *     this site renders level values as plain text either way (decision of
+   *     2026-10-04), so entries no longer carry any headline flag.
+   *   - block.battle_show is the raw game field, verbatim: 1-BASED positions
+   *     into rows (rows[b-1]), possibly dirty (out-of-range). formatLevelRows
+   *     does not consume it — the defense is simply not reading it.
    *   - row.v is a number | string union ("ground", "speed_fast", ...).
-   *   - row.pct is an upstream legacy MISNOMER kept for v1 compatibility: it
-   *     actually flags rows headlined on the in-game spellbook face
-   *     (card_skill_attr.battle_show) — NOT a percentage marker (attack
-   *     interval / HP rows carry it too). Use it for emphasis only, never to
-   *     append a unit; the schema description documents the real meaning.
    *   - row.unit (optional) names the entity the stat belongs to —
    *     one card can list stats for several subjects (e.g. 挪威脊背龙蛋 vs the
    *     hatched 挪威脊背龙); absent unit means the card's own effect. The UI
@@ -178,7 +199,7 @@ export class SpellbookService {
    *   - levels is optional (2 of 141 cards have none).
    *
    * @param {object|null|undefined} card
-   * @returns {Array<{ lv: string, entries: Array<{ k: string, v: number|string, pct: boolean, unit: string|null, kEn: string|null, unitEn: string|null, display: string|null }> }>}
+   * @returns {Array<{ lv: string, entries: Array<{ k: string, v: number|string, unit: string|null, kEn: string|null, unitEn: string|null, display: string|null }> }>}
    *   one row per level, ascending numeric level; empty array when the card
    *   has no levels.
    */
@@ -187,17 +208,22 @@ export class SpellbookService {
     if (!levels || typeof levels !== 'object') return [];
     return Object.keys(levels)
       .sort((a, b) => Number(a) - Number(b))
-      .map((lv) => ({
-        lv,
-        entries: (levels[lv] ?? []).map((row) => ({
-          k: row.k,
-          v: row.v,
-          pct: row.pct === true,
-          unit: typeof row.unit === 'string' ? row.unit : null,
-          kEn: typeof row.k_en === 'string' ? row.k_en : null,
-          unitEn: typeof row.unit_en === 'string' ? row.unit_en : null,
-          display: row.v === null || row.v === undefined ? null : String(row.v),
-        })),
-      }));
+      .map((lv) => {
+        // schema 6: each level is a { battle_show?, rows } block; only rows
+        // are rendered. A missing/malformed block degrades to no entries.
+        const rows = Array.isArray(levels[lv]?.rows) ? levels[lv].rows : [];
+        return {
+          lv,
+          entries: rows.map((row) => ({
+            k: row.k,
+            v: row.v,
+            unit: typeof row.unit === 'string' ? row.unit : null,
+            kEn: typeof row.k_en === 'string' ? row.k_en : null,
+            unitEn: typeof row.unit_en === 'string' ? row.unit_en : null,
+            display:
+              row.v === null || row.v === undefined ? null : String(row.v),
+          })),
+        };
+      });
   }
 }
