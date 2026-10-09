@@ -6,15 +6,7 @@
         <h2 class="quiz-title">
           Magic Quiz <span class="quiz-title-zh">魔法测验</span>
         </h2>
-        <button
-          type="button"
-          class="locale-btn"
-          :aria-label="t('languageToggle')"
-          :title="t('languageToggle')"
-          @click="toggleLocale"
-        >
-          {{ quizStore.locale === 'zh' ? 'EN' : '中文' }}
-        </button>
+        <LocaleSwitch />
       </div>
       <p class="quiz-note">
         {{ t('note', { total: quizStore.totalQuestions }) }}
@@ -65,7 +57,9 @@
 </template>
 
 <script>
+import { computed } from 'vue';
 import { useHead } from '@vueuse/head';
+import LocaleSwitch from '@/components/LocaleSwitch.vue';
 import QuizBankBrowser from '@/components/QuizBankBrowser.vue';
 import QuizChallenge from '@/components/QuizChallenge.vue';
 import { translate } from '@/services/quizLocale.js';
@@ -73,19 +67,27 @@ import { useQuizStore } from '@/stores/quizStore.js';
 
 export default {
   name: 'Quiz',
-  components: { QuizBankBrowser, QuizChallenge },
+  components: { QuizBankBrowser, QuizChallenge, LocaleSwitch },
   setup() {
-    useHead({
-      title: 'HPMA Magic Quiz - Every Question, Answered',
-      meta: [
-        {
-          name: 'description',
-          content:
-            'All 1847 Harry Potter: Magic Awakened class quiz questions - History of Magic and Muggle Studies - searchable in Chinese/English, plus a timed O.W.L.-graded challenge with the options-only Prefect mode.',
-        },
-      ],
-    });
     const quizStore = useQuizStore();
+    // 页面标题/描述随全站语言切换；en 文案维持原样，zh 为对应自然翻译
+    useHead(
+      computed(() => ({
+        title:
+          quizStore.locale === 'zh'
+            ? '魔法测验 · my little hpma bits'
+            : 'HPMA Magic Quiz - Every Question, Answered',
+        meta: [
+          {
+            name: 'description',
+            content:
+              quizStore.locale === 'zh'
+                ? '收录《哈利波特：魔法觉醒》全部 1847 道课堂问答题——魔法史与麻瓜研究——支持中英文检索，另有计时 O.W.L. 评级挑战与只有选项的级长模式。'
+                : 'All 1847 Harry Potter: Magic Awakened class quiz questions - History of Magic and Muggle Studies - searchable in Chinese/English, plus a timed O.W.L.-graded challenge with the options-only Prefect mode.',
+          },
+        ],
+      })),
+    );
     return { quizStore };
   },
   computed: {
@@ -103,10 +105,6 @@ export default {
     // 词典查找：模板内调用并读取 store.locale，切换语言即时生效
     t(key, params) {
       return translate(this.quizStore.locale, key, params);
-    },
-
-    toggleLocale() {
-      this.quizStore.setLocale(this.quizStore.locale === 'zh' ? 'en' : 'zh');
     },
   },
 };
@@ -146,36 +144,6 @@ export default {
   color: var(--ink-faded);
   margin-left: 8px;
   letter-spacing: 0.2em;
-}
-
-.locale-btn {
-  min-height: 40px;
-  min-width: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-type);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  color: var(--ink-faded);
-  background: transparent;
-  border: 1px solid var(--rule);
-  border-radius: 2px;
-  padding: 9px 10px;
-  cursor: pointer;
-  transition:
-    color 0.25s,
-    border-color 0.25s;
-}
-
-.locale-btn:hover {
-  color: var(--oxblood);
-  border-color: var(--oxblood);
-}
-
-.locale-btn:focus-visible {
-  outline: 2px solid var(--gold-leaf);
-  outline-offset: 1px;
 }
 
 .quiz-note {

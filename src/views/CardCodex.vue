@@ -6,15 +6,7 @@
         <h2 class="codex-title">
           Card Codex <span class="codex-title-zh">卡牌图鉴</span>
         </h2>
-        <button
-          type="button"
-          class="locale-btn"
-          :aria-label="t('languageToggle')"
-          :title="t('languageToggle')"
-          @click="toggleLocale"
-        >
-          {{ cardStore.locale === 'zh' ? 'EN' : '中文' }}
-        </button>
+        <LocaleSwitch />
       </div>
       <p class="codex-note">{{ t('note', { total: totalCards }) }}</p>
     </header>
@@ -135,9 +127,11 @@
 </template>
 
 <script>
+import { computed } from 'vue';
 import { useHead } from '@vueuse/head';
 import CardDetail from '@/components/CardDetail.vue';
 import CardImage from '@/components/CardImage.vue';
+import LocaleSwitch from '@/components/LocaleSwitch.vue';
 import { translate } from '@/services/codexLocale.js';
 import { lookupLabel } from '@/services/spellbookClient.js';
 import { SpellbookService } from '@/services/spellbookService.js';
@@ -145,19 +139,27 @@ import { useCardStore } from '@/stores/cardStore.js';
 
 export default {
   name: 'CardCodex',
-  components: { CardDetail, CardImage },
+  components: { CardDetail, CardImage, LocaleSwitch },
   setup() {
-    useHead({
-      title: 'HPMA Card Codex - Every Card, Catalogued',
-      meta: [
-        {
-          name: 'description',
-          content:
-            'Browse all Harry Potter: Magic Awakened cards — spells, summons and companions — with type, rarity and cost filters plus zh/en name search.',
-        },
-      ],
-    });
     const cardStore = useCardStore();
+    // 页面标题/描述随全站语言切换；en 文案维持原样，zh 为对应自然翻译
+    useHead(
+      computed(() => ({
+        title:
+          cardStore.locale === 'zh'
+            ? '卡牌图鉴 · my little hpma bits'
+            : 'HPMA Card Codex - Every Card, Catalogued',
+        meta: [
+          {
+            name: 'description',
+            content:
+              cardStore.locale === 'zh'
+                ? '浏览《哈利波特：魔法觉醒》全部卡牌档案——咒语 / 召唤 / 伙伴——支持类型、稀有度、费用筛选及中英文名检索。'
+                : 'Browse all Harry Potter: Magic Awakened cards — spells, summons and companions — with type, rarity and cost filters plus zh/en name search.',
+          },
+        ],
+      })),
+    );
     return { cardStore };
   },
   data() {
@@ -234,10 +236,6 @@ export default {
       return translate(this.cardStore.locale, key, params);
     },
 
-    toggleLocale() {
-      this.cardStore.setLocale(this.cardStore.locale === 'zh' ? 'en' : 'zh');
-    },
-
     // 主卡名：当前语言优先，缺失回退 zh（lookupText 内置回退）再回退编号
     primaryName(card) {
       return (
@@ -309,36 +307,6 @@ export default {
   color: var(--ink-faded);
   margin-left: 8px;
   letter-spacing: 0.2em;
-}
-
-.locale-btn {
-  min-height: 40px;
-  min-width: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-type);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  color: var(--ink-faded);
-  background: transparent;
-  border: 1px solid var(--rule);
-  border-radius: 2px;
-  padding: 9px 10px;
-  cursor: pointer;
-  transition:
-    color 0.25s,
-    border-color 0.25s;
-}
-
-.locale-btn:hover {
-  color: var(--oxblood);
-  border-color: var(--oxblood);
-}
-
-.locale-btn:focus-visible {
-  outline: 2px solid var(--gold-leaf);
-  outline-offset: 1px;
 }
 
 .codex-note {

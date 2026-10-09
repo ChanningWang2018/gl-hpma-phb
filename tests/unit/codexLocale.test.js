@@ -1,23 +1,23 @@
-// Tests for codexLocale.js — UI language resolution/persistence, the chrome
-// dictionary and the enum-value display mapping. Browser globals
-// (localStorage/navigator) are stubbed per case because vitest runs in a
-// plain node environment.
-import { describe, it, expect, vi, afterEach } from 'vitest';
+// Tests for codexLocale.js — the /cards page chrome dictionary (checked for
+// zh/en key-set parity so a missing translation cannot slip in) and the
+// enum-value display mapping. Locale resolution/persistence now lives in
+// siteLocale.js and is covered by tests/unit/siteLocale.test.js.
+import { describe, it, expect } from 'vitest';
 
 import {
   CODEX_LOCALES,
-  DEFAULT_LOCALE,
-  STORAGE_KEY,
+  MESSAGES,
   normalizeLocale,
-  persistLocale,
-  resolveInitialLocale,
   translate,
   valueLabel,
 } from '../../src/services/codexLocale.js';
 
-afterEach(() => {
-  vi.unstubAllGlobals();
-  vi.restoreAllMocks();
+describe('dictionary parity', () => {
+  it('zh and en cover exactly the same key sets (sorted equal)', () => {
+    expect(Object.keys(MESSAGES.en).sort()).toEqual(
+      Object.keys(MESSAGES.zh).sort(),
+    );
+  });
 });
 
 describe('normalizeLocale', () => {
@@ -65,58 +65,5 @@ describe('valueLabel', () => {
     expect(valueLabel('en', 42)).toBe(42);
     expect(valueLabel('zh', 'ground')).toBe('ground'); // zh keeps the raw data
     expect(valueLabel('zh', 42)).toBe(42);
-  });
-});
-
-describe('resolveInitialLocale', () => {
-  it('returns the CN-first default without any browser signals', () => {
-    vi.stubGlobal('navigator', undefined);
-    vi.stubGlobal('localStorage', undefined);
-    expect(resolveInitialLocale()).toBe(DEFAULT_LOCALE);
-  });
-
-  it('follows the browser language: zh* -> zh, everything else -> en', () => {
-    vi.stubGlobal('localStorage', undefined);
-    vi.stubGlobal('navigator', { language: 'zh-CN' });
-    expect(resolveInitialLocale()).toBe('zh');
-    vi.stubGlobal('navigator', { language: 'en-US' });
-    expect(resolveInitialLocale()).toBe('en');
-    vi.stubGlobal('navigator', { language: 'ja-JP' });
-    expect(resolveInitialLocale()).toBe('en');
-  });
-
-  it('prefers the persisted choice over the browser language', () => {
-    vi.stubGlobal('navigator', { language: 'zh-CN' });
-    vi.stubGlobal('localStorage', { getItem: () => 'en' });
-    expect(resolveInitialLocale()).toBe('en');
-  });
-
-  it('ignors an invalid persisted value', () => {
-    vi.stubGlobal('navigator', { language: 'en-US' });
-    vi.stubGlobal('localStorage', { getItem: () => 'fr' });
-    expect(resolveInitialLocale()).toBe('en');
-  });
-});
-
-describe('persistLocale', () => {
-  it('writes the choice under the storage key', () => {
-    const setItem = vi.fn();
-    vi.stubGlobal('localStorage', { setItem });
-    persistLocale('en');
-    expect(setItem).toHaveBeenCalledWith(STORAGE_KEY, 'en');
-  });
-
-  it('silently no-ops when storage is unavailable', () => {
-    vi.stubGlobal('localStorage', undefined);
-    expect(() => persistLocale('zh')).not.toThrow();
-  });
-
-  it('swallows storage errors (privacy mode)', () => {
-    vi.stubGlobal('localStorage', {
-      setItem: () => {
-        throw new Error('quota');
-      },
-    });
-    expect(() => persistLocale('zh')).not.toThrow();
   });
 });

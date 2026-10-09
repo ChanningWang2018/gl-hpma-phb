@@ -1,11 +1,11 @@
 // Card Codex store — spellbook data + filter state for /cards (T2).
 // Options-style defineStore per AGENTS.md (loading/error + try-catch-finally),
 // filtering delegated to SpellbookService.filterCards (pure, unit-tested).
-import {
-  persistLocale,
-  resolveInitialLocale,
-  translate,
-} from '@/services/codexLocale.js';
+// The UI locale is site-wide: state lives in localeStore, exposed here as a
+// delegating getter + forwarding action so the store's API surface is
+// unchanged for the views/components.
+import { translate } from '@/services/codexLocale.js';
+import { useLocaleStore } from '@/stores/localeStore.js';
 import { lookupLabel } from '@/services/spellbookClient.js';
 import { SpellbookService } from '@/services/spellbookService.js';
 import { defineStore } from 'pinia';
@@ -24,10 +24,6 @@ export const useCardStore = defineStore('card', {
     // 全局回退 PNG 比逐卡重试省心。会话级不持久化：下次进入重新尝试。
     webpOff: false,
 
-    // UI 语言（'zh' | 'en'）：初次进入按 localStorage > 浏览器语言解析，
-    // 之后由 setLocale 更新并持久化；数据侧文案由 lookup* 按 locale 取
-    locale: resolveInitialLocale(),
-
     // 加载状态
     loading: false,
     error: null,
@@ -45,6 +41,12 @@ export const useCardStore = defineStore('card', {
   }),
 
   getters: {
+    // UI 语言（'zh' | 'en'）：全站唯一语言，委托 localeStore（跨 store
+    // getter，两页共享一次切换）；数据侧文案由 lookup* 按 locale 取
+    locale() {
+      return useLocaleStore().locale;
+    },
+
     // 组合筛选 + 搜索（交给 service 的纯函数，store 不重复实现规则）
     filteredCards: (state) =>
       SpellbookService.filterCards(state.cards, state.filters),
@@ -55,22 +57,23 @@ export const useCardStore = defineStore('card', {
     frameFor: (state) => (rarity) => state.frames?.[rarity] ?? null,
 
     // 类型分段选项：'all' 置顶，其后按 labels.type 的声明顺序（spell/summon/companion）
-    typeOptions: (state) => {
+    // （读委托 getter locale 须走 this，不能用 state 形参）
+    typeOptions() {
       const counts = {};
-      for (const card of state.cards) {
+      for (const card of this.cards) {
         counts[card.type] = (counts[card.type] ?? 0) + 1;
       }
       const options = [
         {
           value: 'all',
-          label: translate(state.locale, 'all'),
-          count: state.cards.length,
+          label: translate(this.locale, 'all'),
+          count: this.cards.length,
         },
       ];
-      for (const code of Object.keys(state.labels.type ?? {})) {
+      for (const code of Object.keys(this.labels.type ?? {})) {
         options.push({
           value: code,
-          label: lookupLabel(state.labels, 'type', code, state.locale),
+          label: lookupLabel(this.labels, 'type', code, this.locale),
           count: counts[code] ?? 0,
         });
       }
@@ -78,22 +81,22 @@ export const useCardStore = defineStore('card', {
     },
 
     // 稀有度下拉选项：'all' 置顶，带计数
-    rarityOptions: (state) => {
+    rarityOptions() {
       const counts = {};
-      for (const card of state.cards) {
+      for (const card of this.cards) {
         counts[card.rarity] = (counts[card.rarity] ?? 0) + 1;
       }
       const options = [
         {
           value: 'all',
-          label: translate(state.locale, 'allRarities'),
-          count: state.cards.length,
+          label: translate(this.locale, 'allRarities'),
+          count: this.cards.length,
         },
       ];
-      for (const code of Object.keys(state.labels.rarity ?? {})) {
+      for (const code of Object.keys(this.labels.rarity ?? {})) {
         options.push({
           value: code,
-          label: lookupLabel(state.labels, 'rarity', code, state.locale),
+          label: lookupLabel(this.labels, 'rarity', code, this.locale),
           count: counts[code] ?? 0,
         });
       }
@@ -101,13 +104,13 @@ export const useCardStore = defineStore('card', {
     },
 
     // 费用下拉选项：'all' 置顶，其余升序去重（来自 service 的 costOptions）
-    costOptions: (state) => {
-      const costs = SpellbookService.costOptions(state.cards);
+    costOptions() {
+      const costs = SpellbookService.costOptions(this.cards);
       return [
-        { value: 'all', label: translate(state.locale, 'allCosts') },
+        { value: 'all', label: translate(this.locale, 'allCosts') },
         ...costs.map((cost) => ({
           value: cost,
-          label: translate(state.locale, 'costN', { n: cost }),
+          label: translate(this.locale, 'costN', { n: cost }),
         })),
       ];
     },
@@ -146,11 +149,9 @@ export const useCardStore = defineStore('card', {
       this.webpOff = true;
     },
 
-    // 切换 UI 语言并持久化（非法值忽略，保持当前语言）
+    // 切换 UI 语言（转发全站 localeStore：赋值 + 持久化，非法值由其忽略）
     setLocale(value) {
-      if (value !== 'zh' && value !== 'en') return;
-      this.locale = value;
-      persistLocale(value);
+      useLocaleStore().setLocale(value);
     },
 
     // 打开详情弹层（记录卡 id；由 CardDetail.vue 消费）

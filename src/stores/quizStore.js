@@ -2,20 +2,16 @@
 // Options-style defineStore per AGENTS.md (loading/error + try-catch-finally),
 // rules delegated to QuizService (pure, unit-tested) — the store only wires
 // state: search filters, the challenge session lifecycle and best records.
+// The UI locale is site-wide: state lives in localeStore, exposed here as a
+// delegating getter + forwarding action so the store's API surface is
+// unchanged for the views/components.
 import { QuizService } from '@/services/quizService.js';
-import {
-  persistLocale,
-  resolveInitialLocale,
-  translate,
-} from '@/services/quizLocale.js';
+import { translate } from '@/services/quizLocale.js';
+import { useLocaleStore } from '@/stores/localeStore.js';
 import { defineStore } from 'pinia';
 
 export const useQuizStore = defineStore('quiz', {
   state: () => ({
-    // UI 语言（'zh' | 'en'）：初次进入按 localStorage > 浏览器语言解析，
-    // 之后由 setLocale 更新并持久化；题目侧文案由 lookupText 按 locale 取
-    locale: resolveInitialLocale(),
-
     // 加载状态（error 存语言无关码 'load-failed'，UI 文案走词典）
     loading: false,
     error: null,
@@ -47,6 +43,12 @@ export const useQuizStore = defineStore('quiz', {
   }),
 
   getters: {
+    // UI 语言（'zh' | 'en'）：全站唯一语言，委托 localeStore（跨 store
+    // getter，两页共享一次切换）；题目侧文案由 lookupText 按 locale 取
+    locale() {
+      return useLocaleStore().locale;
+    },
+
     // 両库总题数（版本徽标与 note 文案的 {total}）
     totalQuestions: (state) =>
       state.banks.history_of_magic.length + state.banks.muggle_studies.length,
@@ -59,21 +61,22 @@ export const useQuizStore = defineStore('quiz', {
       return QuizService.searchQuestions(rows, state.searchFilters);
     },
 
-    // 科目分段选项：'all' 置顶，其后両科，均带计数（label 走词典）
-    bankOptions: (state) => {
-      const count = (bank) => state.banks[bank].length;
+    // 科目分段选项：'all' 置顶，其后両科，均带计数（label 走词典；
+    // 读委托 getter locale 须走 this，不能用 state 形参）
+    bankOptions() {
+      const count = (bank) => this.banks[bank].length;
       return [
         {
           value: 'all',
-          label: translate(state.locale, 'bankAll'),
+          label: translate(this.locale, 'bankAll'),
           count:
-            state.banks.history_of_magic.length +
-            state.banks.muggle_studies.length,
+            this.banks.history_of_magic.length +
+            this.banks.muggle_studies.length,
         },
         ...QuizService.BANK_IDS.map((bank) => ({
           value: bank,
           label: translate(
-            state.locale,
+            this.locale,
             bank === 'history_of_magic' ? 'bankHistory' : 'bankMuggle',
           ),
           count: count(bank),
@@ -117,11 +120,9 @@ export const useQuizStore = defineStore('quiz', {
       }
     },
 
-    // 切换 UI 语言并持久化（非法值忽略，保持当前语言）
+    // 切换 UI 语言（转发全站 localeStore：赋值 + 持久化，非法值由其忽略）
     setLocale(value) {
-      if (value !== 'zh' && value !== 'en') return;
-      this.locale = value;
-      persistLocale(value);
+      useLocaleStore().setLocale(value);
     },
 
     // 切换页签（非法值忽略）

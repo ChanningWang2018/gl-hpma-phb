@@ -5,17 +5,16 @@
 // and the per-row level stat labels (k_en/unit_en) — comes from cards.json
 // itself (schema 3), resolved through spellbookClient's lookup* helpers.
 //
-// No vue-i18n: a single page needs translating, so a flat dictionary plus a
-// {placeholder} interpolator covers it without a dependency.
+// Resolution/persistence and the dictionary-lookup kernel live in
+// siteLocale.js (site-wide locale refactor); this module keeps only the
+// dictionary, and translate() delegates to translateMessage with it.
+import { translateMessage } from '@/services/siteLocale.js';
 
-/** localStorage key persisting the user's manual choice. */
-export const STORAGE_KEY = 'hpma-codex-locale';
-
-/** Supported locales; DEFAULT_LOCALE matches the data's CN-first fallback. */
+/** Supported locales; matches the data's CN-first fallback. */
 export const CODEX_LOCALES = ['zh', 'en'];
-export const DEFAULT_LOCALE = 'zh';
 
-const MESSAGES = {
+/** Exported so tests can assert the zh/en key sets stay in lockstep. */
+export const MESSAGES = {
   zh: {
     note: '全站 {total} 张卡牌档案：咒语 / 召唤 / 伙伴，支持按类型、稀有度、费用与名称检索。',
     languageToggle: '切换到英文',
@@ -86,58 +85,15 @@ export function normalizeLocale(value) {
 }
 
 /**
- * Dictionary lookup with {placeholder} interpolation and DEFAULT_LOCALE
- * fallback (missing keys degrade to the zh message, then the key itself).
+ * Dictionary lookup with {placeholder} interpolation and zh fallback
+ * (missing keys degrade to the zh message, then the key itself).
  */
 export function translate(locale, key, params) {
-  const dict = MESSAGES[locale] ?? MESSAGES[DEFAULT_LOCALE];
-  let text = dict[key] ?? MESSAGES[DEFAULT_LOCALE][key] ?? key;
-  if (params) {
-    for (const [name, value] of Object.entries(params)) {
-      text = text.replaceAll(`{${name}}`, String(value));
-    }
-  }
-  return text;
+  return translateMessage(MESSAGES, locale, key, params);
 }
 
 /** Enum-ish string value -> display label in `locale` (zh passes through). */
 export function valueLabel(locale, value) {
   if (typeof value !== 'string') return value;
   return VALUE_LABELS[locale]?.[value] ?? value;
-}
-
-/**
- * Initial locale: persisted choice > browser language > DEFAULT_LOCALE.
- * All browser globals are guarded — tests run in a plain node environment.
- */
-export function resolveInitialLocale() {
-  try {
-    if (typeof localStorage !== 'undefined') {
-      const stored = normalizeLocale(localStorage.getItem(STORAGE_KEY));
-      if (stored) return stored;
-    }
-  } catch {
-    // storage unavailable (privacy mode etc.) — fall through to detection
-  }
-  const language =
-    typeof navigator !== 'undefined' && typeof navigator.language === 'string'
-      ? navigator.language
-      : '';
-  // Browser language available: zh* stays zh, everything else gets en.
-  // No signal at all (node tests, exotic browsers): CN-first default.
-  if (language) {
-    return language.toLowerCase().startsWith('zh') ? 'zh' : 'en';
-  }
-  return DEFAULT_LOCALE;
-}
-
-/** Persist the manual choice; silently no-ops when storage is unavailable. */
-export function persistLocale(locale) {
-  try {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY, locale);
-    }
-  } catch {
-    // storage unavailable — the choice still applies for this session
-  }
 }

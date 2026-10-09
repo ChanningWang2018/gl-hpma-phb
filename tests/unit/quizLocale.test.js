@@ -1,25 +1,15 @@
-// Tests for quizLocale.js — UI language resolution/persistence and the page
-// dictionary (zh copy pinned by docs/quiz.md, en copy checked for key-set
-// parity so a missing translation cannot slip in). Browser globals
-// (localStorage/navigator) are stubbed per case because vitest runs in a
-// plain node environment.
-import { describe, it, expect, vi, afterEach } from 'vitest';
+// Tests for quizLocale.js — the /quiz page dictionary (zh copy pinned by
+// docs/quiz.md, en copy checked for key-set parity so a missing translation
+// cannot slip in). Locale resolution/persistence now lives in siteLocale.js
+// and is covered by tests/unit/siteLocale.test.js.
+import { describe, it, expect } from 'vitest';
 
 import {
-  DEFAULT_LOCALE,
   MESSAGES,
   QUIZ_LOCALES,
-  STORAGE_KEY,
   normalizeLocale,
-  persistLocale,
-  resolveInitialLocale,
   translate,
 } from '../../src/services/quizLocale.js';
-
-afterEach(() => {
-  vi.unstubAllGlobals();
-  vi.restoreAllMocks();
-});
 
 describe('dictionary parity', () => {
   it('zh and en cover exactly the same key sets (sorted equal)', () => {
@@ -150,58 +140,5 @@ describe('translate', () => {
   it('falls back to the default locale message, then the key itself', () => {
     expect(translate('fr', 'tabBank')).toBe('题库检索');
     expect(translate('zh', 'no_such_key')).toBe('no_such_key');
-  });
-});
-
-describe('resolveInitialLocale', () => {
-  it('returns the CN-first default without any browser signals', () => {
-    vi.stubGlobal('navigator', undefined);
-    vi.stubGlobal('localStorage', undefined);
-    expect(resolveInitialLocale()).toBe(DEFAULT_LOCALE);
-  });
-
-  it('follows the browser language: zh* -> zh, everything else -> en', () => {
-    vi.stubGlobal('localStorage', undefined);
-    vi.stubGlobal('navigator', { language: 'zh-CN' });
-    expect(resolveInitialLocale()).toBe('zh');
-    vi.stubGlobal('navigator', { language: 'en-US' });
-    expect(resolveInitialLocale()).toBe('en');
-    vi.stubGlobal('navigator', { language: 'ja-JP' });
-    expect(resolveInitialLocale()).toBe('en');
-  });
-
-  it('prefers the persisted choice over the browser language', () => {
-    vi.stubGlobal('navigator', { language: 'zh-CN' });
-    vi.stubGlobal('localStorage', { getItem: () => 'en' });
-    expect(resolveInitialLocale()).toBe('en');
-  });
-
-  it('ignors an invalid persisted value', () => {
-    vi.stubGlobal('navigator', { language: 'en-US' });
-    vi.stubGlobal('localStorage', { getItem: () => 'fr' });
-    expect(resolveInitialLocale()).toBe('en');
-  });
-});
-
-describe('persistLocale', () => {
-  it('writes the choice under the storage key', () => {
-    const setItem = vi.fn();
-    vi.stubGlobal('localStorage', { setItem });
-    persistLocale('en');
-    expect(setItem).toHaveBeenCalledWith(STORAGE_KEY, 'en');
-  });
-
-  it('silently no-ops when storage is unavailable', () => {
-    vi.stubGlobal('localStorage', undefined);
-    expect(() => persistLocale('zh')).not.toThrow();
-  });
-
-  it('swallows storage errors (privacy mode)', () => {
-    vi.stubGlobal('localStorage', {
-      setItem: () => {
-        throw new Error('quota');
-      },
-    });
-    expect(() => persistLocale('zh')).not.toThrow();
   });
 });

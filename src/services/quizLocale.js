@@ -1,20 +1,21 @@
 // QuizLocale — UI language layer for the /quiz page (zh | en).
 //
-// Same shape as codexLocale.js on purpose: a flat zh/en dictionary plus a
-// {placeholder} interpolator, no vue-i18n. Only the page chrome lives here —
-// data-side bilingual text (question/options/explanation) comes from
-// quiz.json itself through quizClient's lookupText().
+// Same shape as codexLocale.js on purpose: a flat zh/en dictionary, no
+// vue-i18n. Only the page chrome lives here — data-side bilingual text
+// (question/options/explanation) comes from quiz.json itself through
+// quizClient's lookupText().
 //
 // Dictionary keys and zh copy are pinned by docs/quiz.md (T2); en copy is the
 // idiomatic counterpart. Both key sets MUST stay identical (guarded by
 // tests/unit/quizLocale.test.js so a missing translation cannot slip in).
+//
+// Resolution/persistence and the dictionary-lookup kernel live in
+// siteLocale.js (site-wide locale refactor); this module keeps only the
+// dictionary, and translate() delegates to translateMessage with it.
+import { translateMessage } from '@/services/siteLocale.js';
 
-/** localStorage key persisting the user's manual choice. */
-export const STORAGE_KEY = 'hpma-quiz-locale';
-
-/** Supported locales; DEFAULT_LOCALE matches the data's CN-first fallback. */
+/** Supported locales; matches the data's CN-first fallback. */
 export const QUIZ_LOCALES = ['zh', 'en'];
-export const DEFAULT_LOCALE = 'zh';
 
 /** Exported so tests can assert the zh/en key sets stay in lockstep. */
 export const MESSAGES = {
@@ -188,52 +189,9 @@ export function normalizeLocale(value) {
 }
 
 /**
- * Dictionary lookup with {placeholder} interpolation and DEFAULT_LOCALE
- * fallback (missing keys degrade to the zh message, then the key itself).
+ * Dictionary lookup with {placeholder} interpolation and zh fallback
+ * (missing keys degrade to the zh message, then the key itself).
  */
 export function translate(locale, key, params) {
-  const dict = MESSAGES[locale] ?? MESSAGES[DEFAULT_LOCALE];
-  let text = dict[key] ?? MESSAGES[DEFAULT_LOCALE][key] ?? key;
-  if (params) {
-    for (const [name, value] of Object.entries(params)) {
-      text = text.replaceAll(`{${name}}`, String(value));
-    }
-  }
-  return text;
-}
-
-/**
- * Initial locale: persisted choice > browser language > DEFAULT_LOCALE.
- * All browser globals are guarded — tests run in a plain node environment.
- */
-export function resolveInitialLocale() {
-  try {
-    if (typeof localStorage !== 'undefined') {
-      const stored = normalizeLocale(localStorage.getItem(STORAGE_KEY));
-      if (stored) return stored;
-    }
-  } catch {
-    // storage unavailable (privacy mode etc.) — fall through to detection
-  }
-  const language =
-    typeof navigator !== 'undefined' && typeof navigator.language === 'string'
-      ? navigator.language
-      : '';
-  // Browser language available: zh* stays zh, everything else gets en.
-  // No signal at all (node tests, exotic browsers): CN-first default.
-  if (language) {
-    return language.toLowerCase().startsWith('zh') ? 'zh' : 'en';
-  }
-  return DEFAULT_LOCALE;
-}
-
-/** Persist the manual choice; silently no-ops when storage is unavailable. */
-export function persistLocale(locale) {
-  try {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY, locale);
-    }
-  } catch {
-    // storage unavailable — the choice still applies for this session
-  }
+  return translateMessage(MESSAGES, locale, key, params);
 }
