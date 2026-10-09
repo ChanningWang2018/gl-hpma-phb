@@ -461,3 +461,16 @@ T1 ──→ T2 ──┬─→ T4（壳+接线，主会话）─→ T5 ∥ T6 �
   `hpma-quiz-progress`（跨周更保留，reconcile 剔除消失题）；复习局不进
   bests，成绩单显覆盖；错题集已逐题记录（错题重练模式待下一票）。
   设计与验收详见 `docs/quiz-review.md`（四项确认题未答按推荐执行）。
+
+### 2026-10-10 挑战作答态移动端体验优化（用户反馈）
+
+- **答后操作条钉底**（≤768px）：已作答（`is-answered`）时把 `.run-actions`
+  fixed 于视口底（bottom 0 + safe-area padding），选完即见「下一题」，免得
+  反馈/讲解插入后把按钮挤出视口、每题多滑一次；`.challenge-run` 随之补一段
+  滚动余量 padding，防止钉底条遮挡反馈/讲解末行。只能用 fixed 而非 sticky：
+  祖先 `.container`（global.css）带 `overflow: hidden`，会成为 sticky 的吸附
+  基准并随文档流滚动，sticky 够不到视口底。
+- **「下一题」后题首滚动复位**：`advance()` 未交卷时 `$nextTick` 后把
+  `.run-progress` scrollIntoView({ block: 'start' })，新题题首对齐视口顶
+  （全站无 sticky/fixed 页头，无需偏移补偿）；`prefers-reduced-motion: reduce`
+  下 behavior 用 `'auto'` 瞬时定位，否则 `'smooth'`。末题交卷与放弃流程不滚动。

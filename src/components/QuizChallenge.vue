@@ -98,9 +98,14 @@
       </button>
     </section>
 
-    <!-- 作答态：session 非空（选项已由 buildChallenge 洗牌，按序直出） -->
-    <section v-else-if="session" class="challenge-run">
-      <header class="run-progress">
+    <!-- 作答态：session 非空（选项已由 buildChallenge 洗牌，按序直出）；
+         is-answered 供移动端「答后操作条钉底」样式作用域使用 -->
+    <section
+      v-else-if="session"
+      class="challenge-run"
+      :class="{ 'is-answered': answeredFlag }"
+    >
+      <header ref="runProgress" class="run-progress">
         <p class="progress-question">
           {{ t('questionN', { n: questionNo, total: questionTotal }) }}
         </p>
@@ -786,8 +791,24 @@ export default {
       this.quizStore.answerCurrent(optionNo);
     },
 
+    // 下一题/交卷：会话继续时把新题题首滚回视口顶——换题只换 DOM 内容、
+    // 滚动位置不动，新题题干会留在视口上方。$nextTick 等新题渲染完、布局
+    // 稳定后再滚；末题交卷清空 session（切成绩单态）与放弃流程都不滚动。
+    // 全站无 sticky/fixed 页头，block: 'start' 顶部对齐无需偏移补偿
     next() {
       this.quizStore.advance();
+      if (!this.session) return;
+      this.$nextTick(() => {
+        if (typeof window === 'undefined' || !this.$refs.runProgress) return;
+        // 减弱动效偏好下瞬时定位，避免平滑滚动引起晕动不适
+        const reducedMotion = window.matchMedia(
+          '(prefers-reduced-motion: reduce)',
+        ).matches;
+        this.$refs.runProgress.scrollIntoView({
+          block: 'start',
+          behavior: reducedMotion ? 'auto' : 'smooth',
+        });
+      });
     },
 
     start() {
@@ -1524,6 +1545,50 @@ export default {
   .challenge-run,
   .challenge-result {
     max-width: none;
+  }
+
+  /* 答后操作条钉底：反馈/讲解插在选项与操作行之间，会把「下一题」挤出
+     视口，每题都要多滑一次。已作答（is-answered）时把操作条钉在视口底，
+     选完即可直接翻题。这里只能用 fixed 而非 sticky：App 根 .container
+     （global.css）带 overflow: hidden，会成为 sticky 的吸附基准并随文档流
+     一起滚动，sticky 永远够不到视口底；本组件只许改自己，祖先链又无
+     transform/filter，fixed 是唯一能把条钉上视口的定位方式。 */
+  .challenge-run.is-answered .run-actions {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    /* 页面 body::before/::after 纸纹装饰层（z-index 998/999）是
+       pointer-events: none，条在其下仍可点，不必盖过装饰层 */
+    z-index: 10;
+    flex-wrap: nowrap;
+    /* 下一整行为不支持 env() 的旧浏览器回退 */
+    padding: 10px 16px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    background: var(--paper);
+    border-top: 1px solid var(--rule);
+  }
+
+  /* 主按钮占主导宽度；「放弃本次」收为次要小钮（基础 min-height: 44px
+     原样保留，触控 ≥40px 底线不破）。这两个选择器比 480px 断点里
+     .run-actions .{primary,ghost}-btn { flex: 1 } 深两级，窄屏下主按钮
+     仍主导、放弃钮收缩，不会被旧 flex:1 反超 */
+  .challenge-run.is-answered .run-actions .primary-btn {
+    flex: 1 1 auto;
+  }
+
+  .challenge-run.is-answered .run-actions .ghost-btn {
+    flex: 0 0 auto;
+    padding: 0 14px;
+  }
+
+  /* 钉底条会盖住反馈/讲解末尾几行：给作答区补一段滚动余量（72px ≈
+     条高 65px + 视觉余量），保证末行能完整滚上来读。未作答时无此补偿，
+     避免常驻条遮挡选项 */
+  .challenge-run.is-answered {
+    /* 不支持 env() 的回退 */
+    padding-bottom: 72px;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
   }
 }
 
