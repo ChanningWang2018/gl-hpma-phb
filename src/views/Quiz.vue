@@ -18,19 +18,12 @@
       </div>
       <p class="quiz-note">
         {{ t('note', { total: quizStore.totalQuestions }) }}
-        <a
-          v-if="quizStore.versionInfo"
-          class="version-badge"
-          :href="quizStore.versionInfo.sourceUrl"
-          target="_blank"
-          rel="noopener"
-          >{{
-            t('versionBadge', {
-              version: quizStore.versionInfo.version,
-              total: quizStore.totalQuestions,
-            })
-          }}</a
-        >
+        <span v-if="quizStore.versionInfo" class="version-badge">{{
+          t('versionBadge', {
+            version: quizStore.versionInfo.version,
+            total: quizStore.totalQuestions,
+          })
+        }}</span>
       </p>
     </header>
 
@@ -192,16 +185,10 @@ export default {
   margin-top: 8px;
 }
 
+/* 纯文本徽标（不做超链接跳转，2026-10-10 用户要求） */
 .version-badge {
   margin-left: 10px;
   color: var(--teal-ink);
-  text-decoration: none;
-  border-bottom: 1px dotted var(--teal-ink);
-}
-
-.version-badge:hover {
-  color: var(--oxblood);
-  border-bottom-color: var(--oxblood);
 }
 
 /* ---- 双栏切换 ---- */
