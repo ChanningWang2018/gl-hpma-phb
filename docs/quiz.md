@@ -454,3 +454,10 @@ T1 ──→ T2 ──┬─→ T4（壳+接线，主会话）─→ T5 ∥ T6 �
 
 - Quiz.vue 头部「数据 {version} · {total} 题」由 `<a target=_blank>` 改为
   纯文本 `<span>`（去掉 teal 点状下划线与 hover，保留文字与颜色）。
+
+### 2026-10-10 答题挑战新增「全量复习」抽题方式
+
+- 轮次制（unseen-first）：每批只抽本轮未做题，抽干自动开新轮；进度存
+  `hpma-quiz-progress`（跨周更保留，reconcile 剔除消失题）；复习局不进
+  bests，成绩单显覆盖；错题集已逐题记录（错题重练模式待下一票）。
+  设计与验收详见 `docs/quiz-review.md`（四项确认题未答按推荐执行）。

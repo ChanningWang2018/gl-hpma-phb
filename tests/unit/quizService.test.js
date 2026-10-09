@@ -443,6 +443,34 @@ describe('QuizService.formatShareText', () => {
     expect(text).toContain('T · 巨怪');
     expect(text).toContain(url);
   });
+
+  it('appends the review draw label to the mode only for review sessions', () => {
+    const review = {
+      ...result,
+      config: {
+        bank: 'history_of_magic',
+        count: 2,
+        mode: 'prefect',
+        draw: 'review',
+      },
+    };
+    expect(
+      QuizService.formatShareText({ result: review, url, locale: 'zh' }).split(
+        '\n',
+      )[0],
+    ).toBe('【HPMA 魔法测验】魔法史 · 2 题 · 级长模式 · 全量复习');
+    expect(
+      QuizService.formatShareText({ result: review, url, locale: 'en' }).split(
+        '\n',
+      )[0],
+    ).toBe(
+      'HPMA Quiz — History of Magic · 2 questions · Prefect mode · Full review',
+    );
+    // Random sessions (no draw field) keep the bare mode name.
+    expect(
+      QuizService.formatShareText({ result, url, locale: 'zh' }).split('\n')[0],
+    ).toBe('【HPMA 魔法测验】魔法史 · 2 题 · 级长模式');
+  });
 });
 
 describe('QuizService best records (stubbed localStorage)', () => {
@@ -1033,6 +1061,816 @@ describe('buildChallenge stemShared flag (synthetic dataset)', () => {
       3: false,
       5: true,
       6: true,
+    });
+  });
+});
+
+describe('QuizService review progress storage (stubbed localStorage)', () => {
+  const EMPTY_PROGRESS = {
+    banks: {
+      history_of_magic: { round: 1, seen: {}, wrong: {} },
+      muggle_studies: { round: 1, seen: {}, wrong: {} },
+    },
+  };
+
+  it('pins the review constants', () => {
+    expect(QuizService.REVIEW_COUNTS).toEqual([25, 50, 100]);
+    expect(QuizService.PROGRESS_STORAGE_KEY).toBe('hpma-quiz-progress');
+  });
+
+  it('readProgressRaw degrades to a fresh empty progress without storage', () => {
+    vi.stubGlobal('localStorage', undefined);
+    expect(QuizService.readProgressRaw()).toEqual(EMPTY_PROGRESS);
+    expect(() => QuizService.writeProgressRaw(null)).not.toThrow();
+    expect(() => QuizService.clearProgress()).not.toThrow();
+  });
+
+  it('readProgressRaw normalizes the stored document (banks, round, maps)', () => {
+    const map = stubStorage();
+    map.set(
+      QuizService.PROGRESS_STORAGE_KEY,
+      JSON.stringify({
+        banks: {
+          history_of_magic: { round: 2, seen: { 7: 1 }, wrong: { 9: 1 } },
+          // muggle_studies missing entirely -> defaulted
+        },
+        stray: true, // unknown top-level keys ignored
+      }),
+    );
+    expect(QuizService.readProgressRaw()).toEqual({
+      banks: {
+        history_of_magic: { round: 2, seen: { 7: 1 }, wrong: { 9: 1 } },
+        muggle_studies: { round: 1, seen: {}, wrong: {} },
+      },
+    });
+    // Junk round / non-object maps normalize in place; fractional rounds floor.
+    map.set(
+      QuizService.PROGRESS_STORAGE_KEY,
+      JSON.stringify({
+        banks: {
+          history_of_magic: { round: 0, seen: 'nope', wrong: [1, 2] },
+          muggle_studies: { round: 2.7 },
+        },
+      }),
+    );
+    expect(QuizService.readProgressRaw()).toEqual({
+      banks: {
+        history_of_magic: { round: 1, seen: {}, wrong: {} },
+        muggle_studies: { round: 2, seen: {}, wrong: {} },
+      },
+    });
+  });
+
+  it('readProgressRaw hands out fresh containers, never stored references', () => {
+    const map = stubStorage();
+    map.set(
+      QuizService.PROGRESS_STORAGE_KEY,
+      JSON.stringify({
+        banks: {
+          history_of_magic: { round: 2, seen: { 7: 1 }, wrong: {} },
+          muggle_studies: {},
+        },
+      }),
+    );
+    const first = QuizService.readProgressRaw();
+    first.banks.history_of_magic.seen[7] = 2;
+    first.banks.muggle_studies.round = 9;
+    const second = QuizService.readProgressRaw();
+    expect(second.banks.history_of_magic.seen).toEqual({ 7: 1 });
+    expect(second.banks.muggle_studies.round).toBe(1);
+  });
+
+  it('readProgressRaw degrades corrupted JSON and non-object payloads', () => {
+    const map = stubStorage();
+    for (const junk of ['not-json{', '[1,2]', '"str"', 'null', '42']) {
+      map.set(QuizService.PROGRESS_STORAGE_KEY, junk);
+      expect(QuizService.readProgressRaw()).toEqual(EMPTY_PROGRESS);
+    }
+  });
+
+  it('writeProgressRaw stores JSON and clearProgress removes it; both guarded', () => {
+    const map = stubStorage();
+    const progress = {
+      banks: {
+        history_of_magic: { round: 3, seen: { 1: 1 }, wrong: {} },
+        muggle_studies: { round: 1, seen: {}, wrong: {} },
+      },
+    };
+    QuizService.writeProgressRaw(progress);
+    expect(JSON.parse(map.get(QuizService.PROGRESS_STORAGE_KEY))).toEqual(
+      progress,
+    );
+    QuizService.clearProgress();
+    expect(map.has(QuizService.PROGRESS_STORAGE_KEY)).toBe(false);
+    // Privacy mode: every storage call throws — nothing propagates.
+    vi.stubGlobal('localStorage', {
+      getItem: () => {
+        throw new Error('blocked');
+      },
+      setItem: () => {
+        throw new Error('quota');
+      },
+      removeItem: () => {
+        throw new Error('quota');
+      },
+    });
+    expect(() => QuizService.writeProgressRaw(progress)).not.toThrow();
+    expect(() => QuizService.clearProgress()).not.toThrow();
+    expect(() => QuizService.readProgressRaw()).not.toThrow();
+  });
+
+  it('reconcileProgress drops vanished ids per bank and keeps rounds (pure)', () => {
+    const banks = {
+      history_of_magic: [{ id: 1 }, { id: 2 }],
+      muggle_studies: [{ id: 101 }],
+    };
+    const progress = {
+      banks: {
+        history_of_magic: {
+          round: 4,
+          seen: { 1: 1, 3: 1 },
+          wrong: { 2: 1, 4: 1 },
+        },
+        muggle_studies: { round: 2, seen: { 101: 1 }, wrong: {} },
+      },
+    };
+    const snapshot = JSON.parse(JSON.stringify(progress));
+    const reconciled = QuizService.reconcileProgress(progress, banks);
+    // ids 3/4 left the bank and are dropped; ids 1/2 and both rounds stay.
+    expect(reconciled).toEqual({
+      banks: {
+        history_of_magic: { round: 4, seen: { 1: 1 }, wrong: { 2: 1 } },
+        muggle_studies: { round: 2, seen: { 101: 1 }, wrong: {} },
+      },
+    });
+    expect(reconciled).not.toBe(progress);
+    expect(progress).toEqual(snapshot); // input untouched, incl. nested maps
+    // Shape-missing input normalizes to the empty progress.
+    expect(QuizService.reconcileProgress(null, banks)).toEqual(EMPTY_PROGRESS);
+    // The raw client banks shape ({ [bankId]: { questions } }) works too.
+    expect(
+      QuizService.reconcileProgress(progress, {
+        history_of_magic: { questions: [{ id: 1 }] },
+        muggle_studies: { questions: [] },
+      }),
+    ).toEqual({
+      banks: {
+        history_of_magic: { round: 4, seen: { 1: 1 }, wrong: {} },
+        muggle_studies: { round: 2, seen: {}, wrong: {} },
+      },
+    });
+  });
+});
+
+describe('QuizService review engine (synthetic dataset)', () => {
+  // 6 history questions (ids 1-6; q1/q2 share stem 'S') and 4 muggle
+  // questions (ids 101-104, q104's correct option is 3).
+  const HISTORY_IDS = [1, 2, 3, 4, 5, 6];
+  const MUGGLE_IDS = [101, 102, 103, 104];
+  let synthDir;
+
+  const makeProgress = (perBank = {}) => ({
+    banks: Object.fromEntries(
+      QuizService.BANK_IDS.map((bankId) => [
+        bankId,
+        {
+          round: perBank[bankId]?.round ?? 1,
+          seen: Object.fromEntries(
+            (perBank[bankId]?.seen ?? []).map((id) => [id, 1]),
+          ),
+          wrong: Object.fromEntries(
+            (perBank[bankId]?.wrong ?? []).map((id) => [id, 1]),
+          ),
+        },
+      ]),
+    ),
+  });
+
+  // Minimal challenge item for hand-built applyProgress sessions (only
+  // bank/id/options matter — answerKey reads is_correct).
+  const synthItem = (bank, id, correctNo) => ({
+    bank,
+    id,
+    options: [1, 2, 3, 4].map((no) => ({ no, is_correct: no === correctNo })),
+  });
+
+  beforeAll(async () => {
+    synthDir = await mkdtemp(path.join(tmpdir(), 'hpma-quiz-review-'));
+    const question = (id, theme, stem, correctNo) => ({
+      id,
+      theme,
+      ...(theme === 'ugc' ? { provider_name: '投稿人' } : {}),
+      question: { zh: stem, en: `Q${id}` },
+      options: [1, 2, 3, 4].map((no) => ({
+        no,
+        is_correct: no === correctNo,
+        text: { zh: `选项${no}`, en: `opt${no}` },
+      })),
+      explanation: { zh: `E${id}`, en: `E${id}` },
+    });
+    await writeFile(
+      path.join(synthDir, 'quiz.json'),
+      JSON.stringify({
+        schema_version: 2,
+        data_version: 999,
+        generated_at: 'x',
+        banks: {
+          history_of_magic: {
+            id: 'history_of_magic',
+            questions: [
+              question(1, 'theme1', 'S', 1),
+              question(2, 'ugc', 'S', 2),
+              question(3, 'theme2', 'T3', 1),
+              question(4, 'theme3', 'T4', 1),
+              question(5, 'theme4', 'T5', 1),
+              question(6, 'theme5', 'T6', 1),
+            ],
+          },
+          muggle_studies: {
+            id: 'muggle_studies',
+            questions: [
+              question(101, 'theme1', 'M1', 1),
+              question(102, 'theme2', 'M2', 1),
+              question(103, 'theme3', 'M3', 1),
+              question(104, 'theme4', 'M4', 3),
+            ],
+          },
+        },
+      }),
+    );
+    await writeFile(path.join(synthDir, 'manifest.json'), JSON.stringify({}));
+    await writeFile(
+      path.join(synthDir, 'version.json'),
+      JSON.stringify({ tag: 'quiz-v2.999.0', dataVersion: 999 }),
+    );
+    QuizService.configure({ dataBaseUrl: synthDir });
+    await QuizService.load();
+  });
+
+  afterAll(() => {
+    // Hand the module singleton back to the real data.
+    QuizService.configure({ dataBaseUrl: REAL_DATA_BASE });
+  });
+
+  describe('buildReviewChallenge', () => {
+    const SEEN = makeProgress({
+      history_of_magic: { seen: [1, 2] },
+      muggle_studies: { seen: [101] },
+    });
+
+    it('draws only unseen questions; never intersects seen; deterministic', () => {
+      const session = QuizService.buildReviewChallenge({
+        bank: 'history_of_magic',
+        count: 25,
+        mode: 'normal',
+        progress: SEEN,
+        rng: makeRng(11),
+      });
+      // count clamped to the unseen pool (4 left after seen 1/2).
+      expect(session.config).toEqual({
+        bank: 'history_of_magic',
+        count: 4,
+        mode: 'normal',
+        draw: 'review',
+      });
+      expect(
+        session.items.map((item) => item.id).sort((a, b) => a - b),
+      ).toEqual([3, 4, 5, 6]);
+      // Same seed, same session.
+      const replay = QuizService.buildReviewChallenge({
+        bank: 'history_of_magic',
+        count: 25,
+        mode: 'normal',
+        progress: SEEN,
+        rng: makeRng(11),
+      });
+      expect(replay.items.map((item) => item.id)).toEqual(
+        session.items.map((item) => item.id),
+      );
+      // Options shuffled through the same path (rng()=0.5 trace on 4
+      // options: [1,4,2,3] — order changed, is_correct travelling along).
+      const fixed = QuizService.buildReviewChallenge({
+        bank: 'muggle_studies',
+        count: 2,
+        mode: 'prefect',
+        progress: makeProgress({ muggle_studies: { seen: [101] } }),
+        rng: () => 0.5,
+      });
+      for (const item of fixed.items) {
+        expect(item.options.map((option) => option.no)).toEqual([1, 4, 2, 3]);
+        expect(item.options.filter((option) => option.is_correct)).toHaveLength(
+          1,
+        );
+      }
+      const m104 = fixed.items.find((item) => item.id === 104);
+      expect(QuizService.answerKey(m104)).toBe(3);
+    });
+
+    it('mixed draws the union of both banks’ unseen sets', () => {
+      const session = QuizService.buildReviewChallenge({
+        bank: 'mixed',
+        count: 25,
+        mode: 'normal',
+        progress: SEEN,
+        rng: makeRng(5),
+      });
+      // history unseen {3..6} ∪ muggle unseen {102..104} = 7 questions.
+      expect(session.items).toHaveLength(7);
+      expect(new Set(session.items.map((item) => item.bank)).size).toBe(2);
+      const seenIds = new Set([1, 2, 101].map(String));
+      expect(session.items.every((item) => !seenIds.has(String(item.id)))).toBe(
+        true,
+      );
+    });
+
+    it('a fully seen bank draws from the full pool (post-rollover state)', () => {
+      // Right after applyProgress rolls a completed round, seen/wrong are
+      // cleared — that is the natural "bank fully seen" state, and the whole
+      // pool is drawable again.
+      const session = QuizService.buildReviewChallenge({
+        bank: 'history_of_magic',
+        count: 25,
+        mode: 'normal',
+        progress: makeProgress({ history_of_magic: { round: 2 } }),
+        rng: makeRng(3),
+      });
+      expect(session.items).toHaveLength(6);
+      expect(
+        session.items.map((item) => item.id).sort((a, b) => a - b),
+      ).toEqual(HISTORY_IDS);
+      // The literal all-seen-without-rollover shape can never persist (the
+      // eager rollover clears seen the moment a bank drains); per the
+      // contract the unseen pool is pool-minus-seen, so nothing is drawn.
+      const exhausted = QuizService.buildReviewChallenge({
+        bank: 'history_of_magic',
+        count: 25,
+        mode: 'normal',
+        progress: makeProgress({ history_of_magic: { seen: HISTORY_IDS } }),
+        rng: makeRng(3),
+      });
+      expect(exhausted.items).toEqual([]);
+      expect(exhausted.config.count).toBe(0);
+    });
+
+    it('clamps count and tolerates an exhausted pool / missing progress', () => {
+      const two = QuizService.buildReviewChallenge({
+        bank: 'muggle_studies',
+        count: 2,
+        mode: 'normal',
+        progress: SEEN,
+        rng: makeRng(2),
+      });
+      expect(two.config.count).toBe(2);
+      expect(two.items).toHaveLength(2);
+      const none = QuizService.buildReviewChallenge({
+        bank: 'mixed',
+        count: 0,
+        mode: 'normal',
+        progress: SEEN,
+        rng: makeRng(2),
+      });
+      expect(none.items).toEqual([]);
+      expect(none.config).toEqual({
+        bank: 'mixed',
+        count: 0,
+        mode: 'normal',
+        draw: 'review',
+      });
+      // null progress = nothing seen yet -> the whole pool is drawable.
+      const fresh = QuizService.buildReviewChallenge({
+        bank: 'history_of_magic',
+        count: 99,
+        mode: 'normal',
+        progress: null,
+        rng: makeRng(2),
+      });
+      expect(fresh.items).toHaveLength(6);
+    });
+
+    it('shares the markers path with random draws: same rng, equal items', () => {
+      // Empty progress -> the review pool IS the full pool, so the two
+      // builders must agree item for item (order, options and markers).
+      const review = QuizService.buildReviewChallenge({
+        bank: 'mixed',
+        count: 50,
+        mode: 'normal',
+        progress: makeProgress(),
+        rng: makeRng(20261009),
+      });
+      const random = QuizService.buildChallenge({
+        bank: 'mixed',
+        count: 50,
+        mode: 'normal',
+        rng: makeRng(20261009),
+      });
+      expect(review.items).toEqual(random.items);
+      expect(review.dataVersion).toBe(null); // review never enters bests
+      // Same-stem groups are tallied over the WHOLE bank pool: q1's group
+      // mate (q2) is seen, yet q1 still draws with stemShared=true —
+      // identical to what a random draw would say about it.
+      const session = QuizService.buildReviewChallenge({
+        bank: 'history_of_magic',
+        count: 25,
+        mode: 'prefect',
+        progress: makeProgress({ history_of_magic: { seen: [2] } }),
+        rng: makeRng(8),
+      });
+      const q1 = session.items.find((item) => item.id === 1);
+      expect(q1.markers).toEqual({
+        adjudicated: false,
+        conflict: false,
+        ugc: false,
+        duplicate: false,
+        stemShared: true,
+      });
+      expect(Object.keys(q1).sort()).toEqual([
+        'bank',
+        'explanation',
+        'id',
+        'markers',
+        'options',
+        'question',
+      ]);
+    });
+
+    it('is pure: the passed progress is never mutated', () => {
+      const progress = makeProgress({
+        history_of_magic: { seen: [1, 2] },
+        muggle_studies: { seen: [101] },
+      });
+      const snapshot = JSON.parse(JSON.stringify(progress));
+      QuizService.buildReviewChallenge({
+        bank: 'mixed',
+        count: 5,
+        mode: 'normal',
+        progress,
+        rng: makeRng(1),
+      });
+      expect(progress).toEqual(snapshot);
+    });
+  });
+
+  describe('applyProgress', () => {
+    it('marks seen/wrong via answerKey, skips blanks and ignores forged flags', () => {
+      const progress = makeProgress();
+      const session = {
+        config: {
+          bank: 'history_of_magic',
+          count: 3,
+          mode: 'normal',
+          draw: 'review',
+        },
+        items: [
+          synthItem('history_of_magic', 1, 1),
+          synthItem('history_of_magic', 3, 2),
+          synthItem('history_of_magic', 6, 4),
+        ],
+      };
+      const answers = [
+        { chosenNo: 1, correct: true, ms: 100 }, // correct -> seen
+        { chosenNo: 1, correct: true, ms: 200 }, // WRONG pick (key is 2),
+        // the forged correct flag must not rescue it -> seen + wrong
+        null, // skipped: chosenNo null never touches progress
+      ];
+      const {
+        progress: next,
+        coveredNow,
+        rolledBanks,
+      } = QuizService.applyProgress(progress, session, answers);
+      expect(coveredNow).toBe(2);
+      expect(rolledBanks).toEqual([]);
+      expect(next.banks.history_of_magic).toEqual({
+        round: 1,
+        seen: { 1: 1, 3: 1 },
+        wrong: { 3: 1 },
+      });
+      expect(next.banks.muggle_studies).toEqual({
+        round: 1,
+        seen: {},
+        wrong: {},
+      });
+      expect(next).not.toBe(progress);
+      // Missing answer entries (undefined) count as blank too.
+      const sparse = QuizService.applyProgress(progress, session, [
+        { chosenNo: 1, ms: 100 },
+      ]);
+      expect(sparse.coveredNow).toBe(1);
+      expect(sparse.progress.banks.history_of_magic.seen).toEqual({ 1: 1 });
+    });
+
+    it('a same-round correct answer removes the id from wrong; pre-seen ids do not recount', () => {
+      const progress = makeProgress({
+        history_of_magic: { seen: [1], wrong: [3] },
+      });
+      const session = {
+        config: {
+          bank: 'history_of_magic',
+          count: 2,
+          mode: 'normal',
+          draw: 'review',
+        },
+        items: [
+          synthItem('history_of_magic', 3, 2),
+          synthItem('history_of_magic', 4, 1),
+        ],
+      };
+      const { progress: next, coveredNow } = QuizService.applyProgress(
+        progress,
+        session,
+        [
+          { chosenNo: 2, ms: 100 },
+          { chosenNo: 1, ms: 100 },
+        ],
+      );
+      // id 3 answered correctly -> wrong entry removed (defensive re-answer).
+      expect(next.banks.history_of_magic.wrong).toEqual({});
+      expect(next.banks.history_of_magic.seen).toEqual({ 1: 1, 3: 1, 4: 1 });
+      // coveredNow counts only newly covered ids: 3 and 4, not the pre-seen 1.
+      expect(coveredNow).toBe(2);
+    });
+
+    it('rolls only the bank whose unseen set drained, even on a wrong answer', () => {
+      // Five of six history questions seen: the review draw is exactly the
+      // last unseen one; answering it (wrong, even) drains the bank.
+      const progress = makeProgress({
+        history_of_magic: { seen: [1, 2, 3, 4, 5], wrong: [2] },
+      });
+      const session = {
+        config: {
+          bank: 'history_of_magic',
+          count: 1,
+          mode: 'normal',
+          draw: 'review',
+        },
+        items: [synthItem('history_of_magic', 6, 1)],
+      };
+      const {
+        progress: next,
+        coveredNow,
+        rolledBanks,
+      } = QuizService.applyProgress(progress, session, [
+        { chosenNo: 4, ms: 100 },
+      ]);
+      expect(rolledBanks).toEqual(['history_of_magic']);
+      expect(coveredNow).toBe(1);
+      expect(next.banks.history_of_magic).toEqual({
+        round: 2,
+        seen: {},
+        wrong: {},
+      });
+      expect(next.banks.muggle_studies).toEqual({
+        round: 1,
+        seen: {},
+        wrong: {},
+      });
+    });
+
+    it('mixed partial drain: only the drained bank rolls, the other keeps its round', () => {
+      // Muggle has one unseen question left; history still has four.
+      const progress = makeProgress({
+        history_of_magic: { seen: [1] },
+        muggle_studies: { seen: [101, 102, 103] },
+      });
+      const session = {
+        config: { bank: 'mixed', count: 2, mode: 'normal', draw: 'review' },
+        items: [
+          synthItem('history_of_magic', 3, 1),
+          synthItem('muggle_studies', 104, 3),
+        ],
+      };
+      const {
+        progress: next,
+        coveredNow,
+        rolledBanks,
+      } = QuizService.applyProgress(progress, session, [
+        { chosenNo: 1, ms: 100 },
+        { chosenNo: 3, ms: 100 },
+      ]);
+      expect(rolledBanks).toEqual(['muggle_studies']);
+      expect(coveredNow).toBe(2);
+      // Muggle rolled and cleared; history untouched on round 1.
+      expect(next.banks.muggle_studies).toEqual({
+        round: 2,
+        seen: {},
+        wrong: {},
+      });
+      expect(next.banks.history_of_magic).toEqual({
+        round: 1,
+        seen: { 1: 1, 3: 1 },
+        wrong: {},
+      });
+    });
+
+    it('is pure and records nothing when every answer is blank', () => {
+      const progress = makeProgress({
+        history_of_magic: { seen: [1], wrong: [2] },
+      });
+      const snapshot = JSON.parse(JSON.stringify(progress));
+      const session = {
+        config: { bank: 'mixed', count: 2, mode: 'normal', draw: 'review' },
+        items: [
+          synthItem('history_of_magic', 3, 1),
+          synthItem('muggle_studies', 101, 1),
+        ],
+      };
+      const {
+        progress: next,
+        coveredNow,
+        rolledBanks,
+      } = QuizService.applyProgress(progress, session, [
+        null,
+        { chosenNo: null, ms: 100 },
+      ]);
+      expect(coveredNow).toBe(0);
+      expect(rolledBanks).toEqual([]);
+      expect(next).toEqual(progress); // same content…
+      expect(next).not.toBe(progress); // …but a fresh object
+      expect(progress).toEqual(snapshot); // input untouched
+    });
+  });
+});
+
+describe('QuizService review engine over the real committed data', () => {
+  let banks; // store-shaped { [bankId]: Question[] }
+
+  beforeAll(async () => {
+    QuizService.configure({ dataBaseUrl: REAL_DATA_BASE });
+    await QuizService.load();
+    banks = {
+      history_of_magic: QuizService.client.bankQuestions('history_of_magic'),
+      muggle_studies: QuizService.client.bankQuestions('muggle_studies'),
+    };
+  });
+
+  it('coverageStats reports the real bank sizes 1223 / 624', () => {
+    expect(QuizService.coverageStats(null, banks)).toEqual({
+      history_of_magic: {
+        round: 1,
+        seen: 0,
+        total: 1223,
+        remaining: 1223,
+        wrong: 0,
+      },
+      muggle_studies: {
+        round: 1,
+        seen: 0,
+        total: 624,
+        remaining: 624,
+        wrong: 0,
+      },
+    });
+    const ids = (bankId, n) =>
+      banks[bankId].slice(0, n).map((question) => question.id);
+    const progress = {
+      banks: {
+        history_of_magic: {
+          round: 3,
+          seen: Object.fromEntries(
+            ids('history_of_magic', 5).map((id) => [id, 1]),
+          ),
+          wrong: Object.fromEntries(
+            ids('history_of_magic', 2).map((id) => [id, 1]),
+          ),
+        },
+        muggle_studies: { round: 1, seen: {}, wrong: {} },
+      },
+    };
+    const stats = QuizService.coverageStats(progress, banks);
+    expect(stats.history_of_magic).toEqual({
+      round: 3,
+      seen: 5,
+      total: 1223,
+      remaining: 1218,
+      wrong: 2,
+    });
+    expect(stats.muggle_studies).toEqual({
+      round: 1,
+      seen: 0,
+      total: 624,
+      remaining: 624,
+      wrong: 0,
+    });
+  });
+
+  it('an empty-progress review draw is item-for-item identical to the random path', () => {
+    const review = QuizService.buildReviewChallenge({
+      bank: 'mixed',
+      count: 50,
+      mode: 'normal',
+      progress: null,
+      rng: makeRng(20261009),
+    });
+    const random = QuizService.buildChallenge({
+      bank: 'mixed',
+      count: 50,
+      mode: 'normal',
+      rng: makeRng(20261009),
+    });
+    expect(review.items).toEqual(random.items);
+    expect(review.config).toEqual({
+      bank: 'mixed',
+      count: 50,
+      mode: 'normal',
+      draw: 'review',
+    });
+  });
+
+  it('reconciles weekly-update drift and draws strictly unseen (mixed)', () => {
+    // 400 history + 300 muggle ids marked seen, plus one id that no longer
+    // exists in the bank (a weekly update removed it).
+    const seenHistory = banks.history_of_magic
+      .slice(0, 400)
+      .map((question) => question.id);
+    const seenMuggle = banks.muggle_studies
+      .slice(0, 300)
+      .map((question) => question.id);
+    const stored = {
+      banks: {
+        history_of_magic: {
+          round: 2,
+          seen: Object.fromEntries(
+            [...seenHistory, 999999999].map((id) => [id, 1]),
+          ),
+          wrong: {},
+        },
+        muggle_studies: {
+          round: 1,
+          seen: Object.fromEntries(seenMuggle.map((id) => [id, 1])),
+          wrong: {},
+        },
+      },
+    };
+    const progress = QuizService.reconcileProgress(stored, banks);
+    expect(progress.banks.history_of_magic.seen[999999999]).toBeUndefined();
+    expect(Object.keys(progress.banks.history_of_magic.seen)).toHaveLength(400);
+    expect(progress.banks.history_of_magic.round).toBe(2);
+    expect(Object.keys(progress.banks.muggle_studies.seen)).toHaveLength(300);
+
+    const session = QuizService.buildReviewChallenge({
+      bank: 'mixed',
+      count: 100,
+      mode: 'prefect',
+      progress,
+      rng: makeRng(20261010),
+    });
+    expect(session.items).toHaveLength(100);
+    // ids are only unique PER BANK — qualify with the bank when checking.
+    const seenIds = new Set([
+      ...seenHistory.map((id) => `history_of_magic:${id}`),
+      ...seenMuggle.map((id) => `muggle_studies:${id}`),
+    ]);
+    expect(
+      session.items.every((item) => !seenIds.has(`${item.bank}:${item.id}`)),
+    ).toBe(true);
+    expect(new Set(session.items.map((item) => item.bank)).size).toBe(2);
+    // Deterministic on the fixed seed.
+    const replay = QuizService.buildReviewChallenge({
+      bank: 'mixed',
+      count: 100,
+      mode: 'prefect',
+      progress,
+      rng: makeRng(20261010),
+    });
+    expect(replay.items.map((item) => item.id)).toEqual(
+      session.items.map((item) => item.id),
+    );
+  });
+
+  it('applyProgress folds a real review session in and persists round-trip', () => {
+    stubStorage();
+    const session = QuizService.buildReviewChallenge({
+      bank: 'history_of_magic',
+      count: 25,
+      mode: 'normal',
+      progress: null,
+      rng: makeRng(7),
+    });
+    const answers = session.items.map((item, index) => ({
+      // Every 2nd question correct (13 of 25), the rest wrong.
+      chosenNo:
+        index % 2 === 0
+          ? QuizService.answerKey(item)
+          : item.options.find((option) => !option.is_correct).no,
+      ms: 1000,
+    }));
+    const { progress, coveredNow, rolledBanks } = QuizService.applyProgress(
+      null,
+      session,
+      answers,
+    );
+    expect(coveredNow).toBe(25);
+    expect(rolledBanks).toEqual([]);
+    expect(Object.keys(progress.banks.history_of_magic.seen)).toHaveLength(25);
+    expect(Object.keys(progress.banks.history_of_magic.wrong)).toHaveLength(12);
+    // Storage round-trip preserves the normalized shape.
+    QuizService.writeProgressRaw(progress);
+    expect(QuizService.readProgressRaw()).toEqual(progress);
+    QuizService.clearProgress();
+    expect(QuizService.readProgressRaw()).toEqual({
+      banks: {
+        history_of_magic: { round: 1, seen: {}, wrong: {} },
+        muggle_studies: { round: 1, seen: {}, wrong: {} },
+      },
     });
   });
 });

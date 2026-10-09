@@ -25,6 +25,22 @@
       </div>
 
       <div class="setup-field">
+        <span class="field-label">{{ t('drawLabel') }}</span>
+        <div class="type-segment" role="group" :aria-label="t('drawLabel')">
+          <button
+            v-for="choice in drawChoices"
+            :key="choice.value"
+            type="button"
+            class="type-btn"
+            :class="{ active: draft.draw === choice.value }"
+            @click="setDraw(choice.value)"
+          >
+            {{ choice.label }}
+          </button>
+        </div>
+      </div>
+
+      <div class="setup-field">
         <span class="field-label">{{ t('countLabel') }}</span>
         <div class="type-segment" role="group" :aria-label="t('countLabel')">
           <button
@@ -59,7 +75,23 @@
         </p>
       </div>
 
-      <p class="best-line" role="status">{{ bestText }}</p>
+      <!-- 复习抽题：本地最佳换成覆盖块（每相关科目一行 + 报纸风细线进度条） -->
+      <div v-if="draft.draw === 'review'" class="coverage-block">
+        <div v-for="row in coverageRows" :key="row.bankId" class="coverage-row">
+          <p class="coverage-text">{{ row.text }}</p>
+          <div class="coverage-bar" aria-hidden="true">
+            <div
+              class="coverage-fill"
+              :style="{ '--pct': row.pct + '%' }"
+            ></div>
+          </div>
+        </div>
+        <p class="prefect-blurb">{{ t('reviewBlurb') }}</p>
+        <button type="button" class="reset-btn" @click="resetProgress">
+          {{ t('resetProgress') }}
+        </button>
+      </div>
+      <p v-else class="best-line" role="status">{{ bestText }}</p>
 
       <button type="button" class="primary-btn" @click="start">
         {{ t('startChallenge') }}
@@ -227,7 +259,24 @@
       <h3 class="result-title">{{ t('resultTitle') }}</h3>
 
       <div class="result-grade">
-        <p v-if="lastResult && lastResult.newRecord" class="record-badge">
+        <!-- 复习局：新纪录徽标位改为覆盖行 + 进度条；全覆盖追加里程碑行 -->
+        <template v-if="isReviewResult && reviewSummary">
+          <p class="record-badge">{{ reviewSummaryLine }}</p>
+          <div class="coverage-bar result-coverage-bar" aria-hidden="true">
+            <div
+              class="coverage-fill"
+              :style="{ '--pct': reviewSummary.pct + '%' }"
+            ></div>
+          </div>
+          <p
+            v-for="milestone in reviewMilestones"
+            :key="milestone"
+            class="round-rolled"
+          >
+            {{ milestone }}
+          </p>
+        </template>
+        <p v-else-if="lastResult && lastResult.newRecord" class="record-badge">
           {{ t('newRecord') }}
         </p>
         <p class="owl-code" aria-hidden="true">{{ owlCode }}</p>
@@ -327,9 +376,11 @@ export default {
   },
   data() {
     return {
-      // 配置态草稿（纯 UI 选择，不入 store；开考后被 session 覆盖）
+      // 配置态草稿（纯 UI 选择，不入 store；开考后被 session 覆盖）。
+      // draw = 抽题方式：'random' 整池盲抽 | 'review' 未做优先全量复习
       draft: {
         bank: 'mixed',
+        draw: 'random',
         count: QuizService.CHALLENGE_COUNTS[0],
         mode: QuizService.MODES[0],
       },
@@ -494,11 +545,21 @@ export default {
       ];
     },
 
+    // 抽题方式两档（词典文案；顺序即模板顺序：随机在前为默认）
+    drawChoices() {
+      return [
+        { value: 'random', label: this.t('drawRandom') },
+        { value: 'review', label: this.t('drawReview') },
+      ];
+    },
+
+    // 题量分段随抽题方式切换：随机 [10, 25, 50] / 复习 [25, 50, 100]
     countChoices() {
-      return QuizService.CHALLENGE_COUNTS.map((count) => ({
-        value: count,
-        label: String(count),
-      }));
+      const counts =
+        this.draft.draw === 'review'
+          ? QuizService.REVIEW_COUNTS
+          : QuizService.CHALLENGE_COUNTS;
+      return counts.map((count) => ({ value: count, label: String(count) }));
     },
 
     modeChoices() {
@@ -525,6 +586,33 @@ export default {
       });
     },
 
+    // 覆盖块行（draw=review 时替换「本地最佳」）：每个相关科目一行
+    // 「第 {round} 轮 · 科目：已做 x / y」；mixed 两科都显示。数据取自
+    // store.progress（resetProgress 换新对象，这里随响应式即时归零）
+    coverageRows() {
+      const stats = QuizService.coverageStats(
+        this.quizStore.progress,
+        this.quizStore.banks,
+      );
+      const bankIds =
+        this.draft.bank === 'mixed'
+          ? [...QuizService.BANK_IDS]
+          : [this.draft.bank];
+      return bankIds
+        .filter((bankId) => stats[bankId])
+        .map((bankId) => {
+          const { round, seen, total } = stats[bankId];
+          const label = this.t(
+            bankId === 'history_of_magic' ? 'bankHistory' : 'bankMuggle',
+          );
+          return {
+            bankId,
+            text: `${this.t('progressRound', { round })} · ${this.t('coverageLine', { bank: label, seen, total })}`,
+            pct: total > 0 ? (seen / total) * 100 : 0,
+          };
+        });
+    },
+
     // ---- 成绩单态 ----
     owlCode() {
       return this.lastResult?.owl?.code ?? '';
@@ -533,6 +621,50 @@ export default {
     owlName() {
       const key = this.lastResult?.owl?.key;
       return key ? this.t(key) : '';
+    },
+
+    // ---- 成绩单态（复习局覆盖行） ----
+    isReviewResult() {
+      return this.lastResult?.config?.draw === 'review';
+    },
+
+    // 复习局覆盖汇总：coveredNow 来自 applyProgress；剩余/百分比按本局
+    // 相关科目合计（mixed 两科相加），已滚轮科目 seen 清零即自然回到低格
+    reviewSummary() {
+      const review = this.lastResult?.review;
+      if (!review) return null;
+      const bank = this.lastResult?.config?.bank;
+      const bankIds = bank === 'mixed' ? [...QuizService.BANK_IDS] : [bank];
+      let seen = 0;
+      let total = 0;
+      for (const bankId of bankIds) {
+        const stat = review.stats?.[bankId];
+        if (!stat) continue;
+        seen += stat.seen;
+        total += stat.total;
+      }
+      return {
+        coveredNow: review.coveredNow ?? 0,
+        remaining: Math.max(0, total - seen),
+        pct: total > 0 ? (seen / total) * 100 : 0,
+      };
+    },
+
+    // 「本轮新覆盖 {n} 题 · 剩 {m} 题」
+    reviewSummaryLine() {
+      const summary = this.reviewSummary;
+      if (!summary) return '';
+      return `${this.t('reviewCovered', { n: summary.coveredNow })} · ${this.t('reviewRemaining', { n: summary.remaining })}`;
+    },
+
+    // 轮次里程碑行：全覆盖的科目各出一条（取其新轮次）；同轮去重免撞行
+    reviewMilestones() {
+      const review = this.lastResult?.review;
+      if (!review?.rolledBanks?.length) return [];
+      const lines = review.rolledBanks.map((bankId) =>
+        this.t('roundRolled', { round: review.stats?.[bankId]?.round ?? 1 }),
+      );
+      return [...new Set(lines)];
     },
 
     statRows() {
@@ -660,6 +792,29 @@ export default {
 
     start() {
       this.quizStore.startChallenge({ ...this.draft });
+    },
+
+    // 切换抽题方式：两档题量分段不同，切档即重置为该档默认题量
+    // （随机 10 / 复习 25）——即使旧值在两档都存在也重置，保证切档
+    // 后的选中项总是该档的起点，不残留上一档的选择
+    setDraw(value) {
+      if (this.draft.draw === value) return;
+      this.draft.draw = value;
+      const counts =
+        value === 'review'
+          ? QuizService.REVIEW_COUNTS
+          : QuizService.CHALLENGE_COUNTS;
+      this.draft.count = counts[0];
+    },
+
+    // 重置复习进度：一次确认后清持久层与 store 状态，覆盖块随之归零
+    resetProgress() {
+      if (
+        typeof window === 'undefined' ||
+        window.confirm(this.t('resetProgressConfirm'))
+      ) {
+        this.quizStore.resetProgress();
+      }
     },
 
     // 再来一次：沿用成绩单里的实际作答配置（count 是真实题量）
@@ -934,6 +1089,61 @@ export default {
   color: var(--ink-faded);
 }
 
+/* ---- 覆盖块（复习抽题）：细线进度条 --rule 底 / --gold-leaf 填充 ---- */
+.coverage-block {
+  margin: 4px 0 18px;
+}
+
+.coverage-row {
+  margin-bottom: 10px;
+}
+
+.coverage-text {
+  margin: 0 0 6px;
+  font-family: var(--font-type);
+  font-size: 12px;
+  color: var(--ink-faded);
+}
+
+.coverage-bar {
+  height: 3px;
+  background: var(--rule);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.coverage-fill {
+  width: var(--pct, 0%);
+  height: 100%;
+  background: var(--gold-leaf);
+}
+
+/* 重置复习进度：小字文本钮，触控高度照守 40px 底线 */
+.reset-btn {
+  min-height: 40px;
+  padding: 0 2px;
+  background: none;
+  border: none;
+  font-family: var(--font-type);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink-faded);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--rule);
+  cursor: pointer;
+  transition: color 0.25s;
+}
+
+.reset-btn:hover {
+  color: var(--oxblood);
+}
+
+.reset-btn:focus-visible {
+  outline: 2px solid var(--gold-leaf);
+  outline-offset: 2px;
+}
+
 /* ---- 作答态 ---- */
 .challenge-run {
   max-width: 720px;
@@ -1180,6 +1390,20 @@ export default {
   font-family: var(--font-type);
   font-size: 12px;
   letter-spacing: 0.08em;
+  color: var(--gold-ink);
+}
+
+/* 复习局覆盖条：与配置态同一条细线，居中收窄配合成绩单版式 */
+.result-coverage-bar {
+  max-width: 320px;
+  margin: 2px auto 0;
+}
+
+.round-rolled {
+  margin: 10px 0 0;
+  font-family: var(--font-type);
+  font-size: 12px;
+  letter-spacing: 0.06em;
   color: var(--gold-ink);
 }
 

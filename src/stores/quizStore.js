@@ -38,6 +38,10 @@ export const useQuizStore = defineStore('quiz', {
     // 本地最佳记录（仅含当前 dataVersion 的条目，见 QuizService.loadBests）
     bests: {},
 
+    // 全量复习进度（reconcileProgress 归一后的文档，形状见 docs/quiz-review.md
+    // §1；loadQuiz 成功后装配，交卷/放弃复习局时更新）
+    progress: null,
+
     // 检索结果分页（当前页，从 1 起；query 变化时归位）
     page: 1,
   }),
@@ -111,6 +115,12 @@ export const useQuizStore = defineStore('quiz', {
         };
         this.error = null;
         this.bests = QuizService.loadBests(this.versionInfo?.dataVersion);
+        // 复习进度跨 dataVersion 保留（与 bests 刻意不同）：加载时剔除
+        // 数据里已消失的题 id，其余照留
+        this.progress = QuizService.reconcileProgress(
+          QuizService.readProgressRaw(),
+          this.banks,
+        );
       } catch (error) {
         console.error('Failed to load quiz data:', error);
         // 存语言无关的错误码，UI 文案由视图按 locale 走词典
@@ -146,12 +156,20 @@ export const useQuizStore = defineStore('quiz', {
       this.page = Math.max(1, Number(page) || 1);
     },
 
-    // 开考：抽题建会话 + 复位上局成绩；presentedAt 从此刻起算第 1 题用时
+    // 开考：抽题建会话 + 复位上局成绩；presentedAt 从此刻起算第 1 题用时。
+    // config.draw 选抽题方式：'review' 走未做优先复习抽题（传当前进度），
+    // 缺省/'random' 走原随机整池抽题
     startChallenge(config) {
-      const session = QuizService.buildChallenge({
-        ...config,
-        dataVersion: this.versionInfo?.dataVersion ?? null,
-      });
+      const session =
+        config?.draw === 'review'
+          ? QuizService.buildReviewChallenge({
+              ...config,
+              progress: this.progress,
+            })
+          : QuizService.buildChallenge({
+              ...config,
+              dataVersion: this.versionInfo?.dataVersion ?? null,
+            });
       session.index = 0;
       session.answers = [];
       session.presentedAt = Date.now();
@@ -181,7 +199,9 @@ export const useQuizStore = defineStore('quiz', {
     },
 
     // 前进：未到末题则 index+1 并刷新 presentedAt（每题独立计时）；
-    // 末题则判分 → 记成绩单 → 尝试写入最佳 → 会话清空
+    // 末题则判分 → 记成绩单 → 按抽题方式分流（复习局落进度不碰最佳，
+    // 随机局照旧写最佳）→ 会话清空。会话在此清空，quitChallenge 的放弃
+    // 落盘路径与之天然互斥：applyProgress 每局至多一次
     advance() {
       const session = this.session;
       if (!session) return;
@@ -191,18 +211,51 @@ export const useQuizStore = defineStore('quiz', {
         return;
       }
       const result = QuizService.gradeResult(session, session.answers);
-      const { improved } = QuizService.recordBest({
-        result,
-        dataVersion: session.dataVersion,
-      });
-      result.newRecord = improved;
+      if (session.config?.draw === 'review') {
+        // 复习局：已作答部分折算进覆盖进度并落盘；成绩不进 bests
+        //（二刷与盲抽不可比），成就感由覆盖行承担
+        const { progress, coveredNow, rolledBanks } = QuizService.applyProgress(
+          this.progress,
+          session,
+          session.answers,
+        );
+        QuizService.writeProgressRaw(progress);
+        this.progress = progress;
+        result.review = {
+          coveredNow,
+          rolledBanks,
+          stats: QuizService.coverageStats(progress, this.banks),
+        };
+      } else {
+        const { improved } = QuizService.recordBest({
+          result,
+          dataVersion: session.dataVersion,
+        });
+        result.newRecord = improved;
+        this.bests = QuizService.loadBests(session.dataVersion);
+      }
       this.lastResult = result;
-      this.bests = QuizService.loadBests(session.dataVersion);
       this.session = null;
     },
 
-    // 放弃本次（成绩单态的「调整设置」也走这里：session 已空时即清成绩单）
+    // 放弃本次（成绩单态的「调整设置」也走这里：session 已空时即清成绩单）。
+    // 复习局且已有作答 → 已作答部分静默折算进进度并落盘（无成绩单）；
+    // advance 交卷时已清空 session，两条路径不会重复 apply
     quitChallenge() {
+      const session = this.session;
+      if (
+        session &&
+        session.config?.draw === 'review' &&
+        this.answeredCount > 0
+      ) {
+        const { progress } = QuizService.applyProgress(
+          this.progress,
+          session,
+          session.answers,
+        );
+        QuizService.writeProgressRaw(progress);
+        this.progress = progress;
+      }
       this.session = null;
       this.lastResult = null;
     },
@@ -211,6 +264,12 @@ export const useQuizStore = defineStore('quiz', {
     resetBests() {
       QuizService.clearBests();
       this.bests = {};
+    },
+
+    // 重置全量复习进度（持久层删键 + 状态同步回空进度）
+    resetProgress() {
+      QuizService.clearProgress();
+      this.progress = QuizService.readProgressRaw();
     },
   },
 });
