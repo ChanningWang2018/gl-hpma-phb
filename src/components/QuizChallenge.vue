@@ -80,8 +80,18 @@
         </p>
       </header>
 
-      <p v-if="isPrefect && !answeredFlag" class="prefect-running-tag">
+      <p
+        v-if="isPrefect && !answeredFlag && !stemShown"
+        class="prefect-running-tag"
+      >
         {{ t('prefectRunning') }}
+      </p>
+      <!-- 重复题干的题在级长模式下直接显示题干（否则盲选会撞变体互斥的坑） -->
+      <p
+        v-else-if="isPrefect && !answeredFlag && stemShown"
+        class="prefect-running-tag prefect-stem-shown"
+      >
+        {{ t('prefectStemShown') }}
       </p>
 
       <div v-if="badges.length" class="badge-row">
@@ -98,9 +108,11 @@
         </span>
       </div>
 
-      <!-- 题干区：normal 直出；prefect 作答前隐藏、作答后揭晓 -->
+      <!-- 题干区：normal 直出；prefect 作答前隐藏、作答后揭晓；
+           重复题干（stemShared）在 prefect 下也直出——盲选无法区分同题干
+           的不同变体（部分变体正确答案互不相同），见 quizService.buildChallenge -->
       <div class="stem-block">
-        <p v-if="!isPrefect" class="stem-text">
+        <p v-if="!isPrefect || stemShown" class="stem-text">
           <template
             v-for="(segment, segmentIndex) in stemSegments"
             :key="segmentIndex"
@@ -354,6 +366,11 @@ export default {
       return this.session?.config?.mode === 'prefect';
     },
 
+    // 重复题干：级长模式下不隐藏（同题干变体的正确答案可能互不相同）
+    stemShown() {
+      return this.item?.markers?.stemShared === true;
+    },
+
     questionNo() {
       return (this.session?.index ?? 0) + 1;
     },
@@ -499,7 +516,12 @@ export default {
         grade: this.t(record.key),
         correct: record.correctCount,
         total: record.total,
-        time: QuizService.formatDuration(record.totalMs, this.quizStore.locale),
+        // 最佳记录与成绩语境用 2 位小数：很多玩家的单题速度在 1 秒内
+        time: QuizService.formatDuration(
+          record.totalMs,
+          this.quizStore.locale,
+          2,
+        ),
       });
     },
 
@@ -524,10 +546,11 @@ export default {
         }),
         this.t('statAccuracy', { pct: Math.round(result.accuracy) }),
         this.t('statTime', {
-          time: QuizService.formatDuration(result.totalMs, locale),
+          // 成绩单精度到 0.01 秒（作答中的读秒仍为整数秒）
+          time: QuizService.formatDuration(result.totalMs, locale, 2),
         }),
         this.t('statAvg', {
-          time: QuizService.formatDuration(result.avgMs, locale),
+          time: QuizService.formatDuration(result.avgMs, locale, 2),
         }),
       ];
     },
@@ -958,6 +981,12 @@ export default {
   font-family: var(--font-type);
   font-size: 12px;
   color: var(--gold-ink);
+}
+
+/* 重复题干直出的变体：虚线改为 teal，与「已隐藏」状态一眼区分 */
+.prefect-stem-shown {
+  border-color: var(--teal-ink);
+  color: var(--teal-ink);
 }
 
 .badge-row {

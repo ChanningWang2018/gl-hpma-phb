@@ -151,15 +151,30 @@ export class QuizService {
     rng = Math.random,
   } = {}) {
     const bankIds = bank === 'mixed' ? QuizService.BANK_IDS : [bank];
-    const pool = [];
+    // Same-stem variant detection over the WHOLE draw pool (every row stays
+    // in the pool — each question must stay coverable): the v2 bank carries
+    // 73 stem groups, 6 of which disagree on the correct answer between
+    // variants, so hiding such a stem in prefect mode would trap players who
+    // memorized the other variant. Items carry markers.stemShared so the
+    // prefect UI shows those stems directly (decided 2026-10-10; the rejected
+    // alternative was dropping variants from the pool).
+    const rows = [];
+    const stemCounts = new Map();
     for (const bankId of bankIds) {
       for (const question of client.bankQuestions(bankId)) {
-        pool.push({ bank: bankId, ...question });
+        const row = { bank: bankId, ...question };
+        const stemKey = plainText(question.question?.zh).trim();
+        if (stemKey) {
+          stemCounts.set(stemKey, (stemCounts.get(stemKey) ?? 0) + 1);
+          rows.push({ ...row, stemKey });
+        } else {
+          rows.push(row);
+        }
       }
     }
-    const items = shuffle(pool, rng)
+    const items = shuffle(rows, rng)
       .slice(0, Math.max(0, count))
-      .map((row) => ({
+      .map(({ stemKey, ...row }) => ({
         bank: row.bank,
         id: row.id,
         question: row.question,
@@ -171,6 +186,7 @@ export class QuizService {
           ugc: row.theme === 'ugc',
           duplicate:
             Array.isArray(row.duplicate_of) && row.duplicate_of.length > 0,
+          stemShared: stemKey ? stemCounts.get(stemKey) > 1 : false,
         },
       }));
     // config.count is the ACTUAL size (pools can be smaller than requested)
@@ -255,16 +271,29 @@ export class QuizService {
 
   /**
    * Duration in the locale's compact form: zh `3分21秒` / en `3m 21s`;
-   * a zero minute part is omitted (`45秒` / `45s`). Seconds are floored.
+   * a zero minute part is omitted (`45秒` / `45s`). Seconds are truncated
+   * (stopwatch semantics), never rounded.
+   *
+   * `decimals > 0` adds sub-second precision for result contexts — many
+   * players answer within a second, so the report/share/best screens pass 2
+   * (`16.83秒` / `16.83s`; minute split keeps integer minutes: `1分4.30秒`).
+   * The live running timer stays at decimals 0.
    */
-  static formatDuration(ms, locale = 'zh') {
-    const totalSeconds = Math.max(0, Math.floor((Number(ms) || 0) / 1000));
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
+  static formatDuration(ms, locale = 'zh', decimals = 0) {
+    const places = Math.max(0, Math.min(3, Math.floor(Number(decimals) || 0)));
+    // Integer arithmetic throughout: truncating a float product (e.g.
+    // floor(16.83 * 100)) drifts to 16.82 on binary-representable inputs, so
+    // the sub-second cut works on whole milliseconds instead.
+    const totalMs = Math.max(0, Math.round(Number(ms) || 0));
+    const minutes = Math.floor(totalMs / 60000);
+    const restMs = totalMs % 60000;
+    const unitMs = 1000 / 10 ** places;
+    const seconds = Math.floor(restMs / unitMs) / 10 ** places;
+    const secondsText = seconds.toFixed(places);
     if (locale === 'en') {
-      return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+      return minutes > 0 ? `${minutes}m ${secondsText}s` : `${secondsText}s`;
     }
-    return minutes > 0 ? `${minutes}分${seconds}秒` : `${seconds}秒`;
+    return minutes > 0 ? `${minutes}分${secondsText}秒` : `${secondsText}秒`;
   }
 
   /**
@@ -283,7 +312,8 @@ export class QuizService {
       correct: result?.correctCount ?? 0,
       total: result?.total ?? 0,
       pct: Math.round(result?.accuracy ?? 0),
-      time: QuizService.formatDuration(result?.totalMs ?? 0, locale),
+      // Share text advertises speed — sub-second precision included.
+      time: QuizService.formatDuration(result?.totalMs ?? 0, locale, 2),
       url: url ?? '',
     });
   }

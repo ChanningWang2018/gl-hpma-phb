@@ -64,6 +64,7 @@ export const MESSAGES = {
     startChallenge: '开始挑战',
     questionN: '第 {n} / {total} 题',
     prefectRunning: '级长模式：题干已隐藏',
+    prefectStemShown: '级长模式：此题题干与其他题重复，题干已直接显示',
     chooseAnswer: '选择答案',
     feedbackCorrect: '回答正确',
     feedbackWrong: '错误，正确答案：{answer}',
@@ -144,6 +145,8 @@ export const MESSAGES = {
     startChallenge: 'Start challenge',
     questionN: 'Question {n} / {total}',
     prefectRunning: 'Prefect mode: the question is hidden',
+    prefectStemShown:
+      'Prefect mode: this stem repeats another question — shown directly',
     chooseAnswer: 'Pick an answer',
     feedbackCorrect: 'Correct!',
     feedbackWrong: 'Wrong — the correct answer is {answer}',

@@ -349,6 +349,21 @@ describe('QuizService.formatDuration', () => {
     expect(QuizService.formatDuration(undefined, 'zh')).toBe('0秒');
     expect(QuizService.formatDuration(-5, 'en')).toBe('0s');
   });
+
+  it('adds sub-second precision with decimals (truncated, never rounded)', () => {
+    // Fast-player regime: sub-second totals keep two decimals.
+    expect(QuizService.formatDuration(16830, 'zh', 2)).toBe('16.83秒');
+    expect(QuizService.formatDuration(16830, 'en', 2)).toBe('16.83s');
+    expect(QuizService.formatDuration(943, 'zh', 2)).toBe('0.94秒');
+    // Truncation, not rounding: 999ms -> 0.99, not 1.00.
+    expect(QuizService.formatDuration(999, 'zh', 2)).toBe('0.99秒');
+    expect(QuizService.formatDuration(999, 'zh')).toBe('0秒');
+    // Minute split stays integral; decimals land on the seconds part only.
+    expect(QuizService.formatDuration(201000, 'zh', 2)).toBe('3分21.00秒');
+    expect(QuizService.formatDuration(64300, 'en', 2)).toBe('1m 4.30s');
+    // 0 decimals keeps the legacy floored-integer behaviour byte for byte.
+    expect(QuizService.formatDuration(201999, 'zh', 0)).toBe('3分21秒');
+  });
 });
 
 describe('QuizService.formatShareText', () => {
@@ -372,7 +387,7 @@ describe('QuizService.formatShareText', () => {
     ).toEqual([
       '【HPMA 魔法测验】魔法史 · 2 题 · 级长模式',
       'O.W.L. 评级：O · 杰出',
-      '正确 2/2（100%）· 用时 3分21秒',
+      '正确 2/2（100%）· 用时 3分21.00秒',
       '你也来试试 → https://example.com/quiz',
     ]);
   });
@@ -383,7 +398,7 @@ describe('QuizService.formatShareText', () => {
     ).toEqual([
       'HPMA Quiz — History of Magic · 2 questions · Prefect mode',
       'O.W.L. grade: O · Outstanding',
-      '2/2 correct (100%) · Time 3m 21s',
+      '2/2 correct (100%) · Time 3m 21.00s',
       'Give it a try → https://example.com/quiz',
     ]);
     expect(QuizService.formatShareText({ result, url })).toContain(
@@ -665,14 +680,46 @@ describe('QuizService facade over the real committed data', () => {
     expect(muggle.items.every((item) => item.bank === 'muggle_studies')).toBe(
       true,
     );
-    // A pool smaller than the requested count yields the whole pool.
+    // A pool smaller than the requested count yields the whole pool — every
+    // row stays coverable (no dedup: duplicate-stem questions are instead
+    // flagged so the prefect UI can reveal their stems).
+    const fullDraw = QuizService.buildChallenge({
+      bank: 'mixed',
+      count: 99999,
+      mode: 'normal',
+      rng: makeRng(4),
+    });
+    expect(fullDraw.items).toHaveLength(1847);
+    // Both variants of the known duplicate pair 33/502 ("传闻中的救世之星")
+    // are drawn — note ids are bank-qualified, both banks reuse small ids.
+    const histIds = new Set(
+      fullDraw.items
+        .filter((item) => item.bank === 'history_of_magic')
+        .map((item) => item.id),
+    );
+    expect(histIds.has(33)).toBe(true);
+    expect(histIds.has(502)).toBe(true);
+    const q33 = fullDraw.items.find(
+      (item) => item.bank === 'history_of_magic' && item.id === 33,
+    );
+    expect(q33.markers.stemShared).toBe(true);
+    // The stemShared population is derived from the data itself (markup-
+    // stripped zh stems appearing more than once across the pool).
+    const plain = (text) => text.replace(/<[^>]+>/g, '').trim();
+    const allRows = QuizService.client.allQuestions();
+    const stemTally = new Map();
+    for (const row of allRows) {
+      const key = plain(row.question.zh);
+      if (key) stemTally.set(key, (stemTally.get(key) ?? 0) + 1);
+    }
+    const expectedShared = allRows.filter((row) => {
+      const key = plain(row.question.zh);
+      return key && stemTally.get(key) > 1;
+    }).length;
+    expect(expectedShared).toBeGreaterThan(0);
     expect(
-      QuizService.buildChallenge({
-        bank: 'mixed',
-        count: 99999,
-        mode: 'normal',
-      }).items,
-    ).toHaveLength(1847);
+      fullDraw.items.filter((item) => item.markers.stemShared),
+    ).toHaveLength(expectedShared);
     expect(
       QuizService.buildChallenge({
         bank: 'history_of_magic',
@@ -799,7 +846,7 @@ describe('buildChallenge markers + item shape on a synthetic dataset', () => {
     QuizService.configure({ dataBaseUrl: REAL_DATA_BASE });
   });
 
-  it('precomputes adjudicated/conflict/ugc/duplicate markers', () => {
+  it('precomputes adjudicated/conflict/ugc/duplicate/stemShared markers', () => {
     const { items } = QuizService.buildChallenge({
       bank: 'mixed',
       count: 10,
@@ -813,24 +860,28 @@ describe('buildChallenge markers + item shape on a synthetic dataset', () => {
       conflict: true,
       ugc: true,
       duplicate: false,
+      stemShared: false,
     });
     expect(byId[2].markers).toEqual({
       adjudicated: false,
       conflict: false,
       ugc: false,
       duplicate: true,
+      stemShared: false,
     });
     expect(byId[3].markers).toEqual({
       adjudicated: false,
       conflict: false,
       ugc: false,
       duplicate: false,
+      stemShared: false,
     });
     expect(byId[4].markers).toEqual({
       adjudicated: false,
       conflict: false,
       ugc: true,
       duplicate: false,
+      stemShared: false,
     });
   });
 
@@ -860,5 +911,128 @@ describe('buildChallenge markers + item shape on a synthetic dataset', () => {
     // rng()=0.5 trace: [1,2,3,4] -> [1,4,2,3] — order changed, set kept.
     expect(item.options.map((option) => option.no)).toEqual([1, 4, 2, 3]);
     expect(QuizService.answerKey(item)).toBe(1);
+  });
+});
+
+describe('buildChallenge stemShared flag (synthetic dataset)', () => {
+  let synthDir;
+
+  beforeAll(async () => {
+    synthDir = await mkdtemp(path.join(tmpdir(), 'hpma-quiz-stemshared-'));
+    // Stems with variant rows (all rows must stay drawable):
+    //   'S' — official q1 (correct opt 1) vs UGC q2 (correct opt 2): same
+    //         stem, DIFFERENT correct answers — the prefect-mode trap the
+    //         flag exists for.
+    //   'U' — plain q4 vs q7 whose stem is wrapped in a color tag: markup
+    //         must not split the group.
+    //   'V' — two UGC rows only (no official variant exists).
+    const question = (id, theme, stem, correctNo) => ({
+      id,
+      theme,
+      ...(theme === 'ugc' ? { provider_name: '投稿人' } : {}),
+      question: { zh: stem, en: stem },
+      options: [1, 2, 3, 4].map((no) => ({
+        no,
+        is_correct: no === correctNo,
+        text: { zh: `选项${no}`, en: `opt${no}` },
+      })),
+      explanation: { zh: `E${id}`, en: `E${id}` },
+    });
+    await writeFile(
+      path.join(synthDir, 'quiz.json'),
+      JSON.stringify({
+        schema_version: 2,
+        data_version: 888,
+        generated_at: 'x',
+        banks: {
+          history_of_magic: {
+            id: 'history_of_magic',
+            questions: [
+              question(1, 'theme1', 'S', 1),
+              question(2, 'ugc', 'S', 2),
+              question(3, 'theme2', 'T', 1),
+              question(5, 'ugc', 'V', 1),
+              question(6, 'ugc', 'V', 2),
+            ],
+          },
+          muggle_studies: {
+            id: 'muggle_studies',
+            questions: [
+              question(4, 'theme1', 'U', 1),
+              question(7, 'theme1', '<color=focus_light>U</color>', 2),
+            ],
+          },
+        },
+      }),
+    );
+    await writeFile(path.join(synthDir, 'manifest.json'), JSON.stringify({}));
+    await writeFile(
+      path.join(synthDir, 'version.json'),
+      JSON.stringify({ tag: 'quiz-v2.888.0', dataVersion: 888 }),
+    );
+    QuizService.configure({ dataBaseUrl: synthDir });
+    await QuizService.load();
+  });
+
+  afterAll(() => {
+    QuizService.configure({ dataBaseUrl: REAL_DATA_BASE });
+  });
+
+  it('keeps every row drawable and flags exactly the shared-stem rows', () => {
+    const { items } = QuizService.buildChallenge({
+      bank: 'mixed',
+      count: 99,
+      mode: 'prefect',
+      rng: makeRng(42),
+    });
+    // All 7 rows are in the pool — none dropped for sharing a stem.
+    expect(items).toHaveLength(7);
+    const sharedById = Object.fromEntries(
+      items.map((item) => [item.id, item.markers.stemShared]),
+    );
+    expect(sharedById).toEqual({
+      1: true, // 'S' group
+      2: true,
+      3: false, // unique stem 'T'
+      4: true, // 'U' group (with the tagged variant)
+      5: true, // 'V' group (all-UGC)
+      6: true,
+      7: true,
+    });
+  });
+
+  it('groups on the markup-stripped stem: tags do not split a group', () => {
+    // Muggle pool: q4 ('U') and q7 ('<color=focus_light>U</color>') share a
+    // stem group — both flagged, both drawable.
+    const { items } = QuizService.buildChallenge({
+      bank: 'muggle_studies',
+      count: 99,
+      mode: 'normal',
+      rng: makeRng(7),
+    });
+    expect(items).toHaveLength(2);
+    expect(items.every((item) => item.markers.stemShared)).toBe(true);
+  });
+
+  it('flags are scoped to the drawn pool: single-bank draws see in-bank groups only', () => {
+    // History-only pool: the 'U' group lives in the other bank, so this pool
+    // carries the 'S' and 'V' groups plus one unique stem.
+    const { items } = QuizService.buildChallenge({
+      bank: 'history_of_magic',
+      count: 99,
+      mode: 'normal',
+      rng: makeRng(9),
+    });
+    expect(items).toHaveLength(5);
+    const sharedById = Object.fromEntries(
+      items.map((item) => [item.id, item.markers.stemShared]),
+    );
+    expect(sharedById).toEqual({
+      1: true,
+      2: true,
+      3: false,
+      5: true,
+      6: true,
+    });
   });
 });
