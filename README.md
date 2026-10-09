@@ -122,6 +122,12 @@ Card Codex data (`public/data/spellbook/`) auto-syncs from upstream [hpma-data](
 node scripts/fetch-spellbook.mjs update
 ```
 
+Quiz data (`public/data/quiz/`) follows the same pipeline from [hpma-quizbank](https://github.com/hpma-bits/hpma-quizbank) releases: the scheduled `Quiz Data Update` workflow (Mondays 03:30 UTC, staggered half an hour after spellbook) pulls the new tag, commits it → the push triggers the Netlify deploy. To pull immediately, trigger the workflow from the Actions tab (`workflow_dispatch`) or run locally:
+
+```bash
+node scripts/fetch-quiz.mjs update
+```
+
 
 ## 📊 Supported Characters (Reverberations)
 
