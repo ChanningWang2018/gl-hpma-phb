@@ -11,6 +11,11 @@ export default [
     priority: 0.9,
   },
   {
+    url: 'https://hpma-phb.netlify.app/quiz',
+    changefreq: 'weekly',
+    priority: 0.9,
+  },
+  {
     url: 'https://hpma-phb.netlify.app/resources',
     changefreq: 'weekly',
     priority: 0.8,

@@ -17,6 +17,11 @@ const routes = [
     name: 'cards',
   },
   {
+    path: '/quiz',
+    component: () => import('@/views/Quiz.vue'),
+    name: 'quiz',
+  },
+  {
     path: '/resources',
     component: () => import('@/views/ExternalLinks.vue'),
     name: 'resources',

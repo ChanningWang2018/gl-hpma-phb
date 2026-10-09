@@ -11,6 +11,7 @@
         >Sales Optimizer</router-link
       >
       <router-link to="/cards" class="nav-tab">Card Codex</router-link>
+      <router-link to="/quiz" class="nav-tab">Magic Quiz</router-link>
       <router-link to="/resources" class="nav-tab">Other Resources</router-link>
     </nav>
   </header>
@@ -32,6 +33,7 @@ export default {
         analytics: 'Data that matters (not really)',
         'sales-optimizer': 'Math without tears',
         cards: 'Every card, catalogued',
+        quiz: 'Every question, answered',
         resources: 'Borrowed wisdom',
       };
       return {
