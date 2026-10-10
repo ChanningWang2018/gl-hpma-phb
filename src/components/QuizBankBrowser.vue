@@ -2,19 +2,14 @@
   <section class="quiz-bank-browser" :aria-label="t('tabBank')">
     <!-- 工具栏：科目三分段 + 检索框 + 命中行 -->
     <div class="bank-toolbar">
-      <div class="type-segment" role="group" :aria-label="t('bankLabel')">
-        <button
-          v-for="opt in quizStore.bankOptions"
-          :key="opt.value"
-          type="button"
-          class="type-btn"
-          :class="{ active: quizStore.searchFilters.bank === opt.value }"
-          @click="setBank(opt.value)"
-        >
-          {{ opt.label }}
-          <span class="type-count">{{ opt.count }}</span>
-        </button>
-      </div>
+      <SegmentControl
+        class="bank-segment"
+        role="group"
+        :aria-label="t('bankLabel')"
+        :options="quizStore.bankOptions"
+        :model-value="quizStore.searchFilters.bank"
+        @update:model-value="setBank"
+      />
 
       <label class="toolbar-field toolbar-search">
         <span class="field-label">{{ t('searchLabel') }}</span>
@@ -195,6 +190,7 @@ import {
 } from '@/services/quizClient.js';
 import { translate } from '@/services/quizLocale.js';
 import { useQuizStore } from '@/stores/quizStore.js';
+import SegmentControl from '@/components/ui/SegmentControl.vue';
 
 /** Display letters for the four options, in shuffled display order. */
 const LETTERS = ['A', 'B', 'C', 'D'];
@@ -216,6 +212,7 @@ const SHUFFLE_CACHE = new WeakMap();
 
 export default {
   name: 'QuizBankBrowser',
+  components: { SegmentControl },
   setup() {
     const quizStore = useQuizStore();
     return { quizStore };
@@ -345,50 +342,9 @@ export default {
   margin-bottom: var(--space-4);
 }
 
-.type-segment {
-  display: inline-flex;
-  flex-wrap: wrap;
-  border: 1.5px solid var(--ink);
-  border-radius: 2px;
-  overflow: hidden;
+/* 科目分段与检索框的间距留在使用方（分段钮本身不带外边距） */
+.bank-segment {
   margin-bottom: var(--space-3);
-}
-
-.type-btn {
-  min-height: 40px;
-  padding: 0 var(--space-4);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-family: var(--font-type);
-  font-size: var(--type-body);
-  color: var(--ink-faded);
-  background: transparent;
-  border: none;
-  border-right: 1px solid var(--rule);
-  cursor: pointer;
-  transition:
-    color 0.25s,
-    background-color 0.25s;
-}
-
-.type-btn:last-child {
-  border-right: none;
-}
-
-.type-btn:hover {
-  color: var(--ink);
-  background: rgba(var(--ink-rgb), 0.05);
-}
-
-.type-btn.active {
-  background: var(--ink);
-  color: var(--paper-light);
-}
-
-.type-count {
-  /* 无 opacity：0.7 叠 paper 底对比度仅约 2.8:1，继承 token 色即可过 AA */
-  font-size: var(--type-caption);
 }
 
 .toolbar-field {
@@ -700,17 +656,6 @@ export default {
 }
 
 @media (max-width: 480px) {
-  .type-segment {
-    display: flex;
-    width: 100%;
-  }
-
-  .type-btn {
-    flex: 1;
-    justify-content: center;
-    padding: 0 var(--space-2);
-  }
-
   .toolbar-search,
   .toolbar-search input {
     width: 100%;

@@ -4,66 +4,46 @@
 
     <div class="setup-field">
       <span class="field-label">{{ t('bankLabel') }}</span>
-      <div class="type-segment" role="group" :aria-label="t('bankLabel')">
-        <button
-          v-for="choice in bankChoices"
-          :key="choice.value"
-          type="button"
-          class="type-btn"
-          :class="{ active: draft.bank === choice.value }"
-          @click="draft.bank = choice.value"
-        >
-          {{ choice.label }}
-        </button>
-      </div>
+      <SegmentControl
+        role="group"
+        :aria-label="t('bankLabel')"
+        :options="bankChoices"
+        :model-value="draft.bank"
+        @update:model-value="updateDraft({ bank: $event })"
+      />
     </div>
 
     <div class="setup-field">
       <span class="field-label">{{ t('drawLabel') }}</span>
-      <div class="type-segment" role="group" :aria-label="t('drawLabel')">
-        <button
-          v-for="choice in drawChoices"
-          :key="choice.value"
-          type="button"
-          class="type-btn"
-          :class="{ active: draft.draw === choice.value }"
-          @click="setDraw(choice.value)"
-        >
-          {{ choice.label }}
-        </button>
-      </div>
+      <SegmentControl
+        role="group"
+        :aria-label="t('drawLabel')"
+        :options="drawChoices"
+        :model-value="draft.draw"
+        @update:model-value="setDraw"
+      />
     </div>
 
     <div class="setup-field">
       <span class="field-label">{{ t('countLabel') }}</span>
-      <div class="type-segment" role="group" :aria-label="t('countLabel')">
-        <button
-          v-for="choice in countChoices"
-          :key="choice.value"
-          type="button"
-          class="type-btn"
-          :class="{ active: draft.count === choice.value }"
-          @click="draft.count = choice.value"
-        >
-          {{ choice.label }}
-        </button>
-      </div>
+      <SegmentControl
+        role="group"
+        :aria-label="t('countLabel')"
+        :options="countChoices"
+        :model-value="draft.count"
+        @update:model-value="updateDraft({ count: $event })"
+      />
     </div>
 
     <div class="setup-field">
       <span class="field-label">{{ t('modeLabel') }}</span>
-      <div class="type-segment" role="group" :aria-label="t('modeLabel')">
-        <button
-          v-for="choice in modeChoices"
-          :key="choice.value"
-          type="button"
-          class="type-btn"
-          :class="{ active: draft.mode === choice.value }"
-          @click="draft.mode = choice.value"
-        >
-          {{ choice.label }}
-        </button>
-      </div>
+      <SegmentControl
+        role="group"
+        :aria-label="t('modeLabel')"
+        :options="modeChoices"
+        :model-value="draft.mode"
+        @update:model-value="updateDraft({ mode: $event })"
+      />
       <p v-if="draft.mode === 'prefect'" class="prefect-blurb">
         {{ t('prefectBlurb') }}
       </p>
@@ -74,10 +54,7 @@
       <div v-for="row in coverageRows" :key="row.bankId" class="coverage-row">
         <p class="coverage-text">{{ row.text }}</p>
         <div class="coverage-bar" aria-hidden="true">
-          <div
-            class="coverage-fill"
-            :style="{ '--pct': row.pct + '%' }"
-          ></div>
+          <div class="coverage-fill" :style="{ '--pct': row.pct + '%' }"></div>
         </div>
       </div>
       <p class="prefect-blurb">{{ t('reviewBlurb') }}</p>
@@ -87,41 +64,38 @@
     </div>
     <p v-else class="best-line" role="status">{{ bestText }}</p>
 
-    <button type="button" class="primary-btn" @click="start">
+    <PressButton class="start-btn" @click="start">
       {{ t('startChallenge') }}
-    </button>
+    </PressButton>
   </section>
 </template>
 
 <script>
 // ChallengeSetup — challenge 配置态屏：科目 / 抽题方式 / 题量 / 模式四段
-// 选择 + 复习覆盖块（或本地最佳行）+ 开考。draft 草稿是纯 UI 选择，不入
-// store；开考时整份交给 store.startChallenge，被 session 生命周期接管。
+// 选择 + 复习覆盖块（或本地最佳行）+ 开考。draft 草稿挂 quizStore
+// （setupDraft + updateSetupDraft）：作答/成绩单态期间本组件被卸载，
+// 草稿仍在 store 里，成绩单「调整设置」返回时保留用户选择。开考时整份
+// 交给 store.startChallenge，被 session 生命周期接管。
 // （壳 QuizChallenge 按三态路由：session 与 lastResult 均为空时渲染本屏。）
+import PressButton from '@/components/ui/PressButton.vue';
+import SegmentControl from '@/components/ui/SegmentControl.vue';
 import { QuizService } from '@/services/quizService.js';
 import { translate } from '@/services/quizLocale.js';
 import { useQuizStore } from '@/stores/quizStore.js';
 
 export default {
   name: 'ChallengeSetup',
+  components: { PressButton, SegmentControl },
   setup() {
     const quizStore = useQuizStore();
     return { quizStore };
   },
-  data() {
-    return {
-      // 配置态草稿（纯 UI 选择，不入 store；开考后被 session 覆盖）。
-      // draw = 抽题方式：'random' 整池盲抽 | 'review' 未做优先全量复习
-      draft: {
-        // 默认科目：魔法史（题库主力；mixed 双科仍可手动选）
-        bank: 'history_of_magic',
-        draw: 'random',
-        count: QuizService.CHALLENGE_COUNTS[0],
-        mode: QuizService.MODES[0],
-      },
-    };
-  },
   computed: {
+    // 配置态草稿：直接读 store（写入走 updateSetupDraft action）
+    draft() {
+      return this.quizStore.setupDraft;
+    },
+
     // ---- 配置态 ----
     bankChoices() {
       return [
@@ -206,6 +180,11 @@ export default {
       return translate(this.quizStore.locale, key, params);
     },
 
+    // 草稿写入统一走 store action（合并式）
+    updateDraft(patch) {
+      this.quizStore.updateSetupDraft(patch);
+    },
+
     start() {
       this.quizStore.startChallenge({ ...this.draft });
     },
@@ -215,12 +194,11 @@ export default {
     // 后的选中项总是该档的起点，不残留上一档的选择
     setDraw(value) {
       if (this.draft.draw === value) return;
-      this.draft.draw = value;
       const counts =
         value === 'review'
           ? QuizService.REVIEW_COUNTS
           : QuizService.CHALLENGE_COUNTS;
-      this.draft.count = counts[0];
+      this.updateDraft({ draw: value, count: counts[0] });
     },
 
     // 重置复习进度：一次确认后清持久层与 store 状态，覆盖块随之归零
@@ -237,131 +215,62 @@ export default {
 </script>
 
 <style scoped>
-/* ---- 通用控件：分段钮 / 主按钮（仿 CardCodex；三个子屏暂时各自持有，
-   后续任务以公共组件收编） ---- */
-.field-label {
-  display: block;
-  margin-bottom: 6px;
-  font-family: var(--font-type);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  color: var(--ink-faded);
-}
-
-.type-segment {
-  display: inline-flex;
-  flex-wrap: wrap;
-  border: 1.5px solid var(--ink);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.type-btn {
-  min-height: 40px;
-  padding: 0 16px;
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-type);
-  font-size: 13px;
-  color: var(--ink-faded);
-  background: transparent;
-  border: none;
-  border-right: 1px solid var(--rule);
-  cursor: pointer;
-  transition:
-    color 0.25s,
-    background-color 0.25s;
-}
-
-.type-btn:last-child {
-  border-right: none;
-}
-
-.type-btn:hover {
-  color: var(--ink);
-  background: rgba(var(--ink-rgb), 0.05);
-}
-
-.type-btn.active {
-  background: var(--ink);
-  color: var(--paper-light);
-}
-
-.type-btn:focus-visible {
-  outline: 2px solid var(--gold-leaf);
-  outline-offset: -2px;
-}
-
-.primary-btn {
-  min-height: 44px;
-  padding: 0 26px;
-  font-family: var(--font-type);
-  font-size: 14px;
-  letter-spacing: 0.06em;
-  color: var(--paper-light);
-  background: var(--oxblood);
-  border: none;
-  border-radius: 2px;
-  cursor: pointer;
-  transition: background-color 0.25s;
-}
-
-.primary-btn:hover {
-  background: var(--ink);
-}
-
-.primary-btn:focus-visible {
-  outline: 2px solid var(--gold-leaf);
-  outline-offset: 2px;
-}
-
 /* ---- 配置态 ---- */
 .challenge-setup {
   max-width: 620px;
 }
 
 .setup-title {
-  margin: 0 0 16px;
+  margin: 0 0 var(--space-4);
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: 22px;
+  font-size: var(--type-title);
   color: var(--ink);
 }
 
 .setup-field {
-  margin-bottom: 14px;
+  margin-bottom: var(--space-3);
+}
+
+.field-label {
+  display: block;
+  margin-bottom: var(--space-1);
+  font-family: var(--font-type);
+  font-size: var(--type-caption);
+  letter-spacing: 0.12em;
+  color: var(--ink-faded);
 }
 
 .prefect-blurb {
-  margin: 8px 0 0;
-  padding-left: 10px;
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-2);
   border-left: 3px solid var(--gold-leaf);
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   line-height: 1.6;
   color: var(--gold-ink);
 }
 
 .best-line {
-  margin: 4px 0 18px;
+  margin: var(--space-1) 0 var(--space-4);
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   color: var(--ink-faded);
 }
 
 /* ---- 覆盖块（复习抽题）：细线进度条 --rule 底 / --gold-leaf 填充 ---- */
 .coverage-block {
-  margin: 4px 0 18px;
+  margin: var(--space-1) 0 var(--space-4);
 }
 
 .coverage-row {
-  margin-bottom: 10px;
+  margin-bottom: var(--space-2);
 }
 
 .coverage-text {
-  margin: 0 0 6px;
+  margin: 0 0 var(--space-1);
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   color: var(--ink-faded);
 }
 
@@ -378,14 +287,15 @@ export default {
   background: var(--gold-leaf);
 }
 
-/* 重置复习进度：小字文本钮，触控高度照守 40px 底线 */
+/* 重置复习进度：小字文本钮（三级动作，不上 PressButton 档位），触控
+   高度照守 40px 底线 */
 .reset-btn {
   min-height: 40px;
   padding: 0 2px;
   background: none;
   border: none;
   font-family: var(--font-type);
-  font-size: 11px;
+  font-size: var(--type-caption);
   letter-spacing: 0.08em;
   color: var(--ink-faded);
   text-decoration: underline;
@@ -405,22 +315,39 @@ export default {
 }
 
 /* ---- 响应式 ---- */
-@media (max-width: 768px) {
+/* 桌面双列（≥769）：四个 setup-field 两两并排；标题/覆盖块/最佳记录/
+   开始按钮横贯整行，行距统一交给 grid gap（覆盖各子块自身外边距） */
+@media (min-width: 769px) {
   .challenge-setup {
-    max-width: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+  }
+
+  .setup-title,
+  .setup-field,
+  .coverage-block,
+  .best-line,
+  .start-btn {
+    margin: 0;
+  }
+
+  .setup-title,
+  .coverage-block,
+  .best-line,
+  .start-btn {
+    grid-column: 1 / -1;
+  }
+
+  /* 按钮保持内容宽，不横贯拉伸 */
+  .start-btn {
+    justify-self: start;
   }
 }
 
-@media (max-width: 480px) {
-  .type-segment {
-    display: flex;
-    width: 100%;
-  }
-
-  .type-btn {
-    flex: 1;
-    justify-content: center;
-    padding: 0 8px;
+@media (max-width: 768px) {
+  .challenge-setup {
+    max-width: none;
   }
 }
 </style>

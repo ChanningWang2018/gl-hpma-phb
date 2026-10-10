@@ -1,34 +1,27 @@
 <template>
   <div class="card-codex-page">
-    <!-- 栏目标题 + 语言切换 -->
-    <header class="codex-head">
-      <div class="codex-head-row">
-        <h2 class="codex-title">
-          Card Codex <span class="codex-title-zh">卡牌图鉴</span>
-        </h2>
-        <LocaleSwitch />
-      </div>
-      <p class="codex-note">{{ t('note', { total: totalCards }) }}</p>
-    </header>
+    <!-- 栏目标题 + 语言切换 + 数据说明（公共页头） -->
+    <PageHead>
+      <h2 class="page-title">
+        Card Codex <span class="page-title-zh">卡牌图鉴</span>
+      </h2>
+      <template #meta><LocaleSwitch /></template>
+      <template #note>{{ t('note', { total: totalCards }) }}</template>
+    </PageHead>
 
     <!-- 工具栏（数据就绪后出现） -->
     <section
       v-if="!cardStore.loading && !cardStore.error"
       class="codex-toolbar"
     >
-      <div class="type-segment" role="group" :aria-label="t('filterByType')">
-        <button
-          v-for="opt in typeOptions"
-          :key="opt.value"
-          type="button"
-          class="type-btn"
-          :class="{ active: filters.type === opt.value }"
-          @click="setType(opt.value)"
-        >
-          {{ opt.label }}
-          <span class="type-count">{{ opt.count }}</span>
-        </button>
-      </div>
+      <SegmentControl
+        class="codex-segment"
+        role="group"
+        :aria-label="t('filterByType')"
+        :options="typeOptions"
+        :model-value="filters.type"
+        @update:model-value="setType"
+      />
 
       <div class="toolbar-fields">
         <label class="toolbar-field">
@@ -77,9 +70,7 @@
     <p v-if="cardStore.loading" class="codex-state">{{ t('loading') }}</p>
     <div v-else-if="cardStore.error" class="codex-state codex-error">
       <p>{{ t('loadError') }}</p>
-      <button type="button" class="retry-btn" @click="cardStore.loadCards()">
-        {{ t('retry') }}
-      </button>
+      <PressButton @click="cardStore.loadCards()">{{ t('retry') }}</PressButton>
     </div>
     <p v-else-if="filteredCards.length === 0" class="codex-state codex-empty">
       {{ t('empty') }}
@@ -127,11 +118,14 @@
 </template>
 
 <script>
-import { computed } from 'vue';
-import { useHead } from '@vueuse/head';
 import CardDetail from '@/components/CardDetail.vue';
 import CardImage from '@/components/CardImage.vue';
 import LocaleSwitch from '@/components/LocaleSwitch.vue';
+import PageHead from '@/components/ui/PageHead.vue';
+import PressButton from '@/components/ui/PressButton.vue';
+import SegmentControl from '@/components/ui/SegmentControl.vue';
+import { computed } from 'vue';
+import { useHead } from '@vueuse/head';
 import { translate } from '@/services/codexLocale.js';
 import { lookupLabel } from '@/services/spellbookClient.js';
 import { SpellbookService } from '@/services/spellbookService.js';
@@ -139,7 +133,14 @@ import { useCardStore } from '@/stores/cardStore.js';
 
 export default {
   name: 'CardCodex',
-  components: { CardDetail, CardImage, LocaleSwitch },
+  components: {
+    CardDetail,
+    CardImage,
+    LocaleSwitch,
+    PageHead,
+    PressButton,
+    SegmentControl,
+  },
   setup() {
     const cardStore = useCardStore();
     // 页面标题/描述随全站语言切换；en 文案维持原样，zh 为对应自然翻译
@@ -275,101 +276,22 @@ export default {
  *   dark      深渊 -> 墨绿
  */
 .card-codex-page {
-  padding: 26px 30px 40px;
-}
-
-/* ---- 头部 ---- */
-.codex-head {
-  border-bottom: 3px double var(--ink);
-  padding-bottom: 14px;
-  margin-bottom: 18px;
-}
-
-.codex-head-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.codex-title {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  font-size: clamp(26px, 4vw, 36px);
-  color: var(--ink);
-  line-height: 1.15;
-}
-
-.codex-title-zh {
-  font-family: var(--font-sans);
-  font-size: 0.55em;
-  color: var(--ink-faded);
-  margin-left: 8px;
-  letter-spacing: 0.2em;
-}
-
-.codex-note {
-  font-family: var(--font-type);
-  font-size: 12px;
-  color: var(--ink-faded);
-  margin-top: 8px;
+  padding: var(--space-5) var(--space-6) var(--space-7);
 }
 
 /* ---- 工具栏 ---- */
 .codex-toolbar {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
 }
 
-.type-segment {
-  display: inline-flex;
-  flex-wrap: wrap;
-  border: 1.5px solid var(--ink);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-bottom: 12px;
-}
-
-.type-btn {
-  min-height: 40px;
-  padding: 0 16px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-type);
-  font-size: 13px;
-  color: var(--ink-faded);
-  background: transparent;
-  border: none;
-  border-right: 1px solid var(--rule);
-  cursor: pointer;
-  transition:
-    color 0.25s,
-    background-color 0.25s;
-}
-
-.type-btn:last-child {
-  border-right: none;
-}
-
-.type-btn:hover {
-  color: var(--ink);
-  background: rgba(var(--accent-rgb), 0.05);
-}
-
-.type-btn.active {
-  background: var(--ink);
-  color: var(--paper-light);
-}
-
-.type-count {
-  /* 无 opacity：0.7 叠 paper 底对比度仅约 2.8:1，继承 token 色即可过 AA */
-  font-size: 11px;
+/* 类型分段与正文的间距留在使用方（分段钮本身不带外边距） */
+.codex-segment {
+  margin-bottom: var(--space-3);
 }
 
 .toolbar-fields {
   display: flex;
-  gap: 12px;
+  gap: var(--space-3);
   flex-wrap: wrap;
   align-items: flex-end;
 }
@@ -377,12 +299,12 @@ export default {
 .toolbar-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .field-label {
   font-family: var(--font-type);
-  font-size: 11px;
+  font-size: var(--type-caption);
   letter-spacing: 0.12em;
   color: var(--ink-faded);
 }
@@ -390,9 +312,9 @@ export default {
 .toolbar-field select,
 .toolbar-field input {
   min-height: 40px;
-  padding: 6px 10px;
+  padding: var(--space-2) var(--space-3);
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: var(--type-body);
   color: var(--ink);
   background: var(--paper-light);
   border: 1px solid var(--rule);
@@ -411,46 +333,30 @@ export default {
 
 .hit-line {
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   letter-spacing: 0.1em;
   color: var(--ink-faded);
-  margin-top: 10px;
+  margin-top: var(--space-3);
 }
 
 /* ---- 加载 / 错误 / 空态 ---- */
 .codex-state {
   font-family: var(--font-type);
-  font-size: 14px;
+  font-size: var(--type-body);
   color: var(--ink-faded);
-  padding: 48px 0;
+  padding: var(--space-7) 0;
   text-align: center;
 }
 
 .codex-error p {
-  margin-bottom: 14px;
-}
-
-.retry-btn {
-  min-height: 40px;
-  padding: 0 22px;
-  font-family: var(--font-type);
-  font-size: 13px;
-  color: var(--paper-light);
-  background: var(--oxblood);
-  border: none;
-  border-radius: 2px;
-  cursor: pointer;
-}
-
-.retry-btn:hover {
-  background: var(--ink);
+  margin-bottom: var(--space-3);
 }
 
 /* ---- 卡格 ---- */
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 16px 12px;
+  gap: var(--space-4) var(--space-3);
 }
 
 .card-tile {
@@ -489,17 +395,17 @@ export default {
 /* 费用徽标：左上角，打字机体 */
 .cost-badge {
   position: absolute;
-  top: 6px;
-  left: 6px;
+  top: var(--space-1);
+  left: var(--space-1);
   z-index: 2;
-  min-width: 24px;
-  height: 24px;
+  min-width: var(--space-5);
+  height: var(--space-5);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 5px;
+  padding: 0 var(--space-1);
   font-family: var(--font-type);
-  font-size: 13px;
+  font-size: var(--type-body);
   color: var(--paper-light);
   background: rgba(var(--ink-rgb), 0.88);
   border-radius: 2px;
@@ -541,9 +447,9 @@ export default {
 
 /* tile 下方卡名 */
 .tile-name {
-  margin-top: 7px;
+  margin-top: var(--space-2);
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: var(--type-body);
   color: var(--ink);
   text-align: center;
   white-space: nowrap;
@@ -553,7 +459,7 @@ export default {
 
 .tile-name-en {
   font-family: var(--font-type);
-  font-size: 11px;
+  font-size: var(--type-caption);
   color: var(--ink-faded);
   text-align: center;
   white-space: nowrap;
@@ -563,7 +469,7 @@ export default {
 
 @media (max-width: 768px) {
   .card-codex-page {
-    padding: 20px 15px 30px;
+    padding: var(--space-5) var(--space-4) var(--space-5);
   }
 
   .toolbar-search input {
@@ -573,18 +479,7 @@ export default {
 
 @media (max-width: 480px) {
   .card-codex-page {
-    padding: 16px 12px 26px;
-  }
-
-  .type-segment {
-    display: flex;
-    width: 100%;
-  }
-
-  .type-btn {
-    flex: 1;
-    justify-content: center;
-    padding: 0 8px;
+    padding: var(--space-4) var(--space-3) var(--space-5);
   }
 
   .toolbar-fields {
@@ -602,9 +497,10 @@ export default {
 
   .card-grid {
     grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-    gap: 12px 8px;
+    gap: var(--space-3) var(--space-2);
   }
 
+  /* 12px 无对应 token：窄格卡名的移动端降档保留原值 */
   .tile-name {
     font-size: 12px;
   }

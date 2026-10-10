@@ -44,6 +44,17 @@ export const useQuizStore = defineStore('quiz', {
 
     // 检索结果分页（当前页，从 1 起；query 变化时归位）
     page: 1,
+
+    // 挑战配置态草稿（ChallengeSetup 读写，updateSetupDraft 合并式更新）。
+    // 挂 store 而非组件 data：作答/成绩单态期间配置屏被卸载，草稿不丢，
+    // 「调整设置」返回时保留用户四项选择（#9 拆分时回归的原行为）。
+    // 初始值 = 默认配置：魔法史 / 随机盲抽 / 10 题 / 标准模式
+    setupDraft: {
+      bank: 'history_of_magic',
+      draw: 'random',
+      count: QuizService.CHALLENGE_COUNTS[0],
+      mode: QuizService.MODES[0],
+    },
   }),
 
   getters: {
@@ -154,6 +165,12 @@ export const useQuizStore = defineStore('quiz', {
     // 检索翻页（防御非法值：最小第 1 页）
     setPage(page) {
       this.page = Math.max(1, Number(page) || 1);
+    },
+
+    // 合并式更新挑战配置草稿（updateSetupDraft({ bank: 'mixed' }) 等）；
+    // 切抽题方式重置题量的档位规则仍在 ChallengeSetup.setDraw，这里只收值
+    updateSetupDraft(patch) {
+      Object.assign(this.setupDraft, patch ?? {});
     },
 
     // 开考：抽题建会话 + 复位上局成绩；presentedAt 从此刻起算第 1 题用时。
