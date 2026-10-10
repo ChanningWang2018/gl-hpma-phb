@@ -72,10 +72,10 @@
           </div>
 
           <!-- 答案行：常显——正确项只按 is_correct 定位，与数组顺序无关 -->
-          <p v-if="answerText(row)" class="answer-line">
+          <p v-if="answerBilingual(row)" class="answer-line">
             <span class="answer-label">{{ t('answerPrefix') }}</span>
             <template
-              v-for="(seg, segIndex) in textSegments(answerText(row))"
+              v-for="(seg, segIndex) in textSegments(answerBilingual(row))"
               :key="segIndex"
             >
               <span v-if="seg.mark === 'focus'" class="seg-focus">{{
@@ -281,11 +281,12 @@ export default {
       return options;
     },
 
-    // 答案行文本：正确项只按 is_correct 标记定位（源数据 options[0] 恒为
-    // 正确项，顺序绝不可直出），与选项区的洗牌展示序互不依赖；取值后仍交
-    // textSegments 渲染 focus/warn 标记并剥离其余标签
-    answerText(row) {
-      return lookupText(correctOption(row)?.text, this.quizStore.locale) ?? '';
+    // 答案行取值：正确项只按 is_correct 标记定位（源数据 options[0] 恒为
+    // 正确项，顺序绝不可直出），与选项区的洗牌展示序互不依赖。返回双语
+    // 对象交 textSegments——其内部做 locale 取值并渲染 focus/warn 标记；
+    // 此前先 lookupText 成字符串再传入会被二次查找清空（#10 回归修复）
+    answerBilingual(row) {
+      return correctOption(row)?.text ?? null;
     },
 
     // 徽标组：裁决/冲突/玩家投稿/重复题（判据与 QuizService.buildChallenge
