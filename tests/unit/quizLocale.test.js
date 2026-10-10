@@ -64,6 +64,9 @@ describe('translate', () => {
     expect(translate('zh', 'bankHistory')).toBe('魔法史');
     expect(translate('zh', 'bankMuggle')).toBe('麻瓜研究');
     expect(translate('zh', 'bankMixed')).toBe('混合双科');
+    expect(translate('zh', 'answerPrefix')).toBe('答案：');
+    expect(translate('zh', 'expandOptions')).toBe('展开选项');
+    expect(translate('zh', 'collapseOptions')).toBe('收起选项');
     expect(translate('zh', 'adjudicatedNote')).toBe(
       '该题游戏内判分与本站标答不同（官方录错选项顺序），详见数据集裁决记录。',
     );
@@ -87,6 +90,9 @@ describe('translate', () => {
     expect(translate('en', 'tabBank')).toBe('Question Bank');
     expect(translate('en', 'bankHistory')).toBe('History of Magic');
     expect(translate('en', 'bankMuggle')).toBe('Muggle Studies');
+    expect(translate('en', 'answerPrefix')).toBe('Answer: ');
+    expect(translate('en', 'expandOptions')).toBe('Show options');
+    expect(translate('en', 'collapseOptions')).toBe('Hide options');
     expect(translate('en', 'owlO')).toBe('O · Outstanding');
     expect(translate('en', 'owlT')).toBe('T · Troll');
     expect(translate('en', 'resultTitle')).toBe('O.W.L. Report Card');

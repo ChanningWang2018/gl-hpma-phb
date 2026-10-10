@@ -76,18 +76,59 @@
             </div>
           </div>
 
-          <!-- 选项默认只列文本；正确性仅在展开后随 is_correct 揭晓 -->
-          <ol class="option-list">
-            <li
-              v-for="(opt, optIndex) in displayOptions(row)"
-              :key="opt.no"
-              class="option-row"
-              :class="{ 'option-correct': isRevealed(row) && opt.is_correct }"
+          <!-- 答案行：常显——正确项只按 is_correct 定位，与数组顺序无关 -->
+          <p v-if="answerText(row)" class="answer-line">
+            <span class="answer-label">{{ t('answerPrefix') }}</span>
+            <template
+              v-for="(seg, segIndex) in textSegments(answerText(row))"
+              :key="segIndex"
             >
-              <span class="option-letter">{{ optionLetter(optIndex) }}</span>
-              <span class="option-text">
+              <span v-if="seg.mark === 'focus'" class="seg-focus">{{
+                seg.text
+              }}</span>
+              <span v-else-if="seg.mark === 'warn'" class="seg-warn">{{
+                seg.text
+              }}</span>
+              <template v-else>{{ seg.text }}</template>
+            </template>
+          </p>
+
+          <!-- 选项与讲解：默认收起，展开后才渲染（展示序走 SHUFFLE_CACHE 洗牌缓存） -->
+          <template v-if="isRevealed(row)">
+            <ol class="option-list">
+              <li
+                v-for="(opt, optIndex) in displayOptions(row)"
+                :key="opt.no"
+                class="option-row"
+                :class="{ 'option-correct': opt.is_correct }"
+              >
+                <span class="option-letter">{{ optionLetter(optIndex) }}</span>
+                <span class="option-text">
+                  <template
+                    v-for="(seg, segIndex) in textSegments(opt.text)"
+                    :key="segIndex"
+                  >
+                    <span v-if="seg.mark === 'focus'" class="seg-focus">{{
+                      seg.text
+                    }}</span>
+                    <span v-else-if="seg.mark === 'warn'" class="seg-warn">{{
+                      seg.text
+                    }}</span>
+                    <template v-else>{{ seg.text }}</template>
+                  </template>
+                </span>
+                <span v-if="opt.is_correct" class="option-tag"
+                  >✔ {{ t('correctLabel') }}</span
+                >
+              </li>
+            </ol>
+
+            <!-- 讲解（展开态，跟随后） -->
+            <div class="explanation">
+              <span class="explanation-label">{{ t('explanationLabel') }}</span>
+              <p class="explanation-text">
                 <template
-                  v-for="(seg, segIndex) in textSegments(opt.text)"
+                  v-for="(seg, segIndex) in textSegments(row.explanation)"
                   :key="segIndex"
                 >
                   <span v-if="seg.mark === 'focus'" class="seg-focus">{{
@@ -98,31 +139,9 @@
                   }}</span>
                   <template v-else>{{ seg.text }}</template>
                 </template>
-              </span>
-              <span v-if="isRevealed(row) && opt.is_correct" class="option-tag"
-                >✔ {{ t('correctLabel') }}</span
-              >
-            </li>
-          </ol>
-
-          <!-- 讲解（展开态） -->
-          <div v-if="isRevealed(row)" class="explanation">
-            <span class="explanation-label">{{ t('explanationLabel') }}</span>
-            <p class="explanation-text">
-              <template
-                v-for="(seg, segIndex) in textSegments(row.explanation)"
-                :key="segIndex"
-              >
-                <span v-if="seg.mark === 'focus'" class="seg-focus">{{
-                  seg.text
-                }}</span>
-                <span v-else-if="seg.mark === 'warn'" class="seg-warn">{{
-                  seg.text
-                }}</span>
-                <template v-else>{{ seg.text }}</template>
-              </template>
-            </p>
-          </div>
+              </p>
+            </div>
+          </template>
 
           <button
             type="button"
@@ -130,7 +149,10 @@
             :aria-expanded="isRevealed(row)"
             @click="toggleReveal(row)"
           >
-            {{ isRevealed(row) ? t('hideAnswer') : t('revealAnswer') }}
+            {{ isRevealed(row) ? t('collapseOptions') : t('expandOptions') }}
+            <span class="reveal-caret" aria-hidden="true">{{
+              isRevealed(row) ? '▴' : '▾'
+            }}</span>
           </button>
         </article>
       </div>
@@ -166,6 +188,7 @@
 // chrome, tabs and the loading/error states — this component only handles the
 // empty-search state of the list itself.
 import {
+  correctOption,
   lookupText,
   sanitizeMarkup,
   shuffledOptions,
@@ -202,7 +225,7 @@ export default {
       // 输入框即时回显，防抖后才写入 store（CardCodex queueSearch 同款）
       searchInput: '',
       searchTimer: null,
-      // 每题独立的「查看答案与讲解」展开态（bank:id -> boolean）
+      // 每题独立的「展开选项」状态（bank:id -> boolean）
       revealed: {},
     };
   },
@@ -261,6 +284,13 @@ export default {
       return options;
     },
 
+    // 答案行文本：正确项只按 is_correct 标记定位（源数据 options[0] 恒为
+    // 正确项，顺序绝不可直出），与选项区的洗牌展示序互不依赖；取值后仍交
+    // textSegments 渲染 focus/warn 标记并剥离其余标签
+    answerText(row) {
+      return lookupText(correctOption(row)?.text, this.quizStore.locale) ?? '';
+    },
+
     // 徽标组：裁决/冲突/玩家投稿/重复题（判据与 QuizService.buildChallenge
     // 的 markers 一致，检索侧就地重算——searchResults 行不携带预计算字段）
     badges(row) {
@@ -312,7 +342,7 @@ export default {
 <style scoped>
 /* ---- 工具栏 ---- */
 .bank-toolbar {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
 }
 
 .type-segment {
@@ -321,17 +351,17 @@ export default {
   border: 1.5px solid var(--ink);
   border-radius: 2px;
   overflow: hidden;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 }
 
 .type-btn {
   min-height: 40px;
-  padding: 0 16px;
+  padding: 0 var(--space-4);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   font-family: var(--font-type);
-  font-size: 13px;
+  font-size: var(--type-body);
   color: var(--ink-faded);
   background: transparent;
   border: none;
@@ -358,27 +388,27 @@ export default {
 
 .type-count {
   /* 无 opacity：0.7 叠 paper 底对比度仅约 2.8:1，继承 token 色即可过 AA */
-  font-size: 11px;
+  font-size: var(--type-caption);
 }
 
 .toolbar-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .field-label {
   font-family: var(--font-type);
-  font-size: 11px;
+  font-size: var(--type-caption);
   letter-spacing: 0.12em;
   color: var(--ink-faded);
 }
 
 .toolbar-field input {
   min-height: 40px;
-  padding: 6px 10px;
+  padding: var(--space-2) var(--space-3);
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: var(--type-body);
   color: var(--ink);
   background: var(--paper-light);
   border: 1px solid var(--rule);
@@ -396,32 +426,35 @@ export default {
 
 .hit-line {
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   letter-spacing: 0.1em;
   color: var(--ink-faded);
-  margin-top: 10px;
+  margin-top: var(--space-3);
 }
 
 /* ---- 空态 ---- */
 .bank-state {
   font-family: var(--font-type);
-  font-size: 14px;
+  font-size: var(--type-body);
   color: var(--ink-faded);
-  padding: 48px 0;
+  padding: var(--space-7) 0;
   text-align: center;
 }
 
 /* ---- 答题卡列表 ---- */
 .question-list {
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
+  /* 桌面端限宽居中：50 张卡的长题干不拉满整行（移动端父容器更窄，无副作用） */
+  max-width: 760px;
+  margin-inline: auto;
 }
 
 .question-card {
   background: var(--paper-light);
   border: 1px solid var(--rule);
   border-radius: 2px;
-  padding: 14px 16px 16px;
+  padding: var(--space-4);
   transition: border-color 0.25s;
 }
 
@@ -433,13 +466,13 @@ export default {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 10px;
+  gap: var(--space-3);
 }
 
 .card-stem {
   min-width: 0;
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: var(--type-stem);
   font-weight: 600;
   line-height: 1.55;
   color: var(--ink);
@@ -463,16 +496,16 @@ export default {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 4px;
-  padding-top: 2px;
+  gap: var(--space-1);
+  padding-top: var(--space-1);
 }
 
 .badge {
   font-family: var(--font-type);
-  font-size: 10px;
+  font-size: var(--type-caption);
   letter-spacing: 0.08em;
   line-height: 1.4;
-  padding: 2px 6px;
+  padding: var(--space-1) var(--space-2);
   border-radius: 2px;
   white-space: nowrap;
 }
@@ -493,30 +526,45 @@ export default {
   border: 1px solid var(--ink-faded);
 }
 
-/* ---- 选项 ---- */
+/* ---- 答案行（常显，teal 强调） ---- */
+.answer-line {
+  margin-top: var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--type-body);
+  line-height: 1.5;
+  color: var(--teal-ink);
+}
+
+.answer-label {
+  font-family: var(--font-type);
+  letter-spacing: 0.06em;
+}
+
+/* ---- 选项（展开态） ---- */
 .option-list {
   list-style: none;
-  margin-top: 10px;
+  margin-top: var(--space-3);
   display: grid;
-  gap: 6px;
+  gap: var(--space-2);
 }
 
 .option-row {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 4px 8px;
+  gap: var(--space-1) var(--space-2);
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: var(--type-body);
   line-height: 1.5;
   color: var(--ink);
 }
 
 .option-letter {
   flex-shrink: 0;
-  min-width: 18px;
+  /* 固定 20px 字母槽：A-D 同宽，选项文本列对齐 */
+  width: 20px;
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   color: var(--ink-faded);
 }
 
@@ -527,7 +575,7 @@ export default {
 .option-tag {
   flex-shrink: 0;
   font-family: var(--font-type);
-  font-size: 11px;
+  font-size: var(--type-caption);
   color: var(--teal-ink);
   white-space: nowrap;
 }
@@ -540,34 +588,37 @@ export default {
 
 /* ---- 讲解 ---- */
 .explanation {
-  margin-top: 10px;
+  margin-top: var(--space-3);
   border-top: 1px solid var(--rule);
-  padding-top: 8px;
+  padding-top: var(--space-2);
 }
 
 .explanation-label {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
   font-family: var(--font-type);
-  font-size: 11px;
+  font-size: var(--type-caption);
   letter-spacing: 0.12em;
   color: var(--ink-faded);
 }
 
 .explanation-text {
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: var(--type-body);
   line-height: 1.55;
   color: var(--ink);
 }
 
 /* ---- 展开按钮 ---- */
 .reveal-btn {
-  margin-top: 12px;
+  margin-top: var(--space-3);
   min-height: 40px;
-  padding: 0 16px;
+  padding: 0 var(--space-4);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   letter-spacing: 0.06em;
   color: var(--ink-faded);
   background: transparent;
@@ -591,19 +642,19 @@ export default {
 
 /* ---- 分页 ---- */
 .pager {
-  margin-top: 18px;
+  margin-top: var(--space-4);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: var(--space-4);
 }
 
 .pager-btn {
   min-height: 40px;
   min-width: 48px;
-  padding: 0 14px;
+  padding: 0 var(--space-4);
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   letter-spacing: 0.06em;
   color: var(--ink-faded);
   background: transparent;
@@ -633,7 +684,7 @@ export default {
 
 .pager-count {
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   letter-spacing: 0.1em;
   color: var(--ink-faded);
 }
@@ -644,7 +695,7 @@ export default {
   }
 
   .question-card {
-    padding: 12px 14px 14px;
+    padding: var(--space-3) var(--space-4) var(--space-4);
   }
 }
 
@@ -657,7 +708,7 @@ export default {
   .type-btn {
     flex: 1;
     justify-content: center;
-    padding: 0 8px;
+    padding: 0 var(--space-2);
   }
 
   .toolbar-search,
@@ -667,7 +718,7 @@ export default {
 
   .card-head {
     flex-direction: column;
-    gap: 6px;
+    gap: var(--space-2);
   }
 
   .badge-group {
