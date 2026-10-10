@@ -310,7 +310,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 28px 20px;
+  padding: var(--space-5) var(--space-4);
   background: rgba(var(--ink-rgb), 0.55);
 }
 
@@ -330,8 +330,8 @@ export default {
 .detail-body {
   display: grid;
   grid-template-columns: 264px minmax(0, 1fr);
-  gap: 22px;
-  padding: 26px;
+  gap: var(--space-5);
+  padding: var(--space-5);
   overflow: hidden;
 }
 
@@ -342,27 +342,30 @@ export default {
 .detail-info {
   min-width: 0;
   overflow-y: auto;
-  padding-right: 6px;
+  padding-right: var(--space-2);
 }
 
-/* ---- 右上角 ×：≥40px 命中区 ---- */
+/* ---- 悬浮 ×：44px 圆钮跨骑抽屉顶边（16px 浮出、12px 内缩；
+     480 底栏全宽形态下竖向有 ≥8vh 余量、横向内缩，均不越视口） ---- */
 .detail-close {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: calc(-1 * var(--space-4));
+  right: var(--space-3);
   z-index: 3;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-type);
-  font-size: 20px;
+  font-size: var(--type-title);
   line-height: 1;
   color: var(--ink);
   background: var(--paper-light);
   border: 1px solid var(--rule);
-  border-radius: 2px;
+  border-radius: 50%;
+  /* 压在面板描边与遮罩上，投影保证浮出部分可读 */
+  box-shadow: 0 2px 10px rgba(var(--ink-rgb), 0.28);
   cursor: pointer;
   transition:
     color 0.25s,
@@ -379,15 +382,21 @@ export default {
   outline-offset: 1px;
 }
 
-/* ---- 头部：zh 名（衬线大字）+ en 名 + 咒语词 ---- */
-.detail-head {
-  padding-right: 44px;
+/* ---- 区块节奏：信息栏各区块统一 --space-4 上边距 ---- */
+.detail-head,
+.detail-badges,
+.detail-desc,
+.detail-quote,
+.detail-tags,
+.detail-levels {
+  margin-top: var(--space-4);
 }
 
+/* ---- 头部：zh 名（衬线大字）+ en 名 + 咒语词 ---- */
 .detail-name {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(24px, 3.4vw, 32px);
+  font-size: var(--type-page);
   color: var(--ink);
   line-height: 1.2;
 }
@@ -395,35 +404,34 @@ export default {
 .detail-name-en {
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: 16px;
+  font-size: var(--type-stem);
   color: var(--ink-faded);
-  margin-top: 2px;
+  margin-top: var(--space-1);
 }
 
 .detail-spell-word {
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--ink-faded);
-  margin-top: 8px;
+  margin-top: var(--space-2);
 }
 
 /* ---- 徽标行：cost / type / rarity（token 色映射）+ tags ---- */
 .detail-badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 14px;
+  gap: var(--space-2);
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
   height: 26px;
-  padding: 0 10px;
+  padding: 0 var(--space-2);
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   letter-spacing: 0.06em;
   color: var(--ink);
   background: rgba(var(--ink-rgb), 0.04);
@@ -470,21 +478,19 @@ export default {
 
 /* ---- desc / quote ---- */
 .detail-desc {
-  margin-top: 14px;
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: var(--type-body);
   line-height: 1.75;
   color: var(--ink);
   white-space: pre-line;
 }
 
 .detail-quote {
-  margin-top: 12px;
-  padding: 10px 14px;
+  padding: var(--space-2) var(--space-3);
   border-left: 3px solid var(--gold-leaf);
   background: rgba(var(--gold-rgb), 0.07);
   font-family: var(--font-serif);
-  font-size: 14px;
+  font-size: var(--type-body);
   line-height: 1.7;
   color: var(--ink-faded);
   white-space: pre-line;
@@ -493,30 +499,30 @@ export default {
 .detail-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 12px;
+  gap: var(--space-2);
 }
 
 /* ---- 等级数值表：按等级分组，空洞如实保留 ---- */
 .detail-levels {
-  margin-top: 18px;
-  padding-top: 14px;
+  padding-top: var(--space-2);
   border-top: 1px solid var(--rule);
 }
 
 .detail-levels-title {
   font-family: var(--font-type);
   font-weight: 400;
-  font-size: 13px;
+  font-size: var(--type-body);
   letter-spacing: 0.18em;
   color: var(--ink);
 }
 
+/* 全宽纵向堆叠：每个等级一块通栏（手机不再挤迷你盒阵；
+   桌面宽栏同样保持行式台账样式，简单一致） */
 .level-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
-  gap: 10px;
-  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 .level-group {
@@ -527,9 +533,9 @@ export default {
 }
 
 .level-head {
-  padding: 5px 10px;
+  padding: var(--space-1) var(--space-3);
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   letter-spacing: 0.12em;
   color: var(--paper-light);
   background: rgba(var(--ink-rgb), 0.82);
@@ -537,36 +543,39 @@ export default {
 
 /* schema 2：同级内按数值主体（召唤物阶段等）分块的小标题 */
 .level-unit {
-  padding: 6px 10px 0;
+  padding: var(--space-2) var(--space-3) 0;
   font-family: var(--font-type);
-  font-size: 11px;
+  font-size: var(--type-caption);
   letter-spacing: 0.1em;
   color: var(--ink-faded);
 }
 
+/* 行式台账：键左值右，行间 1px 分隔线 + --space-1 上下呼吸 */
 .level-rows {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 8px 10px 10px;
+  padding: var(--space-2) var(--space-3);
 }
 
 .level-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 10px;
+  gap: var(--space-3);
+  padding: var(--space-1) 0;
+}
+
+.level-row + .level-row {
+  border-top: 1px solid var(--rule);
 }
 
 .level-k {
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: var(--type-caption);
   color: var(--ink-faded);
 }
 
 .level-v {
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: var(--type-body);
   font-weight: 600;
   color: var(--ink);
   text-align: right;
@@ -576,7 +585,7 @@ export default {
 /* ---- 响应式：768 两栏 -> 上下堆叠；480 全宽贴底 ---- */
 @media (max-width: 768px) {
   .detail-overlay {
-    padding: 18px 14px;
+    padding: var(--space-4);
   }
 
   .detail-panel {
@@ -585,8 +594,8 @@ export default {
 
   .detail-body {
     grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 20px;
+    gap: var(--space-4);
+    padding: var(--space-5);
   }
 
   .detail-figure {
@@ -613,7 +622,7 @@ export default {
   }
 
   .detail-body {
-    padding: 18px 14px 22px;
+    padding: var(--space-4) var(--space-4) var(--space-5);
   }
 }
 
