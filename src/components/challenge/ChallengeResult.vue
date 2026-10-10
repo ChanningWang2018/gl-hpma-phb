@@ -27,10 +27,12 @@
       <p class="owl-name">{{ owlName }}</p>
     </div>
 
+    <!-- 2×2 数据芯片：上标签（caption 灰）下数值（放大、tabular-nums） -->
     <div class="stat-table">
-      <p v-for="(row, rowIndex) in statRows" :key="rowIndex" class="stat-row">
-        {{ row }}
-      </p>
+      <div v-for="chip in statChips" :key="chip.key" class="stat-chip">
+        <span class="stat-label">{{ chip.label }}</span>
+        <span class="stat-value">{{ chip.value }}</span>
+      </div>
     </div>
 
     <button type="button" class="ghost-btn share-btn" @click="copyShare">
@@ -95,12 +97,33 @@
 <script>
 // ChallengeResult — challenge 成绩单态屏（壳 QuizChallenge 三态路由中
 // session 已清空、lastResult 就位的一态）：O.W.L. 评级大字、复习局覆盖
-// 汇总、四行统计、复制成绩与错题回顾。复制确认是纯展示状态（2 秒归位），
-// 卸载时清掉定时器。
+// 汇总、2×2 数据芯片、复制成绩与错题回顾。复制确认是纯展示状态（2 秒
+// 归位），卸载时清掉定时器。
 import { lookupText, sanitizeMarkup } from '@/services/quizClient.js';
 import { QuizService } from '@/services/quizService.js';
 import { translate } from '@/services/quizLocale.js';
 import { useQuizStore } from '@/stores/quizStore.js';
+
+/**
+ * 数据芯片标签（zh/en）。quizLocale 的 statCorrect 等键是「标签+数值」
+ * 粘连串，拆不出独立标签行，而词典文件不在本任务改动范围——标签暂以
+ * 组件内小映射就近提供；quizLocale.js 下次进入改动范围时上收词典
+ * （旧的 stat* 串键届时一并清理）。
+ */
+const STAT_LABELS = {
+  zh: {
+    correct: '正确',
+    accuracy: '正确率',
+    time: '总用时',
+    avg: '平均每题',
+  },
+  en: {
+    correct: 'Correct',
+    accuracy: 'Accuracy',
+    time: 'Total time',
+    avg: 'Average per question',
+  },
+};
 
 export default {
   name: 'ChallengeResult',
@@ -174,23 +197,34 @@ export default {
       return [...new Set(lines)];
     },
 
-    statRows() {
+    // 2×2 数据芯片行：标签/数值拆开排版；用时口径与旧四行统计一致
+    // （成绩单精度到 0.01 秒）
+    statChips() {
       const result = this.lastResult;
       if (!result) return [];
       const locale = this.quizStore.locale;
+      const labels = STAT_LABELS[locale] ?? STAT_LABELS.zh;
       return [
-        this.t('statCorrect', {
-          correct: result.correctCount,
-          total: result.total,
-        }),
-        this.t('statAccuracy', { pct: Math.round(result.accuracy) }),
-        this.t('statTime', {
-          // 成绩单精度到 0.01 秒（作答中的读秒仍为整数秒）
-          time: QuizService.formatDuration(result.totalMs, locale, 2),
-        }),
-        this.t('statAvg', {
-          time: QuizService.formatDuration(result.avgMs, locale, 2),
-        }),
+        {
+          key: 'correct',
+          label: labels.correct,
+          value: `${result.correctCount} / ${result.total}`,
+        },
+        {
+          key: 'accuracy',
+          label: labels.accuracy,
+          value: `${Math.round(result.accuracy)}%`,
+        },
+        {
+          key: 'time',
+          label: labels.time,
+          value: QuizService.formatDuration(result.totalMs, locale, 2),
+        },
+        {
+          key: 'avg',
+          label: labels.avg,
+          value: QuizService.formatDuration(result.avgMs, locale, 2),
+        },
       ];
     },
 
@@ -318,9 +352,9 @@ export default {
    后续任务以公共组件收编） ---- */
 .primary-btn {
   min-height: 44px;
-  padding: 0 26px;
+  padding: 0 var(--space-5);
   font-family: var(--font-type);
-  font-size: 14px;
+  font-size: var(--type-body);
   letter-spacing: 0.06em;
   color: var(--paper-light);
   background: var(--oxblood);
@@ -341,9 +375,9 @@ export default {
 
 .ghost-btn {
   min-height: 44px;
-  padding: 0 22px;
+  padding: 0 var(--space-5);
   font-family: var(--font-type);
-  font-size: 13px;
+  font-size: var(--type-body);
   color: var(--ink-faded);
   background: transparent;
   border: 1px solid var(--rule);
@@ -387,28 +421,28 @@ export default {
 }
 
 .result-title {
-  margin: 0 0 6px;
-  padding-bottom: 12px;
+  margin: 0 0 var(--space-1);
+  padding-bottom: var(--space-3);
   border-bottom: 3px double var(--ink);
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: 20px;
+  font-size: var(--type-title);
   letter-spacing: 0.04em;
   color: var(--ink);
 }
 
 .result-grade {
-  margin: 18px 0 8px;
+  margin: var(--space-4) 0 var(--space-2);
 }
 
 .record-badge {
   display: inline-block;
-  margin: 0 0 10px;
-  padding: 3px 12px;
+  margin: 0 0 var(--space-2);
+  padding: 3px var(--space-3);
   border: 1.5px solid var(--gold-leaf);
   border-radius: 2px;
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   letter-spacing: 0.08em;
   color: var(--gold-ink);
 }
@@ -434,9 +468,9 @@ export default {
 }
 
 .round-rolled {
-  margin: 10px 0 0;
+  margin: var(--space-2) 0 0;
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   letter-spacing: 0.06em;
   color: var(--gold-ink);
 }
@@ -450,70 +484,84 @@ export default {
 }
 
 .owl-name {
-  margin: 6px 0 0;
+  margin: var(--space-1) 0 0;
   font-family: var(--font-type);
-  font-size: 14px;
+  font-size: var(--type-body);
   letter-spacing: 0.1em;
   color: var(--oxblood);
 }
 
+/* 四行竖排统计改 2×2 数据芯片：上标签（caption 灰）下数值（放大、
+   tabular-nums）；380px 居中版式保留 */
 .stat-table {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
   max-width: 380px;
-  margin: 18px auto 20px;
+  margin: var(--space-4) auto;
 }
 
-.stat-row {
-  margin: 0;
-  padding: 9px 0;
-  border-top: 1px solid var(--rule);
+.stat-chip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-2);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+}
+
+.stat-label {
   font-family: var(--font-type);
-  font-size: 13px;
+  font-size: var(--type-caption);
+  letter-spacing: 0.06em;
+  color: var(--ink-faded);
+}
+
+.stat-value {
+  font-family: var(--font-type);
+  font-size: var(--type-title);
+  font-variant-numeric: tabular-nums;
   color: var(--ink);
 }
 
-.stat-row:last-child {
-  border-bottom: 1px solid var(--rule);
-}
-
 .share-btn {
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
 }
 
 .wrong-review {
-  margin-top: 22px;
-  padding-top: 14px;
+  margin-top: var(--space-5);
+  padding-top: var(--space-3);
   border-top: 3px double var(--ink);
   text-align: left;
 }
 
 .review-title {
-  margin: 0 0 4px;
+  margin: 0 0 var(--space-1);
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: 17px;
+  font-size: var(--type-stem);
   color: var(--ink);
 }
 
 .review-item {
-  padding: 12px 0;
+  padding: var(--space-4) 0;
   border-top: 1px solid var(--rule);
 }
 
 .review-item:first-of-type {
   border-top: none;
-  padding-top: 8px;
 }
 
 .review-stem {
-  margin: 0 0 6px;
-  font-size: 14px;
+  margin: 0 0 var(--space-2);
+  font-size: var(--type-body);
   line-height: 1.6;
 }
 
 .review-chosen {
-  margin: 0 0 4px;
+  margin: 0 0 var(--space-2);
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   color: var(--oxblood);
 }
 
@@ -522,33 +570,33 @@ export default {
 }
 
 .review-correct {
-  margin: 0 0 6px;
+  margin: 0 0 var(--space-2);
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   color: var(--teal-ink);
 }
 
 .review-explanation {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--type-caption);
   line-height: 1.6;
   color: var(--ink-faded);
 }
 
 .no-wrong {
-  margin: 22px 0;
+  margin: var(--space-5) 0;
   font-family: var(--font-type);
-  font-size: 13px;
+  font-size: var(--type-body);
   color: var(--teal-ink);
 }
 
 .result-actions {
   display: flex;
-  gap: 12px;
+  gap: var(--space-3);
   justify-content: center;
   flex-wrap: wrap;
-  margin-top: 8px;
-  padding-top: 18px;
+  margin-top: var(--space-2);
+  padding-top: var(--space-4);
   border-top: 3px double var(--ink);
 }
 

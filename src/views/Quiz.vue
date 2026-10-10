@@ -19,9 +19,11 @@
       </p>
     </header>
 
-    <!-- 双栏切换（数据就绪后出现） -->
+    <!-- 双栏切换（数据就绪后出现）。作答会话进行中隐藏：session 即沉浸，
+         答题期间不再提供切去题库检索的入口；交卷进成绩单 / 放弃回配置后
+         session 清空，tab 条恢复（成绩单态显示 tab 是预期） -->
     <nav
-      v-if="!quizStore.loading && !quizStore.error"
+      v-if="!quizStore.loading && !quizStore.error && !quizStore.session"
       class="tab-segment"
       role="tablist"
     >

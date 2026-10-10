@@ -2,15 +2,26 @@
   <!-- is-answered 供移动端「答后操作条钉底」样式作用域使用 -->
   <section class="challenge-run" :class="{ 'is-answered': answeredFlag }">
     <header ref="runProgress" class="run-progress">
-      <p class="progress-question">
-        {{ t('questionN', { n: questionNo, total: questionTotal }) }}
-      </p>
-      <p class="progress-meta">
-        <span class="progress-answered"
-          >{{ quizStore.answeredCount }}/{{ questionTotal }}</span
-        >
-        <span class="progress-clock" role="timer">{{ elapsedLabel }}</span>
-      </p>
+      <div class="progress-row">
+        <p class="progress-question">
+          {{ t('questionN', { n: questionNo, total: questionTotal }) }}
+        </p>
+        <div class="progress-side">
+          <span class="progress-answered"
+            >{{ quizStore.answeredCount }}/{{ questionTotal }}</span
+          >
+          <span class="progress-clock" role="timer">{{ elapsedLabel }}</span>
+          <!-- 放弃钮从底部操作条上移到进度行右端：与主按钮拉开距离防误触；
+               window.confirm 确认与放弃逻辑不变，padding 撑出 ≥40px 触控 -->
+          <button type="button" class="quit-btn" @click="quit">
+            {{ t('quitChallenge') }}
+          </button>
+        </div>
+      </div>
+      <!-- 已答进度轨道：--rule 底 + --gold-leaf 填充，宽度 = 已答/总题 -->
+      <div class="progress-track" aria-hidden="true">
+        <div class="progress-fill" :style="{ width: progressPct }"></div>
+      </div>
     </header>
 
     <p
@@ -33,9 +44,7 @@
         :key="badge.kind"
         class="q-badge"
         :class="'badge-' + badge.kind"
-        :title="
-          badge.kind === 'adjudicated' ? t('adjudicatedNote') : undefined
-        "
+        :title="badge.kind === 'adjudicated' ? t('adjudicatedNote') : undefined"
       >
         {{ badge.label }}
       </span>
@@ -59,9 +68,7 @@
           <template v-else>{{ segment.text }}</template>
         </template>
       </p>
-      <p v-else-if="!answeredFlag" class="stem-hidden" aria-hidden="true">
-        ？
-      </p>
+      <p v-else-if="!answeredFlag" class="stem-hidden" aria-hidden="true">？</p>
       <div v-else class="stem-reveal">
         <span class="reveal-label">{{ t('prefectReveal') }}</span>
         <p class="stem-text">
@@ -97,9 +104,7 @@
         :aria-keyshortcuts="optionIndex + 1 + ' ' + option.letter"
         @click="choose(option.no)"
       >
-        <span class="option-key" aria-hidden="true"
-          >{{ option.letter }}.</span
-        >
+        <span class="option-key" aria-hidden="true">{{ option.letter }}.</span>
         <span class="option-text">
           <template
             v-for="(segment, segmentIndex) in option.segments"
@@ -117,40 +122,37 @@
       </button>
     </div>
 
-    <!-- 即时反馈（锁定后出现，读屏同步播报） -->
-    <p
-      v-if="answeredFlag"
-      class="feedback"
-      :class="feedbackClass"
-      aria-live="polite"
-    >
-      {{ feedbackText }}
-    </p>
-
-    <div v-if="answeredFlag" class="explanation">
-      <span class="explanation-label">{{ t('explanationLabel') }}</span>
-      <p class="explanation-text">
-        <template
-          v-for="(segment, segmentIndex) in explanationSegments"
-          :key="segmentIndex"
-        >
-          <span
-            v-if="segment.mark"
-            class="seg"
-            :class="'seg-' + segment.mark"
-            >{{ segment.text }}</span
-          >
-          <template v-else>{{ segment.text }}</template>
-        </template>
+    <!-- 即时反馈 + 讲解合并块（锁定后出现）：反馈语作块首行、读屏同步播报
+         （aria-live 保留在反馈语上），讲解正文随后；左边框颜色随对错
+         teal / oxblood -->
+    <div v-if="answeredFlag" class="verdict-block" :class="feedbackClass">
+      <p class="feedback" aria-live="polite">
+        {{ feedbackText }}
       </p>
+      <div class="explanation">
+        <span class="explanation-label">{{ t('explanationLabel') }}</span>
+        <p class="explanation-text">
+          <template
+            v-for="(segment, segmentIndex) in explanationSegments"
+            :key="segmentIndex"
+          >
+            <span
+              v-if="segment.mark"
+              class="seg"
+              :class="'seg-' + segment.mark"
+              >{{ segment.text }}</span
+            >
+            <template v-else>{{ segment.text }}</template>
+          </template>
+        </p>
+      </div>
     </div>
 
+    <!-- 答后操作条：只留主按钮（移动端 is-answered 时钉底）；放弃钮已
+         上移至进度行右端 -->
     <footer class="run-actions">
       <button type="button" class="primary-btn" @click="next">
         {{ nextLabel }}
-      </button>
-      <button type="button" class="ghost-btn" @click="quit">
-        {{ t('quitChallenge') }}
       </button>
     </footer>
   </section>
@@ -291,6 +293,14 @@ export default {
       return this.questionNo < this.questionTotal
         ? this.t('nextQuestion')
         : this.t('finishChallenge');
+    },
+
+    // 进度轨道填充宽度（已答 / 总题，百分号字符串供 style width 绑定）
+    progressPct() {
+      const total = this.questionTotal;
+      if (!total) return '0%';
+      const pct = (this.quizStore.answeredCount / total) * 100;
+      return `${Math.round(pct * 10) / 10}%`;
     },
 
     /**
@@ -467,13 +477,14 @@ export default {
 </script>
 
 <style scoped>
-/* ---- 通用控件：主按钮 / 幽灵按钮（仿 CardCodex；三个子屏暂时各自持有，
-   后续任务以公共组件收编） ---- */
+/* ---- 通用控件：主按钮（仿 CardCodex；三个子屏暂时各自持有，
+   后续任务以公共组件收编。本屏的幽灵按钮已随「放弃本次」上移进度行
+   改为 quit-btn 文字钮，样式随之删除） ---- */
 .primary-btn {
   min-height: 44px;
-  padding: 0 26px;
+  padding: 0 var(--space-5);
   font-family: var(--font-type);
-  font-size: 14px;
+  font-size: var(--type-body);
   letter-spacing: 0.06em;
   color: var(--paper-light);
   background: var(--oxblood);
@@ -488,31 +499,6 @@ export default {
 }
 
 .primary-btn:focus-visible {
-  outline: 2px solid var(--gold-leaf);
-  outline-offset: 2px;
-}
-
-.ghost-btn {
-  min-height: 44px;
-  padding: 0 22px;
-  font-family: var(--font-type);
-  font-size: 13px;
-  color: var(--ink-faded);
-  background: transparent;
-  border: 1px solid var(--rule);
-  border-radius: 2px;
-  cursor: pointer;
-  transition:
-    color 0.25s,
-    border-color 0.25s;
-}
-
-.ghost-btn:hover {
-  color: var(--oxblood);
-  border-color: var(--oxblood);
-}
-
-.ghost-btn:focus-visible {
   outline: 2px solid var(--gold-leaf);
   outline-offset: 2px;
 }
@@ -537,47 +523,93 @@ export default {
   max-width: 720px;
 }
 
+/* 进度区：单行「题号 | 已答数 · 计时 · 放弃」+ 2px 进度轨道 */
 .run-progress {
+  margin-bottom: var(--space-4);
+}
+
+.progress-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-2);
   flex-wrap: wrap;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--rule);
-  margin-bottom: 16px;
+  padding-bottom: var(--space-2);
 }
 
 .progress-question {
   margin: 0;
   font-family: var(--font-type);
-  font-size: 14px;
+  font-size: var(--type-body);
   color: var(--ink);
 }
 
-.progress-meta {
+.progress-side {
   display: flex;
-  gap: 14px;
+  align-items: center;
+  gap: var(--space-2);
   margin: 0;
+}
+
+.progress-answered {
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   color: var(--ink-faded);
+  font-variant-numeric: tabular-nums;
 }
 
 .progress-clock {
   min-width: 5em;
   text-align: right;
+  font-family: var(--font-type);
+  font-size: var(--type-caption);
+  color: var(--ink-faded);
   font-variant-numeric: tabular-nums;
+}
+
+/* 放弃本次：小字号文字钮，上下 padding 撑出 ≥40px 触控命中 */
+.quit-btn {
+  padding: var(--space-4) var(--space-2);
+  font-family: var(--font-type);
+  font-size: var(--type-caption);
+  letter-spacing: 0.06em;
+  color: var(--ink-faded);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.25s;
+}
+
+.quit-btn:hover {
+  color: var(--oxblood);
+}
+
+.quit-btn:focus-visible {
+  outline: 2px solid var(--gold-leaf);
+  outline-offset: -1px;
+}
+
+/* 2px 进度轨道：--rule 底 + --gold-leaf 填充，兼作进度区分隔线 */
+.progress-track {
+  height: 2px;
+  background: var(--rule);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--gold-leaf);
 }
 
 .prefect-running-tag {
   display: inline-block;
-  margin: 0 0 12px;
-  padding: 4px 10px;
+  margin: 0 0 var(--space-3);
+  padding: var(--space-1) var(--space-3);
   border: 1px dashed var(--gold-leaf);
   border-radius: 2px;
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   color: var(--gold-ink);
 }
 
@@ -589,17 +621,17 @@ export default {
 
 .badge-row {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
   flex-wrap: wrap;
-  margin-bottom: 10px;
+  margin-bottom: var(--space-2);
 }
 
 .q-badge {
-  padding: 2px 8px;
+  padding: 2px var(--space-2);
   border: 1px solid var(--rule);
   border-radius: 2px;
   font-family: var(--font-type);
-  font-size: 10px;
+  font-size: var(--type-caption);
   letter-spacing: 0.08em;
   color: var(--ink-faded);
 }
@@ -615,12 +647,12 @@ export default {
 }
 
 .stem-block {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
 }
 
 .stem-text {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--type-stem);
   line-height: 1.7;
 }
 
@@ -635,29 +667,29 @@ export default {
 
 .reveal-label {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: var(--space-1);
   font-family: var(--font-type);
-  font-size: 12px;
+  font-size: var(--type-caption);
   letter-spacing: 0.08em;
   color: var(--gold-ink);
 }
 
 .option-list {
   display: grid;
-  gap: 10px;
-  margin: 0 0 14px;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
 }
 
 .option-btn {
   display: flex;
   align-items: baseline;
-  gap: 12px;
+  gap: var(--space-3);
   width: 100%;
   min-height: 48px;
-  padding: 12px 14px;
+  padding: var(--space-3) var(--space-4);
   text-align: left;
   font-family: var(--font-type);
-  font-size: 14px;
+  font-size: var(--type-body);
   line-height: 1.5;
   color: var(--ink);
   background: var(--paper-light);
@@ -705,44 +737,62 @@ export default {
   color: var(--oxblood);
 }
 
-.feedback {
-  margin: 0 0 14px;
-  font-family: var(--font-type);
-  font-size: 13px;
+/* 反馈 + 讲解合并块：反馈语为首行，讲解正文随后，块内垂直间距 space-2；
+   左边框颜色随对错 teal / oxblood（默认 --rule 兜底） */
+.verdict-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--rule);
 }
 
-.feedback.is-correct {
+.verdict-block.is-correct {
+  border-left-color: var(--teal-ink);
+}
+
+.verdict-block.is-wrong {
+  border-left-color: var(--oxblood);
+}
+
+.feedback {
+  margin: 0;
+  font-family: var(--font-type);
+  font-size: var(--type-body);
+}
+
+/* 对错 class 挂在合并块上，反馈文字配色经后代选择器继承 */
+.verdict-block.is-correct .feedback {
   color: var(--teal-ink);
 }
 
-.feedback.is-wrong {
+.verdict-block.is-wrong .feedback {
   color: var(--oxblood);
 }
 
 .explanation {
-  margin-bottom: 18px;
-  padding: 2px 0 2px 12px;
-  border-left: 3px solid var(--rule);
+  margin: 0;
 }
 
 .explanation-label {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
   font-family: var(--font-type);
-  font-size: 11px;
+  font-size: var(--type-caption);
   letter-spacing: 0.12em;
   color: var(--ink-faded);
 }
 
 .explanation-text {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--type-body);
   line-height: 1.7;
 }
 
 .run-actions {
   display: flex;
-  gap: 12px;
+  gap: var(--space-3);
   align-items: center;
   flex-wrap: wrap;
 }
@@ -754,53 +804,30 @@ export default {
   }
 
   /* 答后操作条钉底：反馈/讲解插在选项与操作行之间，会把「下一题」挤出
-     视口，每题都要多滑一次。已作答（is-answered）时把操作条钉在视口底，
-     选完即可直接翻题。这里只能用 fixed 而非 sticky：App 根 .container
-     （global.css）带 overflow: hidden，会成为 sticky 的吸附基准并随文档流
-     一起滚动，sticky 永远够不到视口底；本组件只许改自己，祖先链又无
-     transform/filter，fixed 是唯一能把条钉上视口的定位方式。 */
+     视口，每题都要多滑一次。已作答（is-answered）时把操作条吸在视口底，
+     选完即可直接翻题。sticky 随文档流参与布局、不遮内容，无需旧 fixed
+     方案的滚动余量补偿；.container 的 overflow: hidden 移除后全站可用 */
   .challenge-run.is-answered .run-actions {
-    position: fixed;
+    position: sticky;
     bottom: 0;
-    left: 0;
-    right: 0;
     /* 页面 body::before/::after 纸纹装饰层（z-index 998/999）是
        pointer-events: none，条在其下仍可点，不必盖过装饰层 */
     z-index: 10;
-    flex-wrap: nowrap;
     /* 下一整行为不支持 env() 的旧浏览器回退 */
-    padding: 10px 16px;
-    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    padding: var(--space-3) var(--space-4);
+    padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
     background: var(--paper);
     border-top: 1px solid var(--rule);
   }
 
-  /* 主按钮占主导宽度；「放弃本次」收为次要小钮（基础 min-height: 44px
-     原样保留，触控 ≥40px 底线不破）。这两个选择器比 480px 断点里
-     .run-actions .{primary,ghost}-btn { flex: 1 } 深两级，窄屏下主按钮
-     仍主导、放弃钮收缩，不会被旧 flex:1 反超 */
+  /* 主按钮占主导宽度（条内只剩主按钮，放弃钮已上移进度行） */
   .challenge-run.is-answered .run-actions .primary-btn {
     flex: 1 1 auto;
-  }
-
-  .challenge-run.is-answered .run-actions .ghost-btn {
-    flex: 0 0 auto;
-    padding: 0 14px;
-  }
-
-  /* 钉底条会盖住反馈/讲解末尾几行：给作答区补一段滚动余量（72px ≈
-     条高 65px + 视觉余量），保证末行能完整滚上来读。未作答时无此补偿，
-     避免常驻条遮挡选项 */
-  .challenge-run.is-answered {
-    /* 不支持 env() 的回退 */
-    padding-bottom: 72px;
-    padding-bottom: calc(72px + env(safe-area-inset-bottom));
   }
 }
 
 @media (max-width: 480px) {
-  .run-actions .primary-btn,
-  .run-actions .ghost-btn {
+  .run-actions .primary-btn {
     flex: 1;
   }
 }
