@@ -384,7 +384,8 @@ export default {
       // 配置态草稿（纯 UI 选择，不入 store；开考后被 session 覆盖）。
       // draw = 抽题方式：'random' 整池盲抽 | 'review' 未做优先全量复习
       draft: {
-        bank: 'mixed',
+        // 默认科目：魔法史（题库主力；mixed 双科仍可手动选）
+        bank: 'history_of_magic',
         draw: 'random',
         count: QuizService.CHALLENGE_COUNTS[0],
         mode: QuizService.MODES[0],
