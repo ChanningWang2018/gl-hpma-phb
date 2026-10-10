@@ -56,9 +56,27 @@
             :value="searchInput"
             type="search"
             :placeholder="t('searchPlaceholder')"
+            :aria-label="t('labelSearch')"
             @input="queueSearch"
           />
         </label>
+
+        <!-- 筛选 chip：仅移动端显示（桌面沿用上方横排工具栏）；
+             徽标为非默认筛选条件数，0 个不渲染 -->
+        <button
+          type="button"
+          class="filter-chip"
+          :aria-label="chipAria"
+          @click="sheetOpen = true"
+        >
+          {{ t('filters') }}
+          <span
+            v-if="activeFilterCount > 0"
+            class="chip-count"
+            aria-hidden="true"
+            >· {{ activeFilterCount }}</span
+          >
+        </button>
       </div>
 
       <p class="hit-line" role="status">
@@ -114,11 +132,15 @@
 
     <!-- 详情弹层（Teleport 到 body；打开状态在 store） -->
     <CardDetail />
+
+    <!-- 移动端筛选抽屉（Teleport 到 body；开关状态在本视图） -->
+    <CardFilterSheet :open="sheetOpen" @close="sheetOpen = false" />
   </div>
 </template>
 
 <script>
 import CardDetail from '@/components/CardDetail.vue';
+import CardFilterSheet from '@/components/CardFilterSheet.vue';
 import CardImage from '@/components/CardImage.vue';
 import LocaleSwitch from '@/components/LocaleSwitch.vue';
 import PageHead from '@/components/ui/PageHead.vue';
@@ -135,6 +157,7 @@ export default {
   name: 'CardCodex',
   components: {
     CardDetail,
+    CardFilterSheet,
     CardImage,
     LocaleSwitch,
     PageHead,
@@ -167,6 +190,8 @@ export default {
     return {
       searchInput: '',
       searchTimer: null,
+      // 移动端筛选抽屉开关（CardFilterSheet 的 open prop）
+      sheetOpen: false,
     };
   },
   computed: {
@@ -204,16 +229,45 @@ export default {
         this.cardStore.setFilter({ cost: value });
       },
     },
+    // 激活筛选数：type/rarity/cost ≠ 默认各计 1，search trim 后非空计 1
+    //（与 SpellbookService.filterCards 的 trim 口径一致；默认值即
+    // cardStore filters 初始态 'all'/'all'/'all'/''）
+    activeFilterCount() {
+      const f = this.filters;
+      let count = 0;
+      if (f.type !== 'all') count += 1;
+      if (f.rarity !== 'all') count += 1;
+      if (f.cost !== 'all') count += 1;
+      if (f.search.trim() !== '') count += 1;
+      return count;
+    },
+    chipAria() {
+      const n = this.activeFilterCount;
+      return n > 0 ? this.t('openFiltersActive', { n }) : this.t('openFilters');
+    },
+  },
+  watch: {
+    // 筛选抽屉「重置」等外部来源清空 search 时收尾：撤销未落地的防抖并
+    // 把输入框同步归零——store 是唯一事实源，输入框只是它的投影
+    'cardStore.filters.search'(value) {
+      if (value !== this.searchInput) {
+        clearTimeout(this.searchTimer);
+        this.searchInput = value;
+      }
+    },
   },
   mounted() {
     this.cardStore.loadCards();
   },
   deactivated() {
-    // keep-alive 下路由离开 /cards：复位详情弹层选中态。App.vue 的 keep-alive
-    // 意味着 CardDetail 的 beforeUnmount 在切页时不触发，selectedCardId 残留
-    // 会让 body 滚动锁定（overflow:hidden）带到其他页面、返回时弹层自动重开；
-    // closeCard 触发 CardDetail 的 watch -> onClose，恢复滚动并移除 Esc 监听。
+    // keep-alive 下路由离开 /cards：复位详情弹层选中态并关闭筛选抽屉。
+    // App.vue 的 keep-alive 意味着 CardDetail/CardFilterSheet 的
+    // beforeUnmount 在切页时不触发，残留的打开状态会把 body 滚动锁定
+    //（overflow:hidden）带到其他页面；closeCard 触发 CardDetail 的
+    // watch -> onClose，sheetOpen 复位触发 CardFilterSheet 的同名收尾，
+    // 各自恢复滚动并移除 Esc 监听。
     this.cardStore.closeCard();
+    this.sheetOpen = false;
   },
   beforeUnmount() {
     clearTimeout(this.searchTimer);
@@ -284,7 +338,8 @@ export default {
   margin-bottom: var(--space-4);
 }
 
-/* 类型分段与正文的间距留在使用方（分段钮本身不带外边距） */
+/* 类型分段与正文的间距留在使用方（分段钮本身不带外边距）；
+ * 各带间距统一 --space-3 */
 .codex-segment {
   margin-bottom: var(--space-3);
 }
@@ -294,6 +349,7 @@ export default {
   gap: var(--space-3);
   flex-wrap: wrap;
   align-items: flex-end;
+  margin-bottom: var(--space-3);
 }
 
 .toolbar-field {
@@ -336,7 +392,41 @@ export default {
   font-size: var(--type-caption);
   letter-spacing: 0.1em;
   color: var(--ink-faded);
-  margin-top: var(--space-3);
+}
+
+/* 筛选 chip：仅移动端工具栏显示（桌面由横排工具栏承担，见媒体查询） */
+.filter-chip {
+  display: none;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  font-family: var(--font-type);
+  font-size: var(--type-body);
+  color: var(--ink);
+  background: var(--paper-light);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  cursor: pointer;
+  transition:
+    color 0.25s,
+    border-color 0.25s;
+}
+
+.filter-chip:hover {
+  color: var(--oxblood);
+  border-color: var(--oxblood);
+}
+
+.filter-chip:focus-visible {
+  outline: 2px solid var(--gold-leaf);
+  outline-offset: 1px;
+}
+
+/* 激活筛选数徽标：非默认条件数，随 store 实时变化，0 个不渲染 */
+.chip-count {
+  color: var(--oxblood);
 }
 
 /* ---- 加载 / 错误 / 空态 ---- */
@@ -472,27 +562,41 @@ export default {
     padding: var(--space-5) var(--space-4) var(--space-5);
   }
 
+  /* 工具栏瘦身为单行两件：搜索 + 筛选 chip（Scryfall 式）。
+     类型分段与稀有度/费用下拉移入 CardFilterSheet，命中行移入其 footer */
+  .codex-segment,
+  .toolbar-field:not(.toolbar-search),
+  .hit-line {
+    display: none;
+  }
+
+  .toolbar-fields {
+    flex-wrap: nowrap;
+    align-items: stretch;
+  }
+
+  /* 裸搜索框：吃满剩余行宽，可访问名由 aria-label + placeholder 兜底 */
+  .toolbar-search {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .toolbar-search .field-label {
+    display: none;
+  }
+
   .toolbar-search input {
-    width: 200px;
+    width: 100%;
+  }
+
+  .filter-chip {
+    display: inline-flex;
   }
 }
 
 @media (max-width: 480px) {
   .card-codex-page {
     padding: var(--space-4) var(--space-3) var(--space-5);
-  }
-
-  .toolbar-fields {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .toolbar-search {
-    grid-column: 1 / -1;
-  }
-
-  .toolbar-search input {
-    width: 100%;
   }
 
   .card-grid {
