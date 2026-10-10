@@ -395,3 +395,17 @@ pct 排查的"根治待办"兑现，但上游最终方案不是改名 headline�
 5. 管道：`fetch update` 入库 v6（sha256 过，netlify.toml `/cardimg/`
    代理 tag 已同步 spellbook-v6.20261004.0），`--verify` 通过。
    137 测试 + lint + build 绿。
+
+### 2026-10-10 版式减负重构（issue #8-#15 系列）
+
+- **间距/字号 token 化**：消费 global.css `--space-*`/`--type-*`（4pt 刻度）。
+- **移动端筛选抽屉**（≤768）：工具栏收为「全宽搜索 + 筛选 chip（激活数
+  徽标）」一行；类型/稀有度/费用入 CardFilterSheet 底部抽屉（范式收编自
+  CardDetail：Teleport/Esc/焦点归还/body 滚动锁），筛选即时生效（与桌面
+  同一 store 事实源），「重置」归默认、「应用」仅关闭；命中行入抽屉 footer。
+  激活数口径：type/rarity/cost ≠ 'all' 或 search trim 非空。
+- **桌面（≥769）**：横排工具栏保留，各带间距统一 --space-3。
+- **CardDetail 弹层**：× 改 44px 悬浮圆钮（右栏 padding-right 让位 hack
+  删除）；等级表 minmax(148px) 盒阵改全宽行式台账（墨底 Lv 头保留）；
+  区块节奏统一 --space-4。
+- **卡格不动**（用户决策）：手机仍 3 列 minmax(110px)，仅间距 token 化。

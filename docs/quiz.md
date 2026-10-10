@@ -474,3 +474,22 @@ T1 ──→ T2 ──┬─→ T4（壳+接线，主会话）─→ T5 ∥ T6 �
   `.run-progress` scrollIntoView({ block: 'start' })，新题题首对齐视口顶
   （全站无 sticky/fixed 页头，无需偏移补偿）；`prefers-reduced-motion: reduce`
   下 behavior 用 `'auto'` 瞬时定位，否则 `'smooth'`。末题交卷与放弃流程不滚动。
+
+### 2026-10-10 版式减负重构（拥挤/间距不稳定治理，issue #8-#15）
+
+- **设计 token 落地**（global.css）：`--space-1..7`（4pt 刻度）与 6 级字号
+  `--type-*`；全站间距由 12 种手调值收敛到刻度。`.container` 的
+  `overflow: hidden` 移除（sticky 全站可用）。
+- **组件拆分**：QuizChallenge 1625 行 → 壳 67 行 + challenge/
+  ChallengeSetup（配置）/ ChallengeRun（作答）/ ChallengeResult（成绩单）。
+- **题库卡改版**（用户拍板）：题干+答案行（teal，按 is_correct 定位）常显，
+  选项/讲解默认收起、「展开选项 ▾」按行展开；列表桌面 760px 居中。
+  注意：答案行必须传双语对象给 textSegments（先 lookupText 成字符串再传入
+  会被二次查找清空，ee4d833 修过此回归）。
+- **作答沉浸态**（用户拍板）：session 非空时隐藏 tab 条（交卷/放弃恢复）；
+  进度行紧凑化 + 2px 金轨进度条 + 「放弃」移为进度行小字钮；反馈+讲解合并
+  单块；钉底条 fixed→sticky（safe-area padding 保留，72px 补偿删除）。
+- **成绩单**：统计四行改 2×2 芯片；错题回顾行距统一。
+- **公共原语**：ui/SegmentControl、PressButton、PageHead（页头 ≤768 压缩：
+  标题+语言切换同行）；配置态 ≥769 双列；setupDraft 入 quizStore（拆分后
+  草稿不再随组件卸载复位）。
