@@ -9,6 +9,9 @@ index-origin.html
 # Raw API data snapshot — same nature as archive/, must never be reformatted
 snapshot.json
 
+# Generated prototype fixture (rewritten by docs/design/gen-data.mjs)
+docs/design/home.data.js
+
 # Local agent tooling, not project source
 .claude/
 
