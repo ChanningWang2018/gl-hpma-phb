@@ -1,6 +1,12 @@
 <template>
   <div class="sales-optimizer-container">
     <div class="sales-optimizer-content">
+      <PageHead>
+        <h1 class="page-title">
+          Sales optimizer <span class="page-title-zh">售卡计算</span>
+        </h1>
+      </PageHead>
+
       <div class="controls-panel">
         <div class="control-row">
           <div class="control-group">
@@ -330,6 +336,7 @@
 <script>
 import CollapsibleSection from '@/components/CollapsibleSection.vue';
 import ImageSelector from '@/components/ImageSelector.vue';
+import PageHead from '@/components/ui/PageHead.vue';
 import SalesOptimizerLoader from '@/services/salesOptimizerLoader.js';
 import SalesOptimizerSolver from '@/services/salesOptimizerSolver.js';
 import { computed, onMounted, ref, watch } from 'vue';
@@ -340,6 +347,7 @@ export default {
   components: {
     ImageSelector,
     CollapsibleSection,
+    PageHead,
   },
   setup() {
     useHead({
@@ -811,13 +819,6 @@ export default {
 .sales-optimizer-content {
   max-width: 1400px;
   margin: 0 auto;
-}
-
-h2 {
-  text-align: center;
-  color: var(--ink);
-  margin-bottom: 10px;
-  font-size: 2em;
 }
 
 .subtitle {

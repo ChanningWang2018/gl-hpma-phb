@@ -1,11 +1,10 @@
 <template>
   <div class="quiz-page">
-    <!-- 栏目标题 + 语言切换 + 数据说明（公共页头） -->
+    <!-- 栏目标题 + 数据说明（公共页头；语言切换在全局 SiteHeader） -->
     <PageHead>
-      <h2 class="page-title">
+      <h1 class="page-title">
         Magic Quiz <span class="page-title-zh">魔法测验</span>
-      </h2>
-      <template #meta><LocaleSwitch /></template>
+      </h1>
       <template #note>
         {{ t('note', { total: quizStore.totalQuestions }) }}
         <span v-if="quizStore.versionInfo" class="version-badge">{{
@@ -45,7 +44,6 @@
 </template>
 
 <script>
-import LocaleSwitch from '@/components/LocaleSwitch.vue';
 import QuizBankBrowser from '@/components/QuizBankBrowser.vue';
 import QuizChallenge from '@/components/QuizChallenge.vue';
 import PageHead from '@/components/ui/PageHead.vue';
@@ -63,7 +61,6 @@ export default {
     PressButton,
     QuizBankBrowser,
     QuizChallenge,
-    LocaleSwitch,
     SegmentControl,
   },
   setup() {

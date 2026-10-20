@@ -1,6 +1,12 @@
 <template>
   <div class="external-links-page">
     <div class="links-container">
+      <PageHead>
+        <h1 class="page-title">
+          The library <span class="page-title-zh">资源库</span>
+        </h1>
+      </PageHead>
+
       <div v-for="link in links" :key="link.id" class="link-item">
         <div class="link-content">
           <a
@@ -20,11 +26,13 @@
 </template>
 
 <script>
+import PageHead from '@/components/ui/PageHead.vue';
 import { LinksService } from '@/services/linksService.js';
 import { useHead } from '@vueuse/head';
 
 export default {
   name: 'ExternalLinks',
+  components: { PageHead },
   setup() {
     useHead({
       title: 'HPMA Resources - Created by HPMA community',
@@ -56,7 +64,6 @@ export default {
 .links-container {
   max-width: 800px;
   margin: 0 auto;
-  border-top: 3px double var(--ink);
 }
 
 /* Classifieds: printed notices separated by hairlines, no boxes */

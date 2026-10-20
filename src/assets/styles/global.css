@@ -52,6 +52,16 @@
   --silver-ink: #a9b2b8;
   --forest-ink: #2f5245;
 
+  /* Cover palette — the dark front-page hero and its chrome.
+     Kept separate from the paper palette; used by SiteHeader on `/`. */
+  --cover: #171210;
+  --cover-2: #1f1814;
+  --cover-rgb: 23, 18, 16;
+  --cream: #f4ead6;
+  --cream-muted: rgba(244, 234, 214, 0.6);
+  --gold: #d2b266;
+  --gold-line: rgba(210, 178, 102, 0.26);
+
   /* RGB triplets of the colors above, for rgba(var(--x-rgb), a) tints */
   --ink-rgb: 42, 33, 24;
   --accent-rgb: 138, 47, 43;

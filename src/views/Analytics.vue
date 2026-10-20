@@ -1,5 +1,17 @@
 <template>
   <div>
+    <div class="analytics-head">
+      <PageHead>
+        <h1 class="page-title">
+          Echo analytics <span class="page-title-zh">回响数据</span>
+        </h1>
+        <template #note>
+          Weekly standings · 4 brackets · {{ chartStore.periods.length || '—' }}
+          archived issues
+        </template>
+      </PageHead>
+    </div>
+
     <div v-if="chartStore.loading" class="loading-overlay">
       <div class="loading-spinner"></div>
       <p>Setting type&hellip;</p>
@@ -79,6 +91,7 @@ import { DataService } from '@/services/dataService.js';
 import { ThemeTokens } from '@/services/themeTokens.js';
 import { computed, onMounted } from 'vue';
 import { useHead } from '@vueuse/head';
+import PageHead from '@/components/ui/PageHead.vue';
 
 export default {
   name: 'Analytics',
@@ -89,6 +102,7 @@ export default {
     EchoSelect,
     EchoStandings,
     LineChart,
+    PageHead,
     ScatterChart,
   },
   setup() {
@@ -109,7 +123,10 @@ export default {
           content:
             'Comprehensive win rate and pick rate statistics for all Echoes in Harry Potter: Magic Awakened.',
         },
-        { property: 'og:url', content: 'https://hpma-phb.netlify.app/' },
+        {
+          property: 'og:url',
+          content: 'https://hpma-phb.netlify.app/analytics',
+        },
       ],
     });
 
@@ -191,6 +208,22 @@ export default {
 </script>
 
 <style>
+.analytics-head {
+  padding: 24px 30px 0;
+}
+
+@media (max-width: 768px) {
+  .analytics-head {
+    padding: 18px 15px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .analytics-head {
+    padding: 14px 12px 0;
+  }
+}
+
 .charts-container {
   padding: 30px;
   display: flex;

@@ -1,11 +1,10 @@
 <template>
   <div class="card-codex-page">
-    <!-- 栏目标题 + 语言切换 + 数据说明（公共页头） -->
+    <!-- 栏目标题 + 数据说明（公共页头；语言切换在全局 SiteHeader） -->
     <PageHead>
-      <h2 class="page-title">
+      <h1 class="page-title">
         Card Codex <span class="page-title-zh">卡牌图鉴</span>
-      </h2>
-      <template #meta><LocaleSwitch /></template>
+      </h1>
       <template #note>{{ t('note', { total: totalCards }) }}</template>
     </PageHead>
 
@@ -142,7 +141,6 @@
 import CardDetail from '@/components/CardDetail.vue';
 import CardFilterSheet from '@/components/CardFilterSheet.vue';
 import CardImage from '@/components/CardImage.vue';
-import LocaleSwitch from '@/components/LocaleSwitch.vue';
 import PageHead from '@/components/ui/PageHead.vue';
 import PressButton from '@/components/ui/PressButton.vue';
 import SegmentControl from '@/components/ui/SegmentControl.vue';
@@ -159,7 +157,6 @@ export default {
     CardDetail,
     CardFilterSheet,
     CardImage,
-    LocaleSwitch,
     PageHead,
     PressButton,
     SegmentControl,

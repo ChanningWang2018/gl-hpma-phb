@@ -17,7 +17,7 @@
 <script>
 // PageHead — 公共页头：3px double 墨线压底的栏目标题区，收编 Quiz 与
 // CardCodex 两份逐字拷贝的头部 markup/样式。插槽分工：
-//   默认     = 标题区（h2.page-title，内含 .page-title-zh 双语副题 span）
+//   默认     = 标题区（h1.page-title，内含 .page-title-zh 双语副题 span）
 //   #meta    = 标题行右侧控件位（LocaleSwitch）
 //   #note    = 标题行下说明行（数据说明 + 版本徽章等）
 // ≤768px 移动端压缩：标题 clamp 降到 20px 下限、标题与 meta 同行不折行，

@@ -3,6 +3,7 @@
        文案恒为 中文 / EN（标签本身不随语言变化）。 -->
   <div
     class="locale-switch"
+    :class="`locale-switch--${tone}`"
     role="group"
     :aria-label="toggleLabel"
     :title="toggleLabel"
@@ -36,6 +37,14 @@ import { useLocaleStore } from '@/stores/localeStore.js';
 
 export default {
   name: 'LocaleSwitch',
+  props: {
+    // `paper` = the existing light page look; `cover` = the dark home chrome.
+    tone: {
+      type: String,
+      default: 'paper',
+      validator: (value) => ['paper', 'cover'].includes(value),
+    },
+  },
   setup() {
     const localeStore = useLocaleStore();
 
@@ -91,9 +100,10 @@ export default {
 }
 
 .locale-option:focus-visible {
-  outline: none;
+  outline: 2px solid var(--gold-ink);
+  outline-offset: 2px;
   border-radius: 2px;
-  box-shadow: 0 0 0 2px rgba(var(--gold-rgb), 0.25);
+  box-shadow: none;
 }
 
 .locale-sep {
@@ -101,5 +111,30 @@ export default {
   font-size: 13px;
   letter-spacing: 0.08em;
   color: var(--rule);
+}
+
+/* ---------- cover tone: dark front-page chrome ---------- */
+.locale-switch--cover .locale-option {
+  padding: 9px 2px;
+  font-size: 11px;
+  color: var(--cream-muted);
+}
+
+.locale-switch--cover .locale-option:hover {
+  color: var(--cream);
+}
+
+.locale-switch--cover .locale-option.current {
+  color: var(--cream);
+  border-bottom-color: var(--gold);
+}
+
+.locale-switch--cover .locale-option:focus-visible {
+  outline-color: var(--gold);
+}
+
+.locale-switch--cover .locale-sep {
+  font-size: 11px;
+  color: var(--gold-line);
 }
 </style>
