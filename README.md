@@ -10,8 +10,18 @@ A Vue 3-based analytics dashboard for tracking character (Reverberation, Echo) p
 - **Image Loading**: WebP format support with automatic fallback to PNG, plus preloading strategy
 - **User Experience**: Loading states and error handling with retry functionality
 
+## 📄 Pages
+
+- `/` — front page: weekly cover plate, three headline numbers and the five sections
+- `/analytics` — full echo analytics (scatter, standings, trends, detailed table)
+- `/cards` — Card Codex
+- `/sales-optimizer` — Sales Optimizer
+- `/quiz` — Magic Quiz
+- `/resources` — the library of external tools
+
 ## 📊 Features
 
+- **Front page**: a dark cover with a live week plate (top win rate, most picked, biggest jump) and a 19-echo scatter, switchable between all four brackets
 - **Interactive Scatter Charts**: Visualize character performance by plotting attendance rate vs win rate
 - **Trend Analysis**: Track win rate and attendance rate trends over time with line charts
 - **Filterable Data**: Filter data by:
@@ -20,7 +30,7 @@ A Vue 3-based analytics dashboard for tracking character (Reverberation, Echo) p
   - Time periods
 - **Comprehensive Data Tables**: Detailed statistics with sortable columns
 - **Real-time Analytics**: Dynamic chart updates based on selected filters
-- **Character Data**: Complete mapping of 18 Harry Potter characters with avatar images
+- **Character Data**: Complete mapping of 19 Harry Potter characters with avatar images
 
 ## 🛠️ Technology Stack
 
@@ -41,7 +51,8 @@ A Vue 3-based analytics dashboard for tracking character (Reverberation, Echo) p
 │   │   └── styles/
 │   │       └── global.css      # Global styling
 │   ├── components/
-│   │   ├── Header.vue          # Page header
+│   │   ├── home/               # Front page cover / week plate / scatter
+│   │   ├── site/               # Global SiteHeader + SiteFooter
 │   │   ├── Controls.vue        # Filter and control panel (Mode + Period)
 │   │   ├── EchoSelect.vue      # Character selection for trend charts
 │   │   ├── ChartWrapper.vue    # Reusable chart container
@@ -127,7 +138,6 @@ Quiz data (`public/data/quiz/`) follows the same pipeline from [hpma-quizbank](h
 ```bash
 node scripts/fetch-quiz.mjs update
 ```
-
 
 ## 📊 Supported Characters (Reverberations)
 

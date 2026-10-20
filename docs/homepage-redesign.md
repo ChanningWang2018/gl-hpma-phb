@@ -1,10 +1,12 @@
 # 首页重构：一本数据年鉴的封面与目录
 
-> 状态：设计稿 + 可交互原型（未改动线上 `src/`）
+> 状态：已实现（`feat/home-front-page`）
 >
 > 分支：`feat/home-front-page`
 >
-> 原型：`docs/design/home.html`
+> 实现：`src/views/Home.vue` + `src/components/home/*` + `src/components/site/*`
+>
+> 静态原型：`docs/design/home.html`（视觉基准，不进入构建）
 >
 > 数据：`node docs/design/gen-data.mjs` 从 `public/archive/trends.json` 生成 `home.data.js`
 
@@ -19,7 +21,23 @@
 - **上半部是封面**：深墨底、奶油字、金线。报头字是唯一的大图形，下面只有一句定位、两个入口，和一块镶金边的「本周数据版画」。
 - **下半部是目录**：回到既有纸色，五个编号栏目，一行更新，一个安静的页脚。
 
-整页 1952px（移动端 1931px），没有任何正文段落。深色只出现在封面，正文区仍是原来那套纸与墨——翻开封面，还是同一本书。
+整页 1974px（移动端 2250px），没有任何正文段落。深色只出现在封面，正文区仍是原来那套纸与墨——翻开封面，还是同一本书。
+
+| 之前                                       | 之后                                 |
+| ------------------------------------------ | ------------------------------------ |
+| ![当前分析页](design/before-analytics.jpg) | ![封面](design/after-front-page.jpg) |
+
+移动端：![移动端](design/after-mobile.jpg)
+
+响应式实现（1440 / 1024 / 768 / 390）：
+
+| 1440                          | 1024                          |
+| ----------------------------- | ----------------------------- |
+| ![1440](design/impl-1440.jpg) | ![1024](design/impl-1024.jpg) |
+
+| 768                         | 390                         |
+| --------------------------- | --------------------------- |
+| ![768](design/impl-768.jpg) | ![390](design/impl-390.jpg) |
 
 | 之前                                       | 之后                                 |
 | ------------------------------------------ | ------------------------------------ |
@@ -251,15 +269,17 @@ actions: {
 | P2   | ToolGrid + UpdatesStrip + Footer + 响应式                    | 1.5 人日 |
 | P3   | 键盘/读屏、打印、性能预算、中文文案                          | 1 人日   |
 
+P0–P3 已在此分支完成；LCP/CLS 仍待在部署环境实测。
+
 ### 验收
 
-- [ ] 1440×900 首屏可见报头、一句、两按钮、三个数字。
-- [ ] 四档切换后数字与散点同步更新。
-- [ ] 首页不请求 `cards.json` / `quiz.json`，JS 不含 Chart.js。
-- [ ] 390 / 760 / 980 / 1440 四档无溢出；移动端导航完整。
-- [ ] 键盘可切换模式、可聚焦散点；`prefers-reduced-motion` 无动效。
-- [ ] 页面不出现数据源名称与外链。
-- [ ] LCP < 2.0s，CLS < 0.05。
+- [x] 1440×900 首屏可见报头、一句、两按钮、三个数字。
+- [x] 四档切换后数字与散点同步更新。
+- [x] 首页不请求 `cards.json` / `quiz.json`，JS 不含 Chart.js。
+- [x] 390 / 768 / 1024 / 1440 四档无横向溢出；移动端导航完整。
+- [x] 键盘可切换模式、可聚焦散点；`prefers-reduced-motion` 无动效。
+- [x] 页面不出现数据源名称与外链。
+- [ ] LCP < 2.0s，CLS < 0.05（待部署环境实测）。
 
 ---
 
@@ -276,10 +296,20 @@ actions: {
 
 ---
 
-## 10. 原型说明
+## 10. 实现与原型
+
+### 已落地（2026-10-21）
+
+- 路由：`/` → `Home.vue`，`/analytics` → 现有 `Analytics.vue`；导航、sitemap、`og:url` 同步。
+- 首页组件：`CoverHero` / `WeekPlate` / `StatRail` / `MetaScatter` / `ToolGrid` / `ToolIcon` / `UpdatesStrip`。
+- 全站 chrome：`SiteHeader`（首页深色、内页纸色、sticky、期号 + `LocaleSwitch`）与 `SiteFooter`；旧 `Header.vue` 移除。
+- 页面标题统一为 `h1`（`PageHead`），`App` 提供唯一 `<main id="main">` 与 skip link。
+- 数据：Home 固定取归档**最新一期**，不受 `/analytics` 的期号选择影响；一次 `updateAllData()`，不加载 `cards.json` / `quiz.json`，首页 chunk 18KB（gzip 7KB），不含 Chart.js。
+- 细节：散点只在真正溢出时显示拖动提示（JS 测量，不靠断点猜）；期号在 header chip / plate counts / ToolGrid / UpdatesStrip 四处同源；`Biggest jump` 只在确有上涨时显示，否则 `—`。
+- 验证：`npm test` 290 passed；`npm run lint` clean；`npm run build` 通过（sitemap 6 URLs）。
+
+### 静态原型
 
 - 打开：`npm run dev`，访问 `/docs/design/home.html`。
-- 交互：四档切换、头像浮层、数字联动头像、sticky 顶栏。
-- `THIS WEEK'S DATA` 与 `DATA` 目前指向 `/`（现有分析页）；落地后改为 `/analytics`。
-- 语言按钮是位置占位，真实切换由 `LocaleSwitch` 接管。
-- 原型不进入构建。
+- 它是视觉基准：静态数据、无路由；生产实现以 `src/` 为准。
+- 原型里的四档切换、头像浮层、数字联动头像在实现中保留；语言切换由全局 `SiteHeader` 的 `LocaleSwitch` 接管。
