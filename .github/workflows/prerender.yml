@@ -1,0 +1,57 @@
+name: Prerender gate
+
+# The full prerender launches a headless browser, so it is deliberately kept
+# out of pull-request CI (see ci.yml): ordinary PRs run tests, lint and the
+# plain Vite build without downloading Chrome. This gate runs after merges,
+# nightly, and on demand instead.
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Nightly, at an off-the-hour minute to avoid the rush on shared runners.
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+# Minimal permissions for security
+permissions:
+  contents: read
+
+# Cancel superseded runs on the same branch / ref
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  prerender:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30 # The 167-page prerender is the slow part
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Puppeteer's Chrome download is the slow part of `npm ci` here. Key the
+      # cache on the lockfile so nightly runs reuse the browser until the
+      # Puppeteer version changes.
+      - name: Cache Puppeteer browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/puppeteer
+          key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            puppeteer-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and prerender all routes
+        run: npm run build:prerender
+
+      - name: Verify prerendered output
+        run: npm run verify:prerender

@@ -76,7 +76,8 @@ A Vue 3-based analytics dashboard for tracking character (Reverberation, Echo) p
 │   └── archive/                # Deployed data: only the aggregated trends.json
 ├── scripts/
 │   ├── fetch-spellbook-modules.mjs  # cards + echoes release sync
-│   └── prerender.mjs                # static HTML for every indexable route
+│   ├── prerender.mjs                # static HTML for every indexable route
+│   └── verify-prerender.mjs         # dist/ + sitemap contract smoke test
 ├── vite.config.js              # Vite configuration
 ├── jsconfig.json               # JavaScript configuration
 ├── package.json                # Project dependencies
@@ -137,6 +138,27 @@ static pages (`/`, `/analytics`, `/cards`, `/cards/:id` × 141, `/echoes`,
 Each page carries its per-entity bilingual title/description, canonical and OG
 tags; `dist/sitemap.xml` is generated from the same data (167 URLs). Netlify
 uses this command (`netlify.toml`).
+
+Verify the prerendered output:
+
+```bash
+npm run verify:prerender
+```
+
+`verify:prerender` is a dependency-free Node check over the built `dist/`: it
+requires exactly 167 pages (7 index pages, 141 cards, 19 deck echoes), 167
+sitemap URLs that each resolve to a page file, exactly one canonical link per
+page pointing at that page's URL, detail titles that contain the entity name,
+and no `Loading card…` / `Loading echo…` placeholders. It exits non-zero and
+lists every failure. Run it after `npm run build:prerender`; the 167-page
+contract lives in `scripts/verify-prerender.mjs` and must be updated when the
+spellbook or echoes module changes the entity counts.
+
+The `Prerender gate` workflow (`.github/workflows/prerender.yml`) runs
+`npm run build:prerender`, then `npm run verify:prerender`, nightly, on every
+push to `main`, and on demand via `workflow_dispatch`. Pull-request CI
+(`ci.yml`) stays Chrome-free and fast: it runs the unit tests and the plain
+`npm run build` without the prerender pass.
 
 ### Preview Production Build
 

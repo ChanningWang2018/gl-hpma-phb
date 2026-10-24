@@ -11,6 +11,7 @@
     "build": "vite build",
     "build:prerender": "vite build && node scripts/prerender.mjs",
     "prerender": "node scripts/prerender.mjs",
+    "verify:prerender": "node scripts/verify-prerender.mjs",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
