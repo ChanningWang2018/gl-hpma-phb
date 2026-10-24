@@ -126,7 +126,7 @@ function waitSelector(route) {
   if (route === '/cards') return '.card-grid, .codex-empty, .codex-error';
   if (route === '/echoes') return '.echo-grid';
   if (route === '/analytics') return '#dataTable, .error-message';
-  if (route === '/') return '.masthead .issue-no';
+  if (route === '/') return '.masthead .issue-range';
   return 'main h1';
 }
 
