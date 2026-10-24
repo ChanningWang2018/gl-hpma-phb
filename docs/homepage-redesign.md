@@ -8,7 +8,7 @@
 >
 > 截图：`docs/design/front-1440.jpg` / `front-1024.jpg` / `front-768.jpg` / `front-390.jpg` / `front-fold-1440.jpg`
 >
-> 数据：`public/archive/trends.json`（本期 2026/09/24–09/30，No. 37）
+> 数据快照：`public/archive/trends.json`（截图与示例数字取自 No. 37，2026/09/24–09/30；线上数据每周滚动）
 
 ---
 
@@ -167,7 +167,7 @@ SiteFooter
 - **Data through** = 本期区间的最后一天（`30 Sep 2026`）。
 - **High / Low** 仍是「7500 分以上 / 以下」的简称；版画内保持短标签，完整说法留在 Analytics。
 - **单位**：胜率/选取率用 `%`；Biggest jump 与涨跌榜用 `pts`（胜率百分点）；负数用 U+2212。
-- **Latest** 的后两条（Spellbook v6 / Quiz bank v2）仍是静态版本文案，与首页数据无关。
+- **Latest** 的后两条（Cards + echoes v1 / Quiz bank v2）是静态数据版本文案；期号一行才来自 archive。
 
 ---
 
@@ -194,8 +194,8 @@ SiteFooter
 
 ## 8. 验证
 
-- `npm test`：**300 passed**（新增 `homeStats` 的期号、模式标签、涨跌榜用例）。
-- `npm run lint`：clean；`npm run build`：通过（sitemap 6 URLs）。
+- `npx vitest run`：**307 passed**（新增 `homeStats` 的期号、模式标签、涨跌榜用例）。
+- `npm run lint`：clean；`npm run build:prerender`：通过（167 个静态页，sitemap 167 URLs）。
 - 1440 / 1024 / 768 / 390 四档无横向溢出；移动端版画内部横向拖动是设计行为。
 - 用 CDP 实测 `2v2 High → 1v1 High`：三个数字（66.1 / 13.0 / +10.7 pts）与涨跌榜（Harry +10.7、Hagrid +10.6、Minerva +9.6、Snape −4.1、Cedric −4.0）同步更新。
 - 键盘可切档、可聚焦头像；`prefers-reduced-motion` 无动效。

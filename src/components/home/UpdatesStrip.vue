@@ -28,7 +28,7 @@ export default {
           date: end || '—',
           label: `Issue No. ${this.edition ?? '—'}`,
         },
-        { date: '04 Oct', label: 'Spellbook v6' },
+        { date: '24 Oct', label: 'Cards + echoes v1' },
         { date: '09 Oct', label: 'Quiz bank v2' },
       ];
     },
