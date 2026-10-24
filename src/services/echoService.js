@@ -197,15 +197,76 @@ export class EchoService {
     return entry?.[locale] ?? entry?.zh ?? String(rarity);
   }
 
-  /** Resolve a module-relative image path to the pinned data-repo URL. */
-  static imageUrl(path, format = 'png') {
+  /**
+   * Module-relative image path inside the release (`images/…png` /
+   * `images_webp/…webp`), independent of the host. Returns null when the
+   * release has no WebP copy set or the path is not a PNG.
+   */
+  static imageRelativePath(path, format = 'png') {
     if (typeof path !== 'string' || !path) return null;
-    const versionInfo = EchoService.snapshot?.versionInfo;
-    const base = versionInfo?.imageBase;
+    if (format === 'webp') {
+      return toWebpPath(path, EchoService.snapshot?.versionInfo?.imagesWebp);
+    }
+    return path;
+  }
+
+  /** Resolve a module-relative image path to the pinned data-repo URL (L1). */
+  static imageUrl(path, format = 'png') {
+    const base = EchoService.snapshot?.versionInfo?.imageBase;
     if (!base) return null;
-    const relative =
-      format === 'webp' ? toWebpPath(path, versionInfo?.imagesWebp) : path;
+    const relative = EchoService.imageRelativePath(path, format);
     return relative ? joinUrl(base, relative) : null;
+  }
+
+  /**
+   * L2 同源代理（netlify.toml `/echoimg/*` -> 锁定 tag 的 raw 图源）。
+   * 只在客户端直连 GitHub 失败时使用；路径与 L1 的发布包内相对路径一致。
+   */
+  static proxyImageUrl(path, format = 'png') {
+    const relative = EchoService.imageRelativePath(path, format);
+    return relative ? joinUrl('/echoimg/', relative) : null;
+  }
+
+  /** L3 本站 19 名 deck 角色头像；statsId 与 crawler 的 1..19 编号一致。 */
+  static localAvatarUrl(statsId) {
+    const id = Number(statsId);
+    if (!Number.isInteger(id) || id < 1 || id > 19) return null;
+    return `/images/avatars/echo${String(id).padStart(2, '0')}.webp`;
+  }
+
+  /**
+   * 单张回响图的降级候选（顺序即重试顺序）：
+   * L1 WebP -> L1 PNG -> L2 /echoimg -> L3 本地头像 -> 空（组件显示首字占位）。
+   *
+   * 所有 URL 都从 `version.json` 的 `imageBase` / `imagesWebp` 推导，组件不
+   * 硬编码图源域名；`fallbackPath` 只用于 icon -> big_icon 这类同层备用路径。
+   * 重复 URL 会去重（例如 imageBase 日后切到 `/echoimg/` 时 L1 即 L2）。
+   */
+  static imageCandidates(path, { fallbackPath = null, statsId = null } = {}) {
+    const candidates = [];
+    const seen = new Set();
+    const push = (url) => {
+      if (url && !seen.has(url)) {
+        seen.add(url);
+        candidates.push(url);
+      }
+    };
+    const paths = [path, fallbackPath].filter(
+      (value) => typeof value === 'string' && value,
+    );
+    for (const value of paths) {
+      push(EchoService.imageUrl(value, 'webp'));
+      push(EchoService.imageUrl(value, 'png'));
+    }
+    for (const value of paths) {
+      push(EchoService.proxyImageUrl(value));
+    }
+    push(EchoService.localAvatarUrl(statsId));
+    return candidates;
+  }
+
+  static characterIconPath(character) {
+    return character?.icon ?? character?.big_icon ?? null;
   }
 
   static characterIconUrl(character, format = 'png') {

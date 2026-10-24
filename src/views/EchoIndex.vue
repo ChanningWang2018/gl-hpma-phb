@@ -36,19 +36,14 @@
           class="echo-card"
           :to="{ name: 'echo-detail', params: { id: row.id } }"
         >
-          <span class="echo-figure">
-            <img
-              v-if="row.icon"
-              :src="row.icon"
-              :alt="row.name"
-              width="72"
-              height="72"
-              loading="lazy"
-              decoding="async"
-              @error="onIconError($event, row)"
-            />
-            <span v-else class="echo-figure-fallback">{{ row.initial }}</span>
-          </span>
+          <EchoImage
+            class="echo-figure"
+            size="tile"
+            :path="row.iconPath"
+            :stats-id="row.statsId"
+            :alt="row.name"
+            :initial="row.initial"
+          />
 
           <span class="echo-body">
             <span class="echo-heading">
@@ -83,6 +78,7 @@
 </template>
 
 <script>
+import EchoImage from '@/components/EchoImage.vue';
 import PageHead from '@/components/ui/PageHead.vue';
 import PressButton from '@/components/ui/PressButton.vue';
 import SegmentControl from '@/components/ui/SegmentControl.vue';
@@ -107,7 +103,7 @@ const oneDecimal = (value) =>
 // full-size entry point and the parent of /echoes/:id.
 export default {
   name: 'EchoIndex',
-  components: { PageHead, PressButton, SegmentControl },
+  components: { EchoImage, PageHead, PressButton, SegmentControl },
   setup() {
     useHead({
       title: 'HPMA Echoes — Every Player Echo, Ranked',
@@ -134,7 +130,6 @@ export default {
     const chartStore = useChartStore();
     const localeStore = useLocaleStore();
     const mode = ref('2v2-high');
-    const failedIcons = ref(new Set());
 
     const locale = computed(() => localeStore.locale);
     const latestPeriod = computed(
@@ -168,17 +163,13 @@ export default {
         const stats = statsId ? statsById.value.get(statsId) : null;
         const other = locale.value === 'zh' ? 'en' : 'zh';
         const altName = text(character, 'name', other);
-        const icon = !failedIcons.value.has(character.id)
-          ? EchoService.characterIconUrl(character, 'webp') ||
-            EchoService.characterIconUrl(character, 'png')
-          : null;
         return {
           id: character.id,
           statsId,
           name: text(character, 'name'),
           altName: altName !== text(character, 'name') ? altName : '',
           initial: (text(character, 'name') || '?').slice(0, 1),
-          icon,
+          iconPath: EchoService.characterIconPath(character),
           tags: Array.isArray(character.i18n?.[locale.value]?.tags)
             ? character.i18n[locale.value].tags
             : [],
@@ -187,18 +178,6 @@ export default {
         };
       });
     });
-
-    const onIconError = (event, row) => {
-      failedIcons.value = new Set([...failedIcons.value, row.id]);
-      if (row.statsId) {
-        event.target.src = `/images/avatars/echo${String(row.statsId).padStart(
-          2,
-          '0',
-        )}.webp`;
-        return;
-      }
-      event.target.removeAttribute('src');
-    };
 
     const retry = async () => {
       echoStore.error = null;
@@ -225,7 +204,6 @@ export default {
       latestPeriod,
       mode,
       modeOptions,
-      onIconError,
       retry,
       rows,
     };
@@ -298,27 +276,8 @@ export default {
 }
 
 .echo-figure {
-  flex: none;
-  width: 72px;
-  height: 72px;
-  display: grid;
-  place-items: center;
-  background: var(--paper-deep);
   border: 1px solid var(--rule);
   border-radius: 4px;
-  overflow: hidden;
-}
-
-.echo-figure img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.echo-figure-fallback {
-  font-family: var(--font-serif);
-  font-size: 30px;
-  color: var(--ink-faded);
 }
 
 .echo-body {
