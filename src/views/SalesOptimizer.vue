@@ -343,6 +343,11 @@ import {
   parseOptimizerQuery,
   serializeOptimizerQuery,
 } from '@/services/optimizerQuery.js';
+import {
+  absoluteUrl,
+  buildWebApplicationStructuredData,
+  jsonLdScript,
+} from '@/services/structuredData.js';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useHead } from '@vueuse/head';
 import { useRoute, useRouter } from 'vue-router';
@@ -379,6 +384,16 @@ export default {
           rel: 'canonical',
           href: 'https://hpma-phb.netlify.app/sales-optimizer',
         },
+      ],
+      script: [
+        jsonLdScript(
+          buildWebApplicationStructuredData({
+            name: 'HPMA Sales Optimizer',
+            description:
+              'Optimize your HVA shop sales in Harry Potter: Magic Awakened. Calculate the best items to sell for maximum gold or gems.',
+            url: absoluteUrl('/sales-optimizer'),
+          }),
+        ),
       ],
     });
 

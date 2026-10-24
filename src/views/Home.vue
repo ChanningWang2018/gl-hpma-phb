@@ -82,8 +82,19 @@ import {
   mergeRows,
 } from '@/services/homeStats.js';
 import { useChartStore } from '@/stores/chartStore.js';
+import {
+  FALLBACK_OG_IMAGE,
+  absoluteUrl,
+  buildWebSiteStructuredData,
+  jsonLdScript,
+} from '@/services/structuredData.js';
 import { computed, onMounted, ref } from 'vue';
 import { useHead } from '@vueuse/head';
+
+const SITE_NAME = 'my little hpma bits';
+const TITLE = 'my little hpma bits — HPMA weekly data, cards & quiz';
+const DESCRIPTION =
+  'An unofficial almanac for Harry Potter: Magic Awakened — weekly echo statistics, a 141-card codex, a sales solver and 1,847 quiz questions.';
 
 // Home — the paper's front page. Masthead, one data plate with a paper column
 // beside it, then the contents table. Everything is printed on paper; the only
@@ -104,26 +115,33 @@ export default {
     WeekPlate,
   },
   setup() {
+    const canonical = absoluteUrl('/');
+    const image = absoluteUrl(FALLBACK_OG_IMAGE);
     useHead({
-      title: 'my little hpma bits — HPMA weekly data, cards & quiz',
+      title: TITLE,
       meta: [
-        {
-          name: 'description',
-          content:
-            'An unofficial almanac for Harry Potter: Magic Awakened — weekly echo statistics, a 141-card codex, a sales solver and 1,847 quiz questions.',
-        },
-        {
-          property: 'og:title',
-          content: 'my little hpma bits — HPMA weekly data, cards & quiz',
-        },
-        {
-          property: 'og:description',
-          content:
-            'An unofficial almanac for Harry Potter: Magic Awakened — weekly echo statistics, a 141-card codex, a sales solver and 1,847 quiz questions.',
-        },
-        { property: 'og:url', content: 'https://hpma-phb.netlify.app/' },
+        { name: 'description', content: DESCRIPTION },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:title', content: TITLE },
+        { property: 'og:description', content: DESCRIPTION },
+        { property: 'og:url', content: canonical },
+        { property: 'og:image', content: image },
+        { property: 'og:image:alt', content: SITE_NAME },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: TITLE },
+        { name: 'twitter:description', content: DESCRIPTION },
+        { name: 'twitter:image', content: image },
       ],
-      link: [{ rel: 'canonical', href: 'https://hpma-phb.netlify.app/' }],
+      link: [{ rel: 'canonical', href: canonical }],
+      script: [
+        jsonLdScript(
+          buildWebSiteStructuredData({
+            name: SITE_NAME,
+            description: DESCRIPTION,
+            url: canonical,
+          }),
+        ),
+      ],
     });
 
     const chartStore = useChartStore();

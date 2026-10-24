@@ -60,7 +60,17 @@ import { computed, nextTick, onActivated, onMounted, watch } from 'vue';
 import { useHead } from '@vueuse/head';
 import { useRoute, useRouter } from 'vue-router';
 import { translate } from '@/services/quizLocale.js';
+import {
+  absoluteUrl,
+  buildWebApplicationStructuredData,
+  jsonLdScript,
+} from '@/services/structuredData.js';
 import { useQuizStore } from '@/stores/quizStore.js';
+
+const DESCRIPTION_EN =
+  'All 1847 Harry Potter: Magic Awakened class quiz questions - History of Magic and Muggle Studies - searchable in Chinese/English, plus a timed O.W.L.-graded challenge with the options-only Prefect mode.';
+const DESCRIPTION_ZH =
+  '收录《哈利波特：魔法觉醒》全部 1847 道课堂问答题——魔法史与麻瓜研究——支持中英文检索，另有计时 O.W.L. 评级挑战与只有选项的级长模式。';
 
 export default {
   name: 'Quiz',
@@ -217,31 +227,39 @@ export default {
 
     // 页面标题/描述随全站语言切换；en 文案维持原样，zh 为对应自然翻译
     useHead(
-      computed(() => ({
-        title:
+      computed(() => {
+        const title =
           quizStore.locale === 'zh'
             ? '魔法测验 · my little hpma bits'
-            : 'HPMA Magic Quiz - Every Question, Answered',
-        meta: [
-          {
-            name: 'description',
-            content:
-              quizStore.locale === 'zh'
-                ? '收录《哈利波特：魔法觉醒》全部 1847 道课堂问答题——魔法史与麻瓜研究——支持中英文检索，另有计时 O.W.L. 评级挑战与只有选项的级长模式。'
-                : 'All 1847 Harry Potter: Magic Awakened class quiz questions - History of Magic and Muggle Studies - searchable in Chinese/English, plus a timed O.W.L.-graded challenge with the options-only Prefect mode.',
-          },
-          {
-            property: 'og:url',
-            content: 'https://hpma-phb.netlify.app/quiz',
-          },
-        ],
-        link: [
-          {
-            rel: 'canonical',
-            href: 'https://hpma-phb.netlify.app/quiz',
-          },
-        ],
-      })),
+            : 'HPMA Magic Quiz - Every Question, Answered';
+        const description =
+          quizStore.locale === 'zh' ? DESCRIPTION_ZH : DESCRIPTION_EN;
+        return {
+          title,
+          meta: [
+            { name: 'description', content: description },
+            {
+              property: 'og:url',
+              content: 'https://hpma-phb.netlify.app/quiz',
+            },
+          ],
+          link: [
+            {
+              rel: 'canonical',
+              href: 'https://hpma-phb.netlify.app/quiz',
+            },
+          ],
+          script: [
+            jsonLdScript(
+              buildWebApplicationStructuredData({
+                name: 'HPMA Magic Quiz',
+                description: DESCRIPTION_EN,
+                url: absoluteUrl('/quiz'),
+              }),
+            ),
+          ],
+        };
+      }),
     );
     return { quizStore, retryLoad };
   },

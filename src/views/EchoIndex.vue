@@ -88,8 +88,17 @@ import { HOME_MODES, formatModeLabel } from '@/services/homeStats.js';
 import { useChartStore } from '@/stores/chartStore.js';
 import { useEchoStore } from '@/stores/echoStore.js';
 import { useLocaleStore } from '@/stores/localeStore.js';
+import {
+  FALLBACK_OG_IMAGE,
+  absoluteUrl,
+  buildCollectionPageStructuredData,
+  jsonLdScript,
+} from '@/services/structuredData.js';
 import { computed, onMounted, ref } from 'vue';
 import { useHead } from '@vueuse/head';
+
+const DESCRIPTION =
+  'All 19 player echoes in Harry Potter: Magic Awakened — win rate, pick rate, rarity variants and card synergies.';
 
 const oneDecimal = (value) =>
   value === null || value === undefined || value === ''
@@ -105,27 +114,6 @@ export default {
   name: 'EchoIndex',
   components: { EchoImage, PageHead, PressButton, SegmentControl },
   setup() {
-    useHead({
-      title: 'HPMA Echoes — Every Player Echo, Ranked',
-      meta: [
-        {
-          name: 'description',
-          content:
-            'All 19 player echoes in Harry Potter: Magic Awakened — win rate, pick rate, rarity variants and card synergies.',
-        },
-        {
-          property: 'og:url',
-          content: 'https://hpma-phb.netlify.app/echoes',
-        },
-      ],
-      link: [
-        {
-          rel: 'canonical',
-          href: 'https://hpma-phb.netlify.app/echoes',
-        },
-      ],
-    });
-
     const echoStore = useEchoStore();
     const chartStore = useChartStore();
     const localeStore = useLocaleStore();
@@ -156,6 +144,56 @@ export default {
       character?.i18n?.en?.[field] ??
       character?.i18n?.zh?.[field] ??
       '';
+
+    const canonical = absoluteUrl('/echoes');
+    const image = absoluteUrl(FALLBACK_OG_IMAGE);
+    // ItemList names/schema stay en-anchored (zh fallback inside text()), so the
+    // prerendered graph does not depend on the headless browser's language.
+    const plainName = (character) =>
+      String(text(character, 'name', 'en') || `Echo ${character.id}`).replace(
+        /<[^>]+>/g,
+        '',
+      );
+
+    useHead(
+      computed(() => ({
+        title: 'HPMA Echoes — Every Player Echo, Ranked',
+        meta: [
+          { name: 'description', content: DESCRIPTION },
+          { property: 'og:type', content: 'website' },
+          {
+            property: 'og:title',
+            content: 'HPMA Echoes — Every Player Echo, Ranked',
+          },
+          { property: 'og:description', content: DESCRIPTION },
+          { property: 'og:url', content: canonical },
+          { property: 'og:image', content: image },
+          { property: 'og:image:alt', content: 'HPMA Echoes' },
+          { name: 'twitter:card', content: 'summary_large_image' },
+          {
+            name: 'twitter:title',
+            content: 'HPMA Echoes — Every Player Echo, Ranked',
+          },
+          { name: 'twitter:description', content: DESCRIPTION },
+          { name: 'twitter:image', content: image },
+        ],
+        link: [{ rel: 'canonical', href: canonical }],
+        script: [
+          jsonLdScript(
+            buildCollectionPageStructuredData({
+              name: 'HPMA Echoes',
+              description: DESCRIPTION,
+              url: canonical,
+              itemListName: 'Player echoes',
+              items: echoStore.deckCharacters.map((character) => ({
+                name: plainName(character),
+                url: `/echoes/${character.id}`,
+              })),
+            }),
+          ),
+        ],
+      })),
+    );
 
     const rows = computed(() => {
       return echoStore.deckCharacters.map((character) => {

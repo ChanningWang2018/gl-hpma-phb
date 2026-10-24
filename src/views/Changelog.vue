@@ -121,6 +121,12 @@
 <script>
 import PageHead from '@/components/ui/PageHead.vue';
 import changelog from '@/data/changelog.json';
+import {
+  buildWebPageStructuredData,
+  FALLBACK_OG_IMAGE,
+  jsonLdScript,
+  SITE_ORIGIN,
+} from '@/services/structuredData.js';
 import { useHead } from '@vueuse/head';
 
 const MONTHS = [
@@ -170,33 +176,35 @@ export default {
   name: 'Changelog',
   components: { PageHead },
   setup() {
+    const title = 'HPMA Data Changelog — Versions and Site Changes';
+    const description =
+      'Current cards, echoes, quiz and weekly-trends data versions, plus a dated log of site features and fixes for my little hpma bits.';
+    const pageUrl = `${SITE_ORIGIN}/changelog`;
+    const ogImage = `${SITE_ORIGIN}${FALLBACK_OG_IMAGE}`;
+
     useHead({
-      title: 'HPMA Data Changelog — Versions and Site Changes',
+      title,
       meta: [
-        {
-          name: 'description',
-          content:
-            'Current cards, echoes, quiz and weekly-trends data versions, plus a dated log of site features and fixes for my little hpma bits.',
-        },
-        {
-          property: 'og:title',
-          content: 'HPMA Data Changelog — Versions and Site Changes',
-        },
-        {
-          property: 'og:description',
-          content:
-            'The data versions the HPMA almanac is running and a dated log of site changes.',
-        },
-        {
-          property: 'og:url',
-          content: 'https://hpma-phb.netlify.app/changelog',
-        },
+        { name: 'description', content: description },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:title', content: title },
+        { property: 'og:description', content: description },
+        { property: 'og:url', content: pageUrl },
+        { property: 'og:image', content: ogImage },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: title },
+        { name: 'twitter:description', content: description },
+        { name: 'twitter:image', content: ogImage },
       ],
-      link: [
-        {
-          rel: 'canonical',
-          href: 'https://hpma-phb.netlify.app/changelog',
-        },
+      link: [{ rel: 'canonical', href: pageUrl }],
+      script: [
+        jsonLdScript(
+          buildWebPageStructuredData({
+            name: title,
+            description,
+            url: pageUrl,
+          }),
+        ),
       ],
     });
 

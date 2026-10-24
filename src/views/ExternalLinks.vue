@@ -28,6 +28,11 @@
 <script>
 import PageHead from '@/components/ui/PageHead.vue';
 import { LinksService } from '@/services/linksService.js';
+import {
+  absoluteUrl,
+  buildWebApplicationStructuredData,
+  jsonLdScript,
+} from '@/services/structuredData.js';
 import { useHead } from '@vueuse/head';
 
 export default {
@@ -52,6 +57,16 @@ export default {
           rel: 'canonical',
           href: 'https://hpma-phb.netlify.app/resources',
         },
+      ],
+      script: [
+        jsonLdScript(
+          buildWebApplicationStructuredData({
+            name: 'HPMA Resources',
+            description:
+              'Curated HPMA community resources including guides, calculators, and tools for Harry Potter: Magic Awakened players.',
+            url: absoluteUrl('/resources'),
+          }),
+        ),
       ],
     });
   },

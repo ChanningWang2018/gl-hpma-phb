@@ -203,6 +203,12 @@
 
 <script>
 import PageHead from '@/components/ui/PageHead.vue';
+import {
+  buildWebPageStructuredData,
+  FALLBACK_OG_IMAGE,
+  jsonLdScript,
+  SITE_ORIGIN,
+} from '@/services/structuredData.js';
 import { useHead } from '@vueuse/head';
 
 const SOURCES = [
@@ -318,33 +324,35 @@ export default {
   name: 'Methodology',
   components: { PageHead },
   setup() {
+    const title = 'HPMA Methodology — Where the Numbers Come From';
+    const description =
+      'How my little hpma bits collects and defines its HPMA data: 163hot echo statistics, hpma-bits/hpma-spellbook cards and echoes, hpma-quizbank questions, the four rating brackets and the update cadence.';
+    const pageUrl = `${SITE_ORIGIN}/methodology`;
+    const ogImage = `${SITE_ORIGIN}${FALLBACK_OG_IMAGE}`;
+
     useHead({
-      title: 'HPMA Methodology — Where the Numbers Come From',
+      title,
       meta: [
-        {
-          name: 'description',
-          content:
-            'How my little hpma bits collects and defines its HPMA data: 163hot echo statistics, hpma-bits/hpma-spellbook cards and echoes, hpma-quizbank questions, the four rating brackets and the update cadence.',
-        },
-        {
-          property: 'og:title',
-          content: 'HPMA Methodology — Where the Numbers Come From',
-        },
-        {
-          property: 'og:description',
-          content:
-            'Data sources, field definitions, the four rating brackets, update cadence and disclaimer for the HPMA almanac.',
-        },
-        {
-          property: 'og:url',
-          content: 'https://hpma-phb.netlify.app/methodology',
-        },
+        { name: 'description', content: description },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:title', content: title },
+        { property: 'og:description', content: description },
+        { property: 'og:url', content: pageUrl },
+        { property: 'og:image', content: ogImage },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: title },
+        { name: 'twitter:description', content: description },
+        { name: 'twitter:image', content: ogImage },
       ],
-      link: [
-        {
-          rel: 'canonical',
-          href: 'https://hpma-phb.netlify.app/methodology',
-        },
+      link: [{ rel: 'canonical', href: pageUrl }],
+      script: [
+        jsonLdScript(
+          buildWebPageStructuredData({
+            name: title,
+            description,
+            url: pageUrl,
+          }),
+        ),
       ],
     });
 

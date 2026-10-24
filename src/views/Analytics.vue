@@ -93,6 +93,11 @@ import { useChartStore } from '@/stores/chartStore.js';
 import { DataService } from '@/services/dataService.js';
 import { findPeriodBySlug, periodSlug } from '@/services/homeStats.js';
 import { ThemeTokens } from '@/services/themeTokens.js';
+import {
+  absoluteUrl,
+  buildWebApplicationStructuredData,
+  jsonLdScript,
+} from '@/services/structuredData.js';
 import { computed, onMounted, watch } from 'vue';
 import { useHead } from '@vueuse/head';
 import { useRoute, useRouter } from 'vue-router';
@@ -138,6 +143,18 @@ export default {
           rel: 'canonical',
           href: 'https://hpma-phb.netlify.app/analytics',
         },
+      ],
+      // Tool pages have no per-entity graph; keep one truthful generic block so
+      // every prerendered page carries exactly one JSON-LD script.
+      script: [
+        jsonLdScript(
+          buildWebApplicationStructuredData({
+            name: 'HPMA Echo Analytics',
+            description:
+              'Track Harry Potter: Magic Awakened character performance. Win rates, pick rates, and trends for all 19 Echoes across 1v1 and 2v2 modes.',
+            url: absoluteUrl('/analytics'),
+          }),
+        ),
       ],
     });
 
