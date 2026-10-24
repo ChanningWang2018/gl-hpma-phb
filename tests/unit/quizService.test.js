@@ -187,6 +187,22 @@ describe('QuizService.searchQuestions (synthetic)', () => {
     expect(QuizService.searchQuestions(rows, {})).toHaveLength(2);
     expect(QuizService.searchQuestions(null, {})).toEqual([]);
   });
+
+  it('filters by theme conjunctively (URL-only ?theme= support)', () => {
+    const themed = [
+      makeRow({ id: 10, theme: 'ugc' }),
+      makeRow({ id: 11, theme: 'theme1' }),
+    ];
+    expect(
+      QuizService.searchQuestions(themed, { theme: 'ugc' }).map((r) => r.id),
+    ).toEqual([10]);
+    expect(QuizService.searchQuestions(themed, { theme: 'all' })).toHaveLength(
+      2,
+    );
+    expect(
+      QuizService.searchQuestions(themed, { theme: 'missing' }),
+    ).toHaveLength(0);
+  });
 });
 
 describe('QuizService.owlGrade', () => {

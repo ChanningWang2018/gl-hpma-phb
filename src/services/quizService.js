@@ -244,6 +244,7 @@ export class QuizService {
    * @param {Array} allQuestions rows as produced by client.allQuestions().
    * @param {{
    *   bank?: string|'all',
+   *   theme?: string|'all',
    *   query?: string,
    * }} criteria
    *   query is matched case-insensitively against the zh AND en question,
@@ -251,12 +252,16 @@ export class QuizService {
    *   hit in any one of them keeps the row.
    * @returns {Array} new filtered array (input is never mutated).
    */
-  static searchQuestions(allQuestions, { bank = 'all', query = '' } = {}) {
+  static searchQuestions(
+    allQuestions,
+    { bank = 'all', theme = 'all', query = '' } = {},
+  ) {
     const needle = String(query ?? '')
       .trim()
       .toLowerCase();
     return (allQuestions ?? []).filter((row) => {
       if (bank && bank !== 'all' && row.bank !== bank) return false;
+      if (theme && theme !== 'all' && row.theme !== theme) return false;
       if (!needle) return true;
       return searchHaystack(row).includes(needle);
     });

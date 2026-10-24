@@ -32,7 +32,7 @@
     <p v-if="quizStore.loading" class="quiz-state">{{ t('loading') }}</p>
     <div v-else-if="quizStore.error" class="quiz-state quiz-error">
       <p>{{ t('loadError') }}</p>
-      <PressButton @click="quizStore.loadQuiz()">{{ t('retry') }}</PressButton>
+      <PressButton @click="retryLoad">{{ t('retry') }}</PressButton>
     </div>
 
     <!-- 内容区：题库检索 / 答题挑战 -->
@@ -49,8 +49,16 @@ import QuizChallenge from '@/components/QuizChallenge.vue';
 import PageHead from '@/components/ui/PageHead.vue';
 import PressButton from '@/components/ui/PressButton.vue';
 import SegmentControl from '@/components/ui/SegmentControl.vue';
-import { computed } from 'vue';
+import {
+  collectThemes,
+  parseQuizQuery,
+  resolveQuestion,
+  sameQuery,
+  serializeQuizQuery,
+} from '@/services/quizQuery.js';
+import { computed, nextTick, onActivated, onMounted, watch } from 'vue';
 import { useHead } from '@vueuse/head';
+import { useRoute, useRouter } from 'vue-router';
 import { translate } from '@/services/quizLocale.js';
 import { useQuizStore } from '@/stores/quizStore.js';
 
@@ -65,6 +73,148 @@ export default {
   },
   setup() {
     const quizStore = useQuizStore();
+    const route = useRoute();
+    const router = useRouter();
+
+    // Query <-> store 双向同步（仿 Analytics/CardCodex 的既有模式）。
+    // queryReady：首屏加载/回填完成前不写 URL；applyingQuery：query -> store
+    // 期间压住反向写，避免 replace 循环；syncingQuery：replace 在途去重。
+    let queryReady = false;
+    let applyingQuery = 0;
+    let syncingQuery = false;
+
+    const isQuestionVisible = ({ bank, id }) =>
+      quizStore.searchResults.some(
+        (row) => row.bank === bank && Number(row.id) === id,
+      );
+
+    // query -> store：?tab / ?bank / ?theme / ?q / ?question。
+    // 进行中的挑战会话优先于 URL：keep-alive 切页回来时 URL 绝不覆盖
+    // session（session/答案/成绩永远不进 URL）。
+    const applyQuery = () => {
+      if (route.name !== 'quiz') return;
+      applyingQuery += 1;
+      try {
+        if (quizStore.session) return;
+        // Own-sync no-op: if the incoming query is already the canonical
+        // projection of the current store, do not re-apply it (this keeps the
+        // page/filter state stable after router.replace, e.g. collapsing a
+        // question permalink must not jump back to page 1).
+        const current = serializeQuizQuery({
+          tab: quizStore.tab,
+          filters: quizStore.searchFilters,
+          challenge: quizStore.setupDraft,
+          question: quizStore.highlight,
+        });
+        if (sameQuery(current, route.query)) return;
+        const parsed = parseQuizQuery(route.query, {
+          knownThemes: collectThemes(quizStore.banks),
+        });
+        const question = resolveQuestion(
+          quizStore.banks,
+          parsed.question,
+          parsed.questionBank,
+        );
+        if (question) {
+          // 题目直达优先：打开所属题库并定位；q/theme 若还能看见该题就
+          // 保留，否则清掉过滤，保证被分享的题一定出现并高亮
+          quizStore.setSearch({
+            bank: question.bank,
+            theme: parsed.filters.theme,
+            query: parsed.filters.query,
+          });
+          if (!isQuestionVisible(question)) {
+            quizStore.setSearch({
+              bank: question.bank,
+              theme: 'all',
+              query: '',
+            });
+          }
+          quizStore.focusQuestion(question);
+          return;
+        }
+        quizStore.setTab(parsed.tab);
+        if (parsed.tab === 'challenge') {
+          quizStore.clearHighlight();
+          quizStore.updateSetupDraft(parsed.challenge);
+          return;
+        }
+        quizStore.setSearch(parsed.filters);
+        quizStore.setPage(1);
+      } finally {
+        // store watcher 在本次 flush 内还会跑；等它们全部结束再放开反向写
+        nextTick(() => {
+          applyingQuery = Math.max(0, applyingQuery - 1);
+        });
+      }
+    };
+
+    // store -> URL（replace：筛选/配置不该堆历史）。只在 /quiz 路由上写：
+    // keep-alive 下组件离开后 watcher 仍活着，不守卫会把 query 写到别页。
+    // 分页、session、lastResult 都不在 URL 里。
+    const syncQuery = () => {
+      if (route.name !== 'quiz') return;
+      if (!queryReady || applyingQuery > 0 || syncingQuery) return;
+      const query = serializeQuizQuery({
+        tab: quizStore.tab,
+        filters: quizStore.searchFilters,
+        challenge: quizStore.setupDraft,
+        question: quizStore.highlight,
+      });
+      if (sameQuery(query, route.query)) return;
+      syncingQuery = true;
+      router
+        .replace({ name: 'quiz', query })
+        .catch(() => {})
+        .finally(() => {
+          syncingQuery = false;
+        });
+    };
+
+    // query -> store：浏览器前进/后退、站内链接进站、首次加载都走这里
+    watch(() => route.query, applyQuery, { deep: true });
+
+    // store -> URL：页签、题库过滤、挑战草稿、题目锚点变化
+    watch(
+      () => [
+        quizStore.tab,
+        quizStore.searchFilters.bank,
+        quizStore.searchFilters.theme,
+        quizStore.searchFilters.query,
+        quizStore.setupDraft.bank,
+        quizStore.setupDraft.draw,
+        quizStore.setupDraft.count,
+        quizStore.setupDraft.mode,
+        quizStore.highlight?.bank,
+        quizStore.highlight?.id,
+      ],
+      syncQuery,
+    );
+
+    // 首次加载：等题库就绪后再回填 URL（题目直达需要 bank 数据）。首屏
+    // 不回写，避免把用户粘贴的合法 URL 立刻改写成规范化形式。
+    onMounted(async () => {
+      await quizStore.loadQuiz();
+      applyQuery();
+      await nextTick();
+      queryReady = true;
+    });
+
+    // keep-alive 重新激活：route.query watcher 一般已触发，这里兜底；
+    // 首次 mount 时 queryReady 仍为 false，不会抢跑
+    onActivated(() => {
+      if (queryReady) applyQuery();
+    });
+
+    // 错误态重试：加载成功后补一次回填（题目直达依赖数据）
+    const retryLoad = async () => {
+      await quizStore.loadQuiz();
+      applyQuery();
+      await nextTick();
+      queryReady = true;
+      syncQuery();
+    };
+
     // 页面标题/描述随全站语言切换；en 文案维持原样，zh 为对应自然翻译
     useHead(
       computed(() => ({
@@ -93,7 +243,7 @@ export default {
         ],
       })),
     );
-    return { quizStore };
+    return { quizStore, retryLoad };
   },
   computed: {
     tabs() {
@@ -102,9 +252,6 @@ export default {
         { value: 'challenge', label: this.t('tabChallenge') },
       ];
     },
-  },
-  mounted() {
-    this.quizStore.loadQuiz();
   },
   methods: {
     // 词典查找：模板内调用并读取 store.locale，切换语言即时生效
