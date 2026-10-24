@@ -390,3 +390,73 @@ P0b 有两条实现路径：`vite-ssg`（干净，但要把 `fetch('/archive/*.j
 - 路径级 i18n / hreflang（P3）。
 - 若未来做 issue 页，按 `/issues/YYYY-MM-DD`，不加索引。
 - 可选清理：旧 `CardDetail` 弹层组件、`/echoes` 图标的组件化 L2 fallback。
+
+## 10. Wave 1 评审（2026-10-24，ZCode Lead A）
+
+评审对象：`feat/wave1-integration` @ `5f9e2df`（= main `ee8894d` + #25/#18/#20/#19/#17 + 1 个格式化 fixup；27 文件 +2439/−902）。方法：三个并行子评审（AGENTS.md 标准 / 票面规格 / 价值与品味）+ Lead 抽验关键断言。未复跑 build/test（Lead B 报告本地已验证）。
+
+### 分票结论
+
+| 票 | 标准 | 规格 | 价值 | 品味 |
+| --- | --- | --- | --- | --- |
+| #17 quiz URL state | 合规 | 实质合规¹ | 高（?question= 直达是社群对答案刚需） | 平 |
+| #18 optimizer URL state | 合规 | 完整² | 中（修复刷新丢失；无 inventory 分享不完整） | 平 |
+| #19 echo 媒体兜底 | 合规 | 完整³ | 高（CN 网络实质保险） | **升**（首字空铅占位） |
+| #20 prerender 验证 | 合规 | 完整 | 高（给 P0b SEO 押注上保险） | 平 |
+| #25 旧弹层清理 | 合规 | 完整⁴ | 中（658 行死代码出清） | 平 |
+
+¹ 未做票面「优先」的 `/quiz/questions/:id` 路由，采用 `?question=`（票面为「或」关系，可接受，建议列 backlog）；challenge URL 多写了 `?draw=`（setupDraft 抽题方式，轻度超范围）；`router.replace` 使后退为页面粒度而非筛选粒度。
+² 默认值确认省略、守卫齐备、222 行 parser 单测。
+³ raw vs fastly.jsdelivr.net 实测表已入 README（fastly 301→raw，保留 raw 有据）；域名无硬编码；72/168/96 固定盒零 CLS；eager/lazy/reduced-motion 全顾。
+⁴ 字面 `rg CardDetail` 仍命中现役 `CardDetailPage.vue`（新独立页，非遗留），语义合规。
+
+### 标准轴判断项（无硬违规）
+
+- **Duplicated Code（主要）**：`quizQuery.js` 与 `optimizerQuery.js` 重复同一防御形状（`normalizePositiveInteger`/`parseOptimizerBudget`、`firstString`/`isOneOf`），且两处 `sameQuery` 同名不同义；`Quiz.vue`/`SalesOptimizer.vue` 各自复制整套 queryReady/applying/syncing 双向同步机制。建议收敛为共享 query 模块（可开新票）。
+- 轻微：`onMounted`/`retryLoad` 重复序列；`verify-prerender.mjs` 复刻 service 查找逻辑；`EchoImage.fallbackPath` prop 当前无调用方（Speculative Generality）；`{bank,id}` 裸对象游走（Data Clumps）。
+
+### 品味与机会成本（Lead 修正版）
+
+- 五票无一稀释纸墨年鉴身份：零硬编码色、占位/高亮都长在 palette 体系内；#19 的缺图首字占位反而加分。
+- 子评审曾提「cdn.jsdelivr.net 直连 0.81s 未采用」——经核：README 测的是 **fastly**.jsdelivr.net（301→raw），保留 raw 正确；`cdn.jsdelivr.net` 域名确未测，如需再压图源延迟可开票补测。
+- 百度收录路径（中文长尾的实际入口）未被任何波次覆盖，可能是比更多 URL state 更大的杠杆，建议站长考虑排期。
+
+### Sign-off 建议
+
+**放行（recommend sign-off）**。五票实质合规、无硬性标准违规、价值/品味方向正确；上述判断项均为 backlog 级，不阻塞 Wave 1 进 main。建议随后开票：① query 同步逻辑收敛为共享模块；② `/quiz/questions/:id` 路由式直达（backlog）；③ cdn.jsdelivr.net 图源补测（可选）。
+
+## 11. 整线总评（2026-10-25，ZCode Lead A）
+
+评审对象：交付线 `ee8894d..677eaaa`（54 文件 +6868/−1385）＝ Wave 1 五票（#18 后被 revert）＋ Wave 2 三票＋ #22 ＋五笔反馈修正。方法：§10 已覆盖 Wave 1；本轮三并行子评审（标准/规格/价值品味）审 `5f9e2df..677eaaa` 增量＋ Lead 抽验。
+
+### 分票结论
+
+| 票 | 规格 | 价值 | 品味 | 备注 |
+| --- | --- | --- | --- | --- |
+| #17 quiz URL state | ✅ | 高 | 平 | §10 已评；?question= 直达为社群刚需 |
+| #18 optimizer URL state | —(reverted) | — | — | 站长定为自洽工具，功能整票撤销，票待处置 |
+| #19 echo 媒体兜底 | ✅ | 高 | 升 | §10 已评 |
+| #20 prerender 验证 | ✅ | 高 | 平 | §10 已评；契约已升至 169 并入 verify 硬校验 |
+| #25 旧弹层清理 | ✅ | 中 | 平 | §10 已评 |
+| #21 卡牌详情 UX | ✅完整 | 高 | 平 | 1–10 平铺+11–30 `<details>`（DOM 保留），跳级先展开再滚、焦点/reduced-motion 齐备；related echoes 真数据反排 top6 仅 deck。缺对称：EchoDetail 同源卡列表已随策略删除，回响页失去枢纽性 |
+| #22 SEO JSON-LD | ✅完整 | 高 | 平 | 六构建器统一出口防双写；verify 逐页断言恰 1 份 JSON-LD、url==canonical==og:url、禁伪造 rating/offers/SearchAction；旧 WebApplication（假 Offer 0 价）已删 |
+| #23 全站搜索 | ✅（一小瑕疵） | 高 | 升 | 索引挂 predev/prebuild 钩子非手工；gzip<150KB 构建期硬断言；首次打开才 fetch；`/`+Cmd+K、IME composing(229) 不劫持、Tab 陷阱、焦点归还；纸面板打字机组头，非通用 command palette。瑕疵：SearchOverlay 831 行静态入首屏 bundle（可懒加载） |
+| #24 Methodology/Changelog | ✅完整 | 高 | 升 | 数据源到 tag 逐字对齐 version.json；四档/UTC/免责齐备，colophon 式版式；双语（英正文+中摘要） |
+
+### 完成质量维度
+
+- 无阻断性标准违规：调色板/字体/reduced-motion 全过；AGENTS.md 漂移一处（motion 段仍写 living-ink，代码已删）。
+- 测试新增 ~1400 行（cardEchoRanking 220、structuredData 271、searchService 184、searchIndex 79 等），验收项均有测试锚。
+- **失实文案残留（P0，需修）**：849293e 删除 echo 页策略/协同后，`README.md:18` 与 `EchoIndex.vue:101`（meta description）仍宣传 "card synergies"。
+- 判断项（P2）：stripRich 三份、toFixed(1) 三份、SITE_ORIGIN 四处散布、SearchOverlay 死 CSS（重复 uppercase/letter-spacing）、搜索 UI 全英文与 AGENTS.md「中文为主」偏离（若定英文优先应改规约）。
+
+### 产品维度
+
+- 站点完成从「数据仪表盘」到「可检索的印刷年鉴」的跃迁：169 对象页 × 搜索 × JSON-LD × 信任层（methodology）互为放大。
+- 最大杠杆 #23（把 141+19+1847 连成网络）；#24 补上 fan 站最缺的可信度资产。
+- 品味净变化：搜索/方法论是加分项。**站长定论（2026-10-25）**：活墨移除并不可惜——效果不好看且移动端失灵，不复活；回响页反向「适配卡牌」列表随策略删除是正确取舍——分数数值站长明确不展示，该数据不再具时效性、不需要强调。评审人原先「最可惜的一刀」「枢纽不对称」两条保留意见作废，以站长判断为准。
+- UX 缺口（P1）：methodology 缺数据页内链（仅 footer）、首页 UpdatesStrip 与 changelog.json 两套版本信息未接通。
+
+### Sign-off 建议
+
+**放行**。P0 两处文案残留已修（959df2a）；AGENTS.md motion/语言段已同步（本地文件）；#18 已按站长定论关票（won't do）；P1/P2 已开票 #29（changelog 接线+methodology 内链）、#30（搜索懒加载+重复收敛）。
