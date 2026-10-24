@@ -383,6 +383,7 @@ P0b 有两条实现路径：`vite-ssg`（干净，但要把 `fetch('/archive/*.j
 - **P0a**：`/cards/:id`、`/echoes`、`/echoes/:id` 独立页；`/analytics?period=&mode=&echo=` 与 `/cards?type=&rarity=&cost=&q=` 双向 URL state；`scrollBehavior` 改为 `savedPosition`。
 - **P0b**：167 个静态页（7 个主页面 + 141 张卡 + 19 个回响）；每页恰好 1 条 canonical；卡/回响页双语 title / description；`sitemap.xml` 167 条；Netlify 构建命令为 `npm run build:prerender`。
 - **决策落地**：canonical 采用“单 URL + 双语 meta”，不选 zh/en 单语、暂不做 hreflang；`/cards/:id` 用独立页而非嵌套弹层。
+- **2026-10-24 站长反馈后的调整**：界面移除期号（Archive/Contents 计数改为 weeks）；单回响页删除游戏 strategy / synergy 内容；Optimizer 不做 URL state，整页视为一个完整工具。Wave 2 在本地集成分支新增 `/methodology`、`/changelog`，预渲染契约升至 169 页。
 
 仍待：
 

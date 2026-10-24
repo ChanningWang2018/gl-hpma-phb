@@ -9,6 +9,8 @@
 > 截图：`docs/design/front-1440.jpg` / `front-1024.jpg` / `front-768.jpg` / `front-390.jpg` / `front-fold-1440.jpg`
 >
 > 数据快照：`public/archive/trends.json`（截图与示例数字取自 No. 37，2026/09/24–09/30；线上数据每周滚动）
+>
+> 2026-10-24 后续：界面已移除期号（报头改为 `DATA WEEK` + 日期，Archive/Contents 计数改为 weeks）；单回响页删除游戏 strategy / synergy 内容；Optimizer 撤销 URL state。下面的 No. 37 示例与截图保留为设计快照。
 
 ---
 
