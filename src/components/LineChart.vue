@@ -1,21 +1,6 @@
 <template>
-  <div ref="rootEl" class="line-chart">
-    <Line ref="chartRef" :data="chartConfig" :options="options" />
-    <!-- Living ink: a quill tip keeps tracing the line; the newest point ripples -->
-    <svg
-      v-if="ink.path && !reducedMotion"
-      class="living-ink"
-      :style="{ color: color }"
-      :viewBox="`0 0 ${ink.w} ${ink.h}`"
-      aria-hidden="true"
-    >
-      <circle
-        class="ink-tip"
-        r="3"
-        :style="{ offsetPath: `path('${ink.path}')` }"
-      />
-      <circle class="ink-ripple" :cx="ink.tipX" :cy="ink.tipY" r="5" />
-    </svg>
+  <div class="line-chart">
+    <Line :data="chartConfig" :options="options" />
   </div>
 </template>
 
@@ -64,13 +49,6 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      ink: { path: null, w: 0, h: 0, tipX: 0, tipY: 0 },
-      reducedMotion: false,
-      inkTimer: null,
-    };
-  },
   computed: {
     chartConfig() {
       // 过滤掉值为null的数据
@@ -103,17 +81,9 @@ export default {
       return {
         responsive: true,
         maintainAspectRatio: false,
-        animation: {
-          duration: this.reducedMotion ? 0 : 600,
-          easing: 'easeOutQuart',
-          onComplete: () => {
-            if (this.inkTimer) {
-              clearTimeout(this.inkTimer);
-              this.inkTimer = null;
-            }
-            this.recomputeInk();
-          },
-        },
+        // The trend line is deliberately static: no draw-on animation and no
+        // ambient ink trace.
+        animation: false,
         plugins: {
           legend: {
             display: true,
@@ -157,84 +127,6 @@ export default {
       };
     },
   },
-  watch: {
-    // New edition: the old ink is void — lift the overlay until the new line
-    // has finished drawing, then re-trace. Sampling mid-animation would leave
-    // the quill tip wandering along a line that no longer exists.
-    chartData() {
-      this.ink = { path: null, w: 0, h: 0, tipX: 0, tipY: 0 };
-      if (this.inkTimer) clearTimeout(this.inkTimer);
-      if (this.reducedMotion) {
-        this.$nextTick(() => this.scheduleRecompute());
-        return;
-      }
-      // Fallback in case animation.onComplete never fires
-      this.inkTimer = setTimeout(() => this.scheduleRecompute(), 800);
-    },
-  },
-  mounted() {
-    this.reducedMotion =
-      typeof window.matchMedia === 'function' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    this.onMotionPrefChange = (event) => {
-      this.reducedMotion = event.matches;
-    };
-    if (typeof window.matchMedia === 'function') {
-      this.motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-      this.motionQuery.addEventListener?.('change', this.onMotionPrefChange);
-    }
-
-    // Chart.js resizes the canvas with its container — keep the ink in sync.
-    this.resizeObserver = new ResizeObserver(() => this.scheduleRecompute());
-    this.resizeObserver.observe(this.$refs.rootEl);
-  },
-  beforeUnmount() {
-    if (this.inkTimer) clearTimeout(this.inkTimer);
-    if (this.inkFrame) cancelAnimationFrame(this.inkFrame);
-    this.resizeObserver?.disconnect();
-    this.motionQuery?.removeEventListener?.('change', this.onMotionPrefChange);
-  },
-  methods: {
-    scheduleRecompute() {
-      if (this.inkFrame) return;
-      this.inkFrame = requestAnimationFrame(() => {
-        this.inkFrame = null;
-        this.recomputeInk();
-      });
-    },
-    // Map the rendered line's point coordinates onto an SVG overlay path.
-    recomputeInk() {
-      if (this.reducedMotion) {
-        this.ink = { path: null, w: 0, h: 0, tipX: 0, tipY: 0 };
-        return;
-      }
-      const comp = this.$refs.chartRef;
-      const chart = comp?.chart || comp;
-      const rootEl = this.$refs.rootEl;
-      if (!chart || !rootEl) return;
-
-      const meta = chart.getDatasetMeta(0);
-      const points = (meta?.data || []).filter(
-        (p) => p && Number.isFinite(p.x) && Number.isFinite(p.y),
-      );
-      if (points.length < 2) {
-        this.ink = { path: null, w: 0, h: 0, tipX: 0, tipY: 0 };
-        return;
-      }
-
-      const tip = points[points.length - 1];
-      this.ink = {
-        w: rootEl.clientWidth,
-        h: rootEl.clientHeight,
-        path:
-          'M' +
-          points.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L'),
-        tipX: +tip.x.toFixed(1),
-        tipY: +tip.y.toFixed(1),
-      };
-    },
-  },
 };
 </script>
 
@@ -243,61 +135,5 @@ export default {
   width: 100%;
   height: 100%;
   position: relative;
-}
-
-.living-ink {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.ink-tip {
-  fill: currentColor;
-  filter: drop-shadow(0 0 3px currentColor);
-  opacity: 0;
-  offset-rotate: 0deg;
-  animation: ink-travel 7s linear infinite;
-}
-
-@keyframes ink-travel {
-  0% {
-    offset-distance: 0%;
-    opacity: 0;
-  }
-  4% {
-    opacity: 0.95;
-  }
-  78% {
-    opacity: 0.95;
-  }
-  88%,
-  100% {
-    offset-distance: 100%;
-    opacity: 0;
-  }
-}
-
-.ink-ripple {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.5;
-  opacity: 0;
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: ink-ripple 2.6s 1s ease-out infinite;
-}
-
-@keyframes ink-ripple {
-  0% {
-    opacity: 0.7;
-    transform: scale(1);
-  }
-  70%,
-  100% {
-    opacity: 0;
-    transform: scale(2.6);
-  }
 }
 </style>
