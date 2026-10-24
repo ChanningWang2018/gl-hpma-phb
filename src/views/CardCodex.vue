@@ -101,7 +101,7 @@
           type="button"
           class="tile-hit"
           :aria-label="t('viewDetail', { name: primaryName(card) })"
-          @click="openCard(card.id)"
+          @click="openDetail(card.id)"
         >
           <CardImage :card="card" size="tile">
             <span
@@ -128,8 +128,6 @@
         </button>
       </article>
     </section>
-
-    <!-- 详情现在是独立页 /cards/:id；保留弹层组件仅为后续 quick-view 预留 -->
 
     <!-- 移动端筛选抽屉（Teleport 到 body；开关状态在本视图） -->
     <CardFilterSheet :open="sheetOpen" @close="sheetOpen = false" />
@@ -284,13 +282,11 @@ export default {
     this.syncQuery();
   },
   deactivated() {
-    // keep-alive 下路由离开 /cards：复位详情弹层选中态并关闭筛选抽屉。
-    // App.vue 的 keep-alive 意味着 CardDetail/CardFilterSheet 的
-    // beforeUnmount 在切页时不触发，残留的打开状态会把 body 滚动锁定
-    //（overflow:hidden）带到其他页面；closeCard 触发 CardDetail 的
-    // watch -> onClose，sheetOpen 复位触发 CardFilterSheet 的同名收尾，
-    // 各自恢复滚动并移除 Esc 监听。
-    this.cardStore.closeCard();
+    // keep-alive 下路由离开 /cards：只关闭筛选抽屉。App.vue 的 keep-alive
+    // 意味着 CardFilterSheet 的 beforeUnmount 在切页时不触发，残留的打开状态
+    // 会把 body 滚动锁定（overflow:hidden）带到其他页面；sheetOpen 复位触发
+    // CardFilterSheet 的 watch -> onClose，恢复滚动并移除 Esc 监听。
+    //（详情自 P0a 起是独立页，不再有需要复位的弹层选中态。）
     this.sheetOpen = false;
   },
   beforeUnmount() {
@@ -299,7 +295,7 @@ export default {
   methods: {
     // Card detail is a canonical page now; filters live in the store so they
     // survive the back/forward trip.
-    openCard(id) {
+    openDetail(id) {
       this.$router.push({ name: 'card-detail', params: { id } });
     },
 

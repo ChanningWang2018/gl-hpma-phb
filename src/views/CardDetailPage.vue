@@ -96,10 +96,9 @@ import { useRoute } from 'vue-router';
 
 const canonicalFor = (id) => `https://hpma-phb.netlify.app/cards/${id}`;
 
-// CardDetailPage — the standalone /cards/:id page. The grid used to open
-// CardDetail as a Teleport dialog; P0a makes the canonical card URL a real
-// page so it can be shared, prerendered and indexed. The dialog remains in
-// the component tree only for a future quick-view enhancement.
+// CardDetailPage — the standalone /cards/:id page. P0a made the canonical
+// card URL a real page so it can be shared, prerendered and indexed; the grid
+// links here instead of opening a Teleport dialog.
 export default {
   name: 'CardDetailPage',
   components: { CardImage, PressButton },

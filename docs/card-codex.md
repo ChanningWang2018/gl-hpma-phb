@@ -1,9 +1,50 @@
 # 卡牌图鉴页（Card Codex）设计与任务分割
 
-> 2026-10-01 制定。数据源为已上线的 hpma-spellbook 数据包（生产链路见下），
-> 本文是给 subagent 的自包含任务书：每个任务含上下文、要动的文件、验收标准。
+> 2026-10-01 制定；2026-10-24 按 issue #25 更新数据链路。
+> 本文最初是给 subagent 的自包含任务书：每个任务含上下文、要动的文件、验收标准。
+>
+> **文档状态（2026-10-24）**：§0、§1 描述**当前**实现——数据源是
+> `hpma-bits/hpma-spellbook` 的 **cards 模块**（release tag `cards-v*`，当前
+> `cards-v1.20261024.0`）。§1.1 的历史裁决记录、§2 任务书、§4 变更记录属于
+> 历史材料，保留原文并标注 **legacy**；其中出现的
+> `ChanningWang2018/hpma-data` 与 `spellbook-v*` 是 2026-10 拆分前的旧口径，
+> 不再指导当前实现。
 
-## 0. 背景与数据链路（已建成的部分，不要重建）
+## 0. 背景与数据链路（已建成，不要重建）
+
+### 0.1 当前链路（2026-10 起，以此为准）
+
+```
+HPMA-Research (E:\Scripts\HPMA-Research)
+  游戏客户端提取 → export_spellbook_web_bundle.py → 打包发布
+    ↓ 发布（游戏热更后 3 条命令，已自动化）
+hpma-bits/hpma-spellbook 公开仓 (github.com/hpma-bits/hpma-spellbook)
+  cards 模块: cards.json (141 卡) + manifest.json + checksums.txt
+              + images/*.png (375x500) + images_webp/*.webp + frames/*.png
+  版本契约:  Release tag = cards-v{schema}.{data}.0，当前 cards-v1.20261024.0
+  同级模块:  echoes 模块（echoes-v*）；两模块独立版本轴，schema_version 从 1 重起
+    ↓ 消费（已建成）
+gl-hpma-phb (本站) /cards 图鉴页 + /cards/:id 独立详情页
+```
+
+| 项 | 当前实现 |
+| --- | --- |
+| 数据快照 | `public/data/spellbook/{cards,manifest,version}.json`（提交进仓） |
+| 版本单一事实源 | `public/data/spellbook/version.json`：`tag` / `version` / `schemaVersion` / `dataVersion` / `imageBase` / `imagesWebp` / `generatedAt` |
+| 卡面图 L1 | `version.json.imageBase` = `https://raw.githubusercontent.com/hpma-bits/hpma-spellbook/cards-v1.20261024.0/cards/`（外链，tag 锁定） |
+| 卡面图 L2 | 同源代理 `/cardimg/*` → 同一 tag 的 raw.githubusercontent（`netlify.toml`） |
+| 卡面图 L3 | 占位卡背（token 色块 + 卡名，见 §1.1） |
+| 自动更新 | `.github/workflows/spellbook-update.yml` → `node scripts/fetch-spellbook-modules.mjs update`（cards + echoes） |
+| 消费端 | `src/services/spellbookClient.js` + `spellbookService.js` + `src/stores/cardStore.js` |
+| 详情页 | `/cards/:id` 独立页 `src/views/CardDetailPage.vue`；旧 Teleport 弹层已删除 |
+
+图片路径口径：`cards.json` 的 `img` 是相对 `imageBase` 的 `images/{id}.png`；
+WebP 副本走 `imagesWebp` 前缀（`images_webp/{id}.webp`）；品质边框走
+`frames/frame_{rarity}.png`（208x272 RGBA，`inner` 为内窗矩形）。
+
+### 0.2 历史链路（legacy，2026-10-01 口径，仅存档）
+
+以下为制定本文时的单轴数据包口径，2026-10 拆分后已退役：
 
 ```
 HPMA-Research (E:\Scripts\HPMA-Research)
@@ -12,31 +53,42 @@ HPMA-Research (E:\Scripts\HPMA-Research)
 hpma-data 公开仓 (github.com/ChanningWang2018/hpma-data)
   spellbook/ : cards.json (2.2MB, 141 卡) + manifest.json + images/*.png (34MB)
                + schema/*.schema.json + checksums.txt
-  版本契约:  Release tag = spellbook-v{schema}.{data}.0，当前 spellbook-v1.1.0
+  版本契约:  Release tag = spellbook-v{schema}.{data}.0，当时 spellbook-v1.1.0
   npm 包:    hpma-spellbook-data
-    ↓ 消费（本次要做）
+    ↓ 消费
 gl-hpma-phb (本站) 新增 /cards 图鉴页
 ```
 
 参考消费者（loader 的移植来源，只读参考，不要改它）：
 `E:\Scripts\hpma-cards-consumer\src\hpma-cards.js` — 零依赖 ESM loader，
 `createClient({ baseUrl })`，含 schema_version 守卫、zh 回退、type/rarity 索引。
+（历史参考：loader 已移植为本站 `src/services/spellbookClient.js`。）
 
-### 数据形状（schema_version 1）
+### 数据形状（cards 模块 schema_version 1）
+
+> 2026-10 拆分后 cards 模块的 `schema_version` 从 1 重起；形状等价于旧混合轴
+> v6（levels 为 `{battle_show?, rows}` 块，顶层多 `face_attrs` / `frames`）。
 
 ```jsonc
 // cards.json
 {
-  "schema_version": 1, "data_version": 1, "generated_at": "...",
+  "schema_version": 1, "data_version": 20261024, "generated_at": "...",
+  "face_attrs": ["hp", "damage", "shield", "duration"],
   "labels": { "type": {"spell": {"zh": "咒语卡", "en": "Spell"}, ...},
               "rarity": {"common".."mythic"/"dark": {"zh","en"}} },
+  "frames": { "common": { "file": "frame_common.png", "size": [208, 272],
+                          "inner": [21, 23, 169, 233] }, ... },
   "cards": [ { "id": 1001, "type": "spell|summon|companion",
                "rarity": "common|rare|epic|legendary|mythic|dark",
                "cost": 5, "img": "images/1001.png", "spell_word": "GLACIUS",
                "tags": ["输出","控制"],
-               "i18n": { "zh": {"name","desc","quote","stats"},
-                         "en": {"name","desc","quote"} },   // en 可缺失，回退 zh
-               "levels": [ {"lv":1, "v": <number|string 联合>}, ... ] } ]
+               "i18n": { "zh": {"name","desc","quote","stats","tags"},
+                         "en": {"name","desc","quote","stats","tags"} }, // en 可缺失，回退 zh
+               // levels 键 = "1".."30"；battle_show 为游戏 1-based 行位，
+               // rows 与游戏 attr_val_list 逐行 1:1；attr_name 为稳定英文标识
+               "levels": { "1": { "battle_show": [1, 3],
+                                  "rows": [ {"attr_name","k","k_en","v","unit?"}, ... ] },
+                           ... } } ]
 }
 ```
 
@@ -44,71 +96,81 @@ gl-hpma-phb (本站) 新增 /cards 图鉴页
 
 | 决策           | 结论                                                                                                                                  | 理由                                                                                                                                                                                                                                   |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 数据 JSON      | **提交进仓** `public/data/spellbook/{cards,manifest}.json`                                                                            | dev 免网络、构建无外部依赖、每次更新的 git diff 可审；`/data/*` 在 netlify.toml 已有 1h 缓存头；2.2MB/次可接受                                                                                                                         |
-| 卡面 PNG       | **不进本站仓库**，运行时外链 jsDelivr 锁 tag：`https://fastly.jsdelivr.net/gh/ChanningWang2018/hpma-data@spellbook-v1.1.0/spellbook/` | 版权约束（hpma-data LICENSE-NOTES：禁止再分发卡面图源）→ 只引用不复制；jsDelivr 对 tag 内容 immutable 缓存一年。**大陆可用性因运营商/地区而异（jsDelivr 主域 2021 年底失去 ICP 备案后长期不稳），默认源待拨测后定，三级降级链见 §1.1** |
-| 版本单一事实源 | `public/data/spellbook/version.json`：`{ "tag", "version", "schemaVersion", "dataVersion", "imageBase", "generatedAt" }`              | CI 更新它、UI 读它显示数据版本徽标、`--verify` 用它做一致性校验                                                                                                                                                                        |
+| 数据 JSON      | **提交进仓** `public/data/spellbook/{cards,manifest,version}.json`                                                                    | dev 免网络、构建无外部依赖、每次更新的 git diff 可审；`/data/*` 在 netlify.toml 已有 1h 缓存头；cards.json 约 2MB/次可接受                                                                                                             |
+| 卡面 PNG       | **不进本站仓库**，运行时外链 `version.json.imageBase` 锁 tag：`https://raw.githubusercontent.com/hpma-bits/hpma-spellbook/cards-v1.20261024.0/cards/` | 版权约束（hpma-spellbook manifest notes：卡面图与边框素材著作权属网易及版权方，禁止再分发图源）→ 只引用不复制；raw tag 内容不可变。大陆可达性不稳，L2 同源代理兜底，三级降级链见 §1.1 |
+| 版本单一事实源 | `public/data/spellbook/version.json`：`{ "tag", "version", "schemaVersion", "dataVersion", "imageBase", "imagesWebp", "generatedAt" }` | `fetch-spellbook-modules.mjs` 更新它、卡面 L1 base 从它读、`--verify` 用它做一致性校验                                                                                                                                                  |
 | 加载器         | 移植 `hpma-cards.js` → `src/services/spellbookClient.js`（保留纯函数导出），外面包 `src/services/spellbookService.js` 静态类门面      | 纯函数便于 vitest（node 环境）直测；门面符合 AGENTS.md 服务层惯例。**关键改造**：数据 base 与卡面 base 分离（数据来自本站 `/data/spellbook/`，图来自 `version.json` 的 `imageBase`），`createClient({ dataBaseUrl, imageBaseUrl })`    |
 | 状态           | `src/stores/cardStore.js`（Options 风格 defineStore，仿 chartStore：loading/error + try-catch-finally）                               | AGENTS.md 规约                                                                                                                                                                                                                         |
-| 兜底           | 卡面三级降级（§1.1）：直连 jsDelivr → 失败自动换本站代理 `/cardimg/*` → 占位卡背；另留 `?img=<base>` 手动覆盖                         | 大陆 jsDelivr 波动时的逃生门，占位复用站内头像 canvas fallback 模式                                                                                                                                                                    |
-| 自动更新       | GitHub Actions 定时跑 `scripts/fetch-spellbook.mjs`（见任务 T4），有新版 → 数据入库 → commit+push → Netlify 自动部署                  | 本仓库已有 cron workflow 先例（api_crawler.yaml）；`releases/latest` API 匿名可查，GITHUB_TOKEN 即可                                                                                                                                   |
-| 拒绝的备选     | npm 依赖（node_modules 膨胀/更新链多一环）、纯运行时 jsDelivr 取数据（国内可用性风险不可控、无回退）                                  | —                                                                                                                                                                                                                                      |
+| 兜底           | 卡面三级降级（§1.1）：直连 `version.json.imageBase`（raw.githubusercontent）→ 失败自动换本站代理 `/cardimg/*` → 占位卡背；另留 `?img=<base>` 手动覆盖 | 外链波动时的逃生门，占位复用站内头像 canvas fallback 模式                                                                                                                                                                              |
+| 自动更新       | GitHub Actions 定时跑 `scripts/fetch-spellbook-modules.mjs`（cards + echoes 两模块，见 README），有新版 → 数据入库 → commit+push → Netlify 自动部署 | 本仓库已有 cron workflow 先例（api_crawler.yaml）；`releases/latest` API 匿名可查，GITHUB_TOKEN 即可                                                                    |
+| 拒绝的备选     | npm 依赖（node_modules 膨胀/更新链多一环）、纯运行时外链取数据（国内可用性风险不可控、无回退）                                        | —                                                                                                                                                                                                                                      |
 
 明确不做：图片本地化/自建代理（需重估版权）；cards.json 分片压缩（gzip 后体积可接受，先不过度设计）；组件级 UI 测试（vitest 是 node 环境，与现状一致只测逻辑层）。
 
-### 1.1 卡面源与大陆可用性（三级降级链）
+### 1.1 卡面源与降级链（当前）
 
-数据 JSON 走本站域名（EdgeOne 加速）不受影响；**唯一暴露在 jsDelivr 波动下的环节是卡面**。
-jsDelivr 主域 cdn.jsdelivr.net 自 2021 年底失去 ICP 备案后大陆可用性长期
-"因运营商/地区而异"（部分网络直连顺畅、部分 DNS 污染/超时），fastly.jsdelivr.net
-是大陆相对常用的镜像域但同样无法承诺。因此卡面加载设计为三级降级：
+数据 JSON 走本站域名（EdgeOne 加速）不受影响；**唯一暴露在第三方可用性下的
+环节是卡面**。2026-10 数据仓拆分后，卡面源从 jsDelivr 切到
+raw.githubusercontent.com，并继续用 tag 锁定：
 
-- **L1 直连**：默认 `imageBase`（version.json，候选 fastly.jsdelivr.net），
-  快、零本站流量；对可达用户是最优路径。
+- **L1 直连**：`version.json.imageBase` =
+  `https://raw.githubusercontent.com/hpma-bits/hpma-spellbook/cards-v1.20261024.0/cards/`，
+  快、零本站流量。`img` 是相对路径 `images/{id}.png`；WebP 副本走
+  `imagesWebp` + `images_webp/{id}.webp`；品质边框走 `frames/frame_{rarity}.png`。
 - **L2 本站透明代理**：`<img>` onerror 时自动把 src 换成
   `/cardimg/images/{id}.png` 再试一次。netlify.toml 一个 redirect 块实现：
   ```toml
   [[redirects]]
     from = "/cardimg/*"
-    to = "https://fastly.jsdelivr.net/gh/ChanningWang2018/hpma-data@spellbook-v1.1.0/spellbook/:splat"
+    to = "https://raw.githubusercontent.com/hpma-bits/hpma-spellbook/cards-v1.20261024.0/cards/:splat"
     status = 200
     force = true
   ```
-  路径 = 大陆用户 → EdgeOne（本站已跑通的跨境链路）→ Netlify 边缘 → jsDelivr，
-  用户侧不直连 jsDelivr；jsDelivr 的 immutable 缓存头被边缘继承，热身后边缘命中。
-  版本升级时 redirect 内 tag 与 version.json 同步换。
+  路径 = 大陆用户 → EdgeOne（本站已跑通的跨境链路）→ Netlify 边缘 →
+  raw.githubusercontent，用户侧不直连 GitHub；版本升级时 redirect 内 tag 与
+  version.json 由 `fetch-spellbook-modules.mjs update` 同步换。
 - **L3 占位卡背**：L2 也失败才渲染（token 色块 + 卡名），不阻塞列表。
 
-版权口径：L1 纯引用；L2 是 CDN 式代理缓存（源站仍是 hpma-data 公开仓，
+版权口径：L1 纯引用；L2 是 CDN 式代理缓存（源站仍是 hpma-spellbook 公开仓，
 本站仓库不存储任何卡面字节），比 L1 更进一步、比"图进仓"保守；若将来改选
 "卡面入本站仓库/部署"则是明确的再分发，需重新拍板。
 
-**默认源裁决（T5 执行）**：用大陆拨测（itdog.cn / 17ce / 阿里云拨测）对
-fastly 与 cdn 两域的目标图片 URL 实测各省可用率——可用率高（约 >95%）则
-L1 直连为默认（L2 仅作自动降级）；不稳则把 version.json 的 `imageBase`
-直接设为 `/cardimg/`（L2 为默认，L1 作 `?img=` 逃生门）。
+#### 历史裁决记录（legacy）
 
-2026-10-01：暂维持 L1 直连（fastly.jsdelivr.net）为默认；大陆拨测待站长执行后裁决（工具 itdog.cn/17ce，判据见上）。
+2026-10-01 ~ 2026-10-04 的默认源裁决与 WebP 上线记录，当时数据源是
+`ChanningWang2018/hpma-data` 的 `spellbook-v*` 单轴包、卡面走 jsDelivr；
+2026-10 拆分后已切到上面的 raw.githubusercontent 口径，以下仅存档：
 
-2026-10-04：**卡面格式优化上线（WebP 副本集）**。上游 release 起新增
-`images_webp/{id}.webp`（与 `images/` 同名同分辨率，q82，35MB→2.8MB），
-manifest 以 `webp_images` 声明能力、经 version.json `imagesWebp` 下发；
-消费端 L1 优先加载 WebP，**任一张失败即扳全局闩回落 PNG**（WebP 可用性是
-整个 release 的属性），PNG 再走原 L2 代理 → L3 占位阶梯。帧边框/详情页
-不变；`?img=` 覆盖与降级链全部兼容（实测旧 tag 覆盖 → 全量回落 PNG 正常）。
-首屏字节从约 35MB（全部滚动加载完）降到约 3MB。jsDelivr 对 tag immutable
-缓存，WebP 副本与 PNG 同生命周期。大陆拨测裁决（L1 直连 vs L2 默认）仍待执行。
+- **默认源裁决（T5 执行，当时挂起）**：用大陆拨测（itdog.cn / 17ce / 阿里云拨测）
+  对 fastly 与 cdn 两域的目标图片 URL 实测各省可用率——可用率高（约 >95%）则
+  L1 直连为默认（L2 仅作自动降级）；不稳则把 version.json 的 `imageBase`
+  直接设为 `/cardimg/`（L2 为默认，L1 作 `?img=` 逃生门）。
+- **2026-10-01**：暂维持 L1 直连（fastly.jsdelivr.net）为默认；大陆拨测待站长
+  执行后裁决（工具 itdog.cn/17ce，判据见上）。
+- **2026-10-04**：**卡面格式优化上线（WebP 副本集）**。上游 release 起新增
+  `images_webp/{id}.webp`（与 `images/` 同名同分辨率，q82，35MB→2.8MB），
+  manifest 以 `webp_images` 声明能力、经 version.json `imagesWebp` 下发；
+  消费端 L1 优先加载 WebP，**任一张失败即扳全局闩回落 PNG**（WebP 可用性是
+  整个 release 的属性），PNG 再走原 L2 代理 → L3 占位阶梯。首屏字节从约
+  35MB（全部滚动加载完）降到约 3MB。jsDelivr 对 tag immutable 缓存，WebP
+  副本与 PNG 同生命周期。
 
 ### 1.2 明确不做（续）
 
 明确不做：图片本地化/自建代理（需重估版权）；cards.json 分片压缩（gzip 后体积可接受，先不过度设计）；组件级 UI 测试（vitest 是 node 环境，与现状一致只测逻辑层）。
 
-## 2. 任务分割（T1 → (T2 → T3) ∥ T4 → T5）
+## 2. 任务分割（legacy：2026-10-01 任务书，已完成）
+
+> 本节是当时的施工任务书，保留原文供追溯。T3 的弹层已由 P0a 的
+> `/cards/:id` 独立页取代（`CardDetail.vue` 已在 issue #25 中删除），T4 的
+> 单轴管道已由 `scripts/fetch-spellbook-modules.mjs` 双模块管道取代；文中
+> `hpma-data` / `spellbook-v*` 均为旧口径。
 
 每个任务的验收底线：`npm run test`、`npm run lint`、`npm run build` 全绿；不引入新的运行时依赖；遵守 AGENTS.md（paper 调色板 token 禁止硬编码 hex、2 空格、单引号、分号、scoped style）。
 
 ---
 
-### T1 数据层：加载器移植 + 首版数据入库
+### T1 数据层：加载器移植 + 首版数据入库 — legacy
 
 **上下文**：本任务建立其他所有任务依赖的数据契约。数据形状见 §0；loader 原型在
 `E:\Scripts\hpma-cards-consumer\src\hpma-cards.js`（连同其测试
@@ -151,7 +213,7 @@ manifest 以 `webp_images` 声明能力、经 version.json `imagesWebp` 下发�
 
 ---
 
-### T2 cardStore + 图鉴页骨架（网格、筛选、搜索）
+### T2 cardStore + 图鉴页骨架（网格、筛选、搜索）— legacy
 
 **上下文**：依赖 T1 的 spellbookService。页面美学 = 本站报纸风：纸面/油墨
 token（global.css `:root`）、标题 IM Fell English、说明/控件 Special Elite、
@@ -187,7 +249,12 @@ costOptions`（从 labels 与数据派生，带 zh 显示名与计数）。
 
 ---
 
-### T3 详情弹层 + 等级数值表（依赖 T2）
+### T3 详情弹层 + 等级数值表（依赖 T2）— legacy
+
+> **已由 P0a 取代（2026-10）**：详情改为独立页 `/cards/:id`
+> （`src/views/CardDetailPage.vue`），`CardDetail.vue` 弹层已在 issue #25 中
+> 删除，`cardStore` 的 `selectedCardId` / `selectedCard` / `openCard` /
+> `closeCard` 同步移除。以下保留历史产出描述。
 
 **产出**：
 
@@ -207,7 +274,11 @@ costOptions`（从 labels 与数据派生，带 zh 显示名与计数）。
 
 ---
 
-### T4 自动更新管道（只依赖 T1 的 version.json 契约，可与 T2/T3 并行）
+### T4 自动更新管道（只依赖 T1 的 version.json 契约，可与 T2/T3 并行）— legacy
+
+> **已由 2026-10 拆分取代**：单轴 `hpma-data` / `spellbook-v*` 管道退役，
+> 现由 `scripts/fetch-spellbook-modules.mjs` + `spellbook-update.yml` 同步
+> `hpma-bits/hpma-spellbook` 的 cards / echoes 两个模块（见 §0.1 与 README）。
 
 **上下文**：目标是"游戏热更 → 生产端发布（已有链路）→ 本站最迟下个周期自动跟上，
 全程零人工"。检测端：`GET https://api.github.com/repos/ChanningWang2018/hpma-data/releases/latest`
@@ -256,7 +327,7 @@ latest）；`--verify` 通过；`npm run test` 全绿；workflow YAML 语法经
 
 ---
 
-### T5 集成与打磨（收尾）
+### T5 集成与打磨（收尾）— legacy
 
 **产出**：
 
@@ -291,6 +362,9 @@ T1 ──→ T2 ──→ T3 ──┐
 ---
 
 ## 4. 变更记录
+
+> **legacy**：以下为 2026-10-01 ~ 2026-10-10 的历史记录，其中
+> `hpma-data` / `spellbook-v*` / `CardDetail` 弹层均为当时口径，已退役。
 
 ### 2026-10-01 schema 2 适配（spellbook-v2.20261001.0 入库）
 
@@ -409,3 +483,13 @@ pct 排查的"根治待办"兑现，但上游最终方案不是改名 headline�
   删除）；等级表 minmax(148px) 盒阵改全宽行式台账（墨底 Lv 头保留）；
   区块节奏统一 --space-4。
 - **卡格不动**（用户决策）：手机仍 3 列 minmax(110px)，仅间距 token 化。
+
+### 2026-10-24 旧弹层清理 + 数据源文档对齐（issue #25）
+
+- 数据源口径：`hpma-bits/hpma-spellbook` cards 模块（`cards-v*`，当前
+  `cards-v1.20261024.0`）；`imageBase` 为 raw.githubusercontent 同 tag，
+  `/cardimg/*` 代理同步（§0.1 / §1.1）。
+- 删除 `src/components/CardDetail.vue`（P0a 起详情改为 `/cards/:id` 独立页）；
+  `cardStore` 移除 `selectedCardId` / `selectedCard` / `openCard` / `closeCard`；
+  `CardCodex.vue` 的 `deactivated` 只负责关闭筛选抽屉。
+- 本文档 §0/§1 更新为当前链路；§1.1 历史裁决、§2 任务书、§4 旧记录标注 legacy。

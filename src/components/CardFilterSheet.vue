@@ -88,9 +88,10 @@
 
 <script>
 // CardFilterSheet — 卡牌图鉴移动端筛选抽屉（≤768px 由 CardCodex 的
-// 「筛选」chip 唤起）。交互范式收编自 CardDetail.vue：Teleport 到 body、
-// overlay 点击关闭、Esc 关闭、body 滚动锁、关闭焦点归还触发钮、
-// transform/opacity ≤200ms 进出场、prefers-reduced-motion 下关闭动画。
+// 「筛选」chip 唤起）。交互范式沿用原卡牌详情弹层（组件已随 /cards/:id
+// 独立页删除）：Teleport 到 body、overlay 点击关闭、Esc 关闭、body 滚动锁、
+// 关闭焦点归还触发钮、transform/opacity ≤200ms 进出场、prefers-reduced-motion
+// 下关闭动画。
 // 差异点：开关状态由父视图持有（open prop + close 事件），不进 store——
 // 只有本页会打开它，且 keep-alive 切页时父视图在 deactivated 里负责关闭。
 import { nextTick } from 'vue';
@@ -173,7 +174,7 @@ export default {
       });
     },
 
-    // ---- 打开/关闭的浏览器侧副作用（同 CardDetail；SSR 下不会执行） ----
+    // ---- 打开/关闭的浏览器侧副作用（SSR 下不会执行） ----
     onOpen() {
       this.lastFocused =
         typeof document !== 'undefined' ? document.activeElement : null;
@@ -337,7 +338,7 @@ export default {
 }
 
 /* ---- 进出场：遮罩淡入淡出 + 抽屉自底滑入，只用 opacity/transform，
-        ≤200ms；弱动效偏好下关闭（同 CardDetail） ---- */
+        ≤200ms；弱动效偏好下关闭（同详情页） ---- */
 .sheet-enter-active,
 .sheet-leave-active {
   transition: opacity 0.18s ease;

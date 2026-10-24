@@ -47,7 +47,7 @@ import { joinUrl } from '@/services/spellbookClient.js';
 import { SpellbookService } from '@/services/spellbookService.js';
 import { useCardStore } from '@/stores/cardStore.js';
 
-// L2 本站透明代理基地址（netlify.toml: /cardimg/* -> 锁定 tag 的 jsDelivr）。
+// L2 本站透明代理基地址（netlify.toml: /cardimg/* -> 锁定 tag 的 raw.githubusercontent）。
 // 注意红线：L1 默认图源必须经 SpellbookService.imageUrl / frameUrl 解析
 //（version.json imageBase / ?img= 覆盖），这里只拼本站同源路径，不手拼任何
 // CDN 域名。
