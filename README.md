@@ -163,6 +163,50 @@ It fetches both modules' latest releases, audits `cards.json` / `echoes.json` + 
 
 Card and echo images are hot-linked from `raw.githubusercontent.com` at the pinned tag. The same-origin `/cardimg/*` and `/echoimg/*` Netlify redirects are the fallback for clients that cannot reach GitHub directly.
 
+### Echo image loading
+
+`/echoes` and `/echoes/:id` render every image through
+[`src/components/EchoImage.vue`](src/components/EchoImage.vue). Each image walks
+this chain: L1 WebP → L1 PNG → same-origin `/echoimg/<path>` (the Netlify
+redirect above) → the local avatar of the 19 tracked deck characters
+(`public/images/avatars/echoNN.webp`) → an initial-letter placeholder. The
+component owns a fixed box (72 px list avatar / 168 px detail hero / 96 px rarity
+variant), so a failed stage never shifts layout; the detail hero is `eager` with
+`fetchpriority="high"`, while list and variant images are `lazy` with
+`decoding="async"`. Image hosts stay in
+`public/data/echoes/version.json` (`imageBase`, `imagesWebp`); no component
+hardcodes a CDN domain.
+
+**raw vs fastly.jsdelivr.net measurement (2026-10-24, Shanghai workstation).**
+One 32 KB PNG (`images/icon_huixiang_hemin_001.png`) and its 7 KB WebP copy,
+three runs each, with:
+
+```bash
+curl.exe -sSL --max-time 20 -o NUL \
+  -w "http=%{http_code} total=%{time_total}s redirects=%{num_redirects}\n" <url>
+```
+
+The proxied runs add `-x http://127.0.0.1:7890`.
+
+| source      | direct                             | via 127.0.0.1:7890      | notes                      |
+| ----------- | ---------------------------------- | ----------------------- | -------------------------- |
+| raw PNG     | 0.499 / 0.879 / 2.529 s            | 2.581 / 3.120 / 5.836 s | HTTP 200                   |
+| raw WebP    | 1.000 / 1.095 / 20.019 s (timeout) | 5.350 / 5.643 / 6.159 s | HTTP 200, one 20 s timeout |
+| fastly PNG  | 1.700 / 1.733 / 1.892 s            | 1.682 / 1.777 / 3.132 s | direct 301 → raw           |
+| fastly WebP | 0.624 / 0.748 / 2.082 s            | 1.659 / 3.681 / 9.252 s | direct 301 → raw           |
+
+Direct `fastly.jsdelivr.net` answered with a 301 to the identical
+`raw.githubusercontent.com` object, so it cannot beat raw from this network — it
+only adds a round trip. Raw won on median (PNG 0.88 s, WebP 1.10 s) and serves
+without a redirect; `/echoimg` stays the client fallback for networks where raw
+is unreachable. **Final choice: keep the raw imageBase** (no data change). A
+side check of `cdn.jsdelivr.net` returned HTTP 200 directly in 0.81–1.35 s with
+no redirect; it is a candidate for the next data-update probe, but not adopted
+here because the issue benchmarked fastly and raw still had the lower median. If
+a future probe flips the order, change only
+`public/data/echoes/version.json` → `imageBase` (or the generating script),
+never a component.
+
 Quiz data (`public/data/quiz/`) follows the same pipeline from [hpma-quizbank](https://github.com/hpma-bits/hpma-quizbank) releases: the scheduled `Quiz Data Update` workflow (Mondays 03:30 UTC, staggered half an hour after spellbook) pulls the new tag, commits it → the push triggers the Netlify deploy. To pull immediately, trigger the workflow from the Actions tab (`workflow_dispatch`) or run locally:
 
 ```bash

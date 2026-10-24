@@ -20,19 +20,14 @@
 
     <template v-else>
       <header class="echo-hero">
-        <div class="echo-portrait">
-          <img
-            v-if="icon"
-            :src="icon"
-            :alt="displayName"
-            width="168"
-            height="168"
-            decoding="async"
-          />
-          <span v-else class="echo-portrait-fallback">{{
-            displayName.slice(0, 1)
-          }}</span>
-        </div>
+        <EchoImage
+          class="echo-portrait"
+          size="detail"
+          :path="characterIconPath"
+          :stats-id="statsId"
+          :alt="displayName"
+          :initial="displayName.slice(0, 1)"
+        />
 
         <div class="echo-intro">
           <p class="echo-kicker">
@@ -155,10 +150,20 @@
 
         <article v-if="selectedVariant" class="echo-variant">
           <header class="echo-variant-head">
-            <h3>{{ rarityLabel(selectedVariant.rarity) }}</h3>
-            <p v-if="selectedVariant.i18n?.[locale]?.skill">
-              {{ selectedVariant.i18n[locale].skill }}
-            </p>
+            <EchoImage
+              class="echo-variant-figure"
+              size="variant"
+              :path="selectedVariant.icon"
+              :stats-id="statsId"
+              :alt="`${displayName} — ${rarityLabel(selectedVariant.rarity)}`"
+              :initial="displayName.slice(0, 1)"
+            />
+            <div class="echo-variant-title">
+              <h3>{{ rarityLabel(selectedVariant.rarity) }}</h3>
+              <p v-if="selectedVariant.i18n?.[locale]?.skill">
+                {{ selectedVariant.i18n[locale].skill }}
+              </p>
+            </div>
           </header>
 
           <p v-if="selectedVariant.i18n?.[locale]?.desc" class="echo-copy">
@@ -234,6 +239,7 @@
 </template>
 
 <script>
+import EchoImage from '@/components/EchoImage.vue';
 import PressButton from '@/components/ui/PressButton.vue';
 import SegmentControl from '@/components/ui/SegmentControl.vue';
 import { DataService } from '@/services/dataService.js';
@@ -275,7 +281,7 @@ const formatScore = (value) =>
 // come from echoes.json.
 export default {
   name: 'EchoDetail',
-  components: { PressButton, SegmentControl },
+  components: { EchoImage, PressButton, SegmentControl },
   inheritAttrs: false,
   props: {
     id: { type: [String, Number], required: true },
@@ -350,13 +356,9 @@ export default {
       return Array.isArray(list) ? list : [];
     });
 
-    const icon = computed(() => {
-      if (!character.value) return null;
-      return (
-        EchoService.characterIconUrl(character.value, 'webp') ||
-        EchoService.characterIconUrl(character.value, 'png')
-      );
-    });
+    const characterIconPath = computed(() =>
+      EchoService.characterIconPath(character.value),
+    );
 
     const trend = computed(() => {
       if (!statsId.value || !chartStore.trends) return [];
@@ -502,7 +504,7 @@ export default {
       echoStore,
       formatModeLabel,
       formatScore,
-      icon,
+      characterIconPath,
       intro,
       latest,
       locale,
@@ -576,26 +578,8 @@ export default {
 }
 
 .echo-portrait {
-  width: 168px;
-  height: 168px;
-  display: grid;
-  place-items: center;
-  background: var(--paper-deep);
   border: 1px solid var(--rule);
   border-radius: 4px;
-  overflow: hidden;
-}
-
-.echo-portrait img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.echo-portrait-fallback {
-  font-family: var(--font-serif);
-  font-size: 64px;
-  color: var(--ink-faded);
 }
 
 .echo-kicker {
@@ -798,9 +782,20 @@ export default {
 
 .echo-variant-head {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
+  align-items: center;
+  gap: var(--space-3);
   flex-wrap: wrap;
+}
+
+.echo-variant-figure {
+  border: 1px solid var(--rule);
+}
+
+.echo-variant-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .echo-variant-head h3 {
