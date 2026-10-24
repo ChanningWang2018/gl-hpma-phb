@@ -2,6 +2,13 @@
   command = "npm run build:prerender"
   publish = "dist"
 
+# The prerender pass is the slow part of the build. Run one page per CPU-ish
+# worker and keep Puppeteer's Chrome in Netlify's persisted cache so a retry
+# does not download it again.
+[build.environment]
+  PRERENDER_WORKERS = "4"
+  PUPPETEER_CACHE_DIR = "/opt/build/cache/puppeteer"
+
 # ====== 静态资源：永久缓存 ======
 
 # JavaScript 文件

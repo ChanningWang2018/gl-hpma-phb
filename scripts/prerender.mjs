@@ -70,17 +70,21 @@ function systemChromePath() {
   return candidates.find((candidate) => existsSync(candidate)) ?? null;
 }
 
-function resolveBrowser() {
-  // Prefer Puppeteer's downloaded Chrome (present in CI/Netlify when the
-  // package installs normally); fall back to an installed Edge/Chrome for
-  // local development where PUPPETEER_SKIP_DOWNLOAD is set.
-  let bundled = null;
+async function resolveBrowser() {
+  // An explicit CHROME_PATH / PUPPETEER_EXECUTABLE_PATH always wins (local
+  // override when the downloaded browser is unusable); then Puppeteer's
+  // downloaded browser (extracted on install in CI/Netlify); then an
+  // installed Edge/Chrome. puppeteer >= 22 returns a Promise from
+  // executablePath(), so this must be awaited.
+  const override = [process.env.CHROME_PATH, process.env.PUPPETEER_EXECUTABLE_PATH]
+    .find((candidate) => candidate && existsSync(candidate));
+  if (override) return override;
   try {
-    bundled = puppeteer.executablePath();
+    const bundled = await puppeteer.executablePath();
+    if (bundled && existsSync(bundled)) return bundled;
   } catch {
-    bundled = null;
+    // fall through to the system lookup
   }
-  if (bundled && existsSync(bundled)) return bundled;
   const system = systemChromePath();
   if (!system) {
     throw new Error(
@@ -117,7 +121,7 @@ function waitSelector(route) {
   if (route === '/cards') return '.card-grid, .codex-empty, .codex-error';
   if (route === '/echoes') return '.echo-grid';
   if (route === '/analytics') return '#dataTable, .error-message';
-  if (route === '/') return '.masthead';
+  if (route === '/') return '.masthead .issue-no';
   return 'main h1';
 }
 
@@ -177,7 +181,7 @@ async function renderRoute(browser, baseUrl, route) {
   let lastError = null;
   for (let attempt = 1; attempt <= 2; attempt += 1) {
     const page = await browser.newPage();
-    page.setDefaultTimeout(25_000);
+    page.setDefaultTimeout(15_000);
     await page.setRequestInterception(true);
     page.on('request', (request) => {
       const type = request.resourceType();
@@ -195,19 +199,27 @@ async function renderRoute(browser, baseUrl, route) {
         request.abort().catch(() => {});
         return;
       }
+      // Drop third-party requests (analytics, fonts, embeds). The app only
+      // needs its own origin; letting a slow or blocked external host hold
+      // the page open is what made the first Netlify build exceed its budget.
+      if (!request.url().startsWith(baseUrl)) {
+        request.abort().catch(() => {});
+        return;
+      }
       request.continue().catch(() => {});
     });
 
     try {
       await page.goto(`${baseUrl}${route}`, {
         waitUntil: 'domcontentloaded',
-        timeout: 25_000,
+        timeout: 15_000,
       });
-      await page.waitForSelector(waitSelector(route), { timeout: 25_000 });
-      await page
-        .waitForNetworkIdle({ idleTime: 300, timeout: 8_000 })
-        .catch(() => {});
-      await new Promise((resolveDelay) => setTimeout(resolveDelay, 60));
+      // Every selector below is data-dependent (home waits for the issue
+      // number, analytics for the table, details for the entity name), so the
+      // selector is the readiness signal. A short settle replaces the old
+      // 8s network-idle wait.
+      await page.waitForSelector(waitSelector(route), { timeout: 15_000 });
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
       const html = await page.content();
       const file = outputFile(route);
       mkdirSync(dirname(file), { recursive: true });
@@ -252,13 +264,21 @@ async function main() {
   const baseUrl = `http://127.0.0.1:${port}`;
   const browser = await puppeteer.launch({
     headless: true,
-    executablePath: resolveBrowser(),
+    executablePath: await resolveBrowser(),
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-gpu',
       '--disable-dev-shm-usage',
       '--hide-scrollbars',
+      '--disable-background-networking',
+      '--disable-component-update',
+      '--disable-default-apps',
+      '--disable-extensions',
+      '--disable-sync',
+      '--metrics-recording-only',
+      '--no-first-run',
+      '--no-default-browser-check',
     ],
   });
 
@@ -297,5 +317,5 @@ async function main() {
 
 main().catch((error) => {
   console.error(error.message || error);
-  process.exitCode = 1;
+  process.exit(1);
 });
