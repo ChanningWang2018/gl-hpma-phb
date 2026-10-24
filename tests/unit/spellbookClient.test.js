@@ -97,8 +97,9 @@ describe('createClient (real committed data)', () => {
     expect(snap.dataVersion).toBeGreaterThanOrEqual(1);
     expect(snap.cards).toHaveLength(141);
     expect(snap.manifest && typeof snap.manifest === 'object').toBe(true);
-    expect(snap.versionInfo.tag).toMatch(/^spellbook-v\d+\.\d+\.\d+$/);
-    // schema 6: the headline attr-name tuple rides along in the snapshot.
+    expect(snap.versionInfo.tag).toMatch(/^cards-v\d+\.\d+\.\d+$/);
+    // module schema 1 (cards contract lineage v6): the headline attr-name
+    // tuple rides along in the snapshot.
     expect(snap.faceAttrs).toEqual(['hp', 'damage', 'shield', 'duration']);
     // Second call is served from cache (same array identity).
     const again = await client.load();

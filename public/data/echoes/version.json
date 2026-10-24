@@ -1,0 +1,9 @@
+{
+  "tag": "echoes-v1.20261024.0",
+  "version": "1.20261024.0",
+  "schemaVersion": 1,
+  "dataVersion": 20261024,
+  "imageBase": "https://raw.githubusercontent.com/hpma-bits/hpma-spellbook/echoes-v1.20261024.0/echoes/",
+  "imagesWebp": "images_webp/",
+  "generatedAt": "2026-10-24T10:30:07+08:00"
+}

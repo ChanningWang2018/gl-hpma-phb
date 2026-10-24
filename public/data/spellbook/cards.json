@@ -1,7 +1,7 @@
 {
- "schema_version": 6,
- "data_version": 20261004,
- "generated_at": "2026-10-04T13:36:58+08:00",
+ "schema_version": 1,
+ "data_version": 20261024,
+ "generated_at": "2026-10-24T10:28:55+08:00",
  "face_attrs": [
   "hp",
   "damage",
@@ -48,86 +48,6 @@
     "zh": "光辉",
     "en": "Mythic"
    }
-  }
- },
- "frames": {
-  "common": {
-   "file": "frame_common.png",
-   "size": [
-    208,
-    272
-   ],
-   "inner": [
-    21,
-    23,
-    169,
-    233
-   ]
-  },
-  "rare": {
-   "file": "frame_rare.png",
-   "size": [
-    208,
-    272
-   ],
-   "inner": [
-    21,
-    24,
-    168,
-    232
-   ]
-  },
-  "epic": {
-   "file": "frame_epic.png",
-   "size": [
-    208,
-    272
-   ],
-   "inner": [
-    21,
-    24,
-    168,
-    232
-   ]
-  },
-  "legendary": {
-   "file": "frame_legendary.png",
-   "size": [
-    208,
-    272
-   ],
-   "inner": [
-    21,
-    24,
-    168,
-    232
-   ]
-  },
-  "dark": {
-   "file": "frame_dark.png",
-   "size": [
-    208,
-    272
-   ],
-   "inner": [
-    22,
-    23,
-    166,
-    233
-   ]
-  },
-  "mythic": {
-   "file": "frame_mythic.png",
-   "size": [
-    208,
-    272
-   ],
-   "inner": [
-    22,
-    23,
-    167,
-    233
-   ]
   }
  },
  "cards": [
@@ -195454,5 +195374,85 @@
     }
    }
   }
- ]
+ ],
+ "frames": {
+  "common": {
+   "file": "frame_common.png",
+   "size": [
+    208,
+    272
+   ],
+   "inner": [
+    21,
+    23,
+    169,
+    233
+   ]
+  },
+  "rare": {
+   "file": "frame_rare.png",
+   "size": [
+    208,
+    272
+   ],
+   "inner": [
+    21,
+    24,
+    168,
+    232
+   ]
+  },
+  "epic": {
+   "file": "frame_epic.png",
+   "size": [
+    208,
+    272
+   ],
+   "inner": [
+    21,
+    24,
+    168,
+    232
+   ]
+  },
+  "legendary": {
+   "file": "frame_legendary.png",
+   "size": [
+    208,
+    272
+   ],
+   "inner": [
+    21,
+    24,
+    168,
+    232
+   ]
+  },
+  "dark": {
+   "file": "frame_dark.png",
+   "size": [
+    208,
+    272
+   ],
+   "inner": [
+    22,
+    23,
+    166,
+    233
+   ]
+  },
+  "mythic": {
+   "file": "frame_mythic.png",
+   "size": [
+    208,
+    272
+   ],
+   "inner": [
+    22,
+    23,
+    167,
+    233
+   ]
+  }
+ }
 }

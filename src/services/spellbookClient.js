@@ -20,7 +20,7 @@
  *   2. the `?img=<base>` query parameter of the browser URL (manual override)
  *   3. the `imageBase` field of the loaded version.json (single source of truth)
  *
- * Data model (schema_version 6):
+ * Data model (module schema_version 1; cards contract lineage v6):
  *   cards.json    = { schema_version, data_version, generated_at, face_attrs,
  *                     labels, frames, cards }
  *                   // face_attrs (schema 6): the in-game spellbook headline
@@ -65,7 +65,7 @@
  */
 
 /** Schema version this loader understands. Bump only on structural changes. */
-export const EXPECTED_SCHEMA_VERSION = 6;
+export const EXPECTED_SCHEMA_VERSION = 1;
 
 /** Default data base when neither an option nor `?img=`-style overrides apply. */
 export const DEFAULT_DATA_BASE_URL = '/data/spellbook/';

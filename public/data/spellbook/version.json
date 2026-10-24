@@ -1,9 +1,9 @@
 {
-  "tag": "spellbook-v6.20261004.0",
-  "version": "6.20261004.0",
-  "schemaVersion": 6,
-  "dataVersion": 20261004,
-  "imageBase": "https://fastly.jsdelivr.net/gh/ChanningWang2018/hpma-data@spellbook-v6.20261004.0/spellbook/",
+  "tag": "cards-v1.20261024.0",
+  "version": "1.20261024.0",
+  "schemaVersion": 1,
+  "dataVersion": 20261024,
+  "imageBase": "https://raw.githubusercontent.com/hpma-bits/hpma-spellbook/cards-v1.20261024.0/cards/",
   "imagesWebp": "images_webp/",
-  "generatedAt": "2026-10-04T13:36:58+08:00"
+  "generatedAt": "2026-10-24T10:28:55+08:00"
 }

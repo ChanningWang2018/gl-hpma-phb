@@ -2,6 +2,11 @@
 // upstream hpma-data GitHub release, so game data updates reach the site
 // without hand-edited JSON drift.
 //
+// LEGACY (2026-10): the single-axis hpma-data / spellbook-v* pipeline has been
+// superseded by the split cards/echoes modules in hpma-bits/hpma-spellbook.
+// Use scripts/fetch-spellbook-modules.mjs for new data; this file and its
+// tests remain only for the historical single-module contract.
+//
 // Usage:
 //   node scripts/fetch-spellbook.mjs           # update (default): pull latest release, noop if current
 //   node scripts/fetch-spellbook.mjs --check   # exit 2 when upstream is newer, 0 otherwise
@@ -36,7 +41,7 @@ const FETCH_TIMEOUT_MS = 60_000;
 const DIFF_PREVIEW_LIMIT = 15;
 // Keep in sync with EXPECTED_SCHEMA_VERSION in src/services/spellbookClient.js:
 // a schema bump requires consumer-code adaptation BEFORE new data is ingested.
-export const EXPECTED_SCHEMA_VERSION = 6;
+export const EXPECTED_SCHEMA_VERSION = 1;
 
 const TAG_PATTERN = /^spellbook-v(\d+\.\d+\.\d+)$/;
 
@@ -46,6 +51,15 @@ const TAG_PATTERN = /^spellbook-v(\d+\.\d+\.\d+)$/;
 export function matchSpellbookTag(tag) {
   if (typeof tag !== 'string') return null;
   const match = tag.match(TAG_PATTERN);
+  return match ? match[1] : null;
+}
+
+// Module tags used by the 2026-10 split repo: cards-v1.20261024.0 /
+// echoes-v1.20261024.0. Kept separate from the legacy spellbook matcher so
+// old callers/tests keep their exact contract.
+export function moduleVersion(tag) {
+  if (typeof tag !== 'string') return null;
+  const match = tag.match(/^(?:cards|echoes)-v(\d+\.\d+\.\d+)$/);
   return match ? match[1] : null;
 }
 
@@ -163,11 +177,15 @@ export function validateCardsPayload(cardsJson) {
 // is the consumer's signal to load PNG directly.
 // Key order matches the T1-committed file byte for byte.
 export function buildVersionJson({ tag, manifest, previousImageBase }) {
+  const rawDataVersion = manifest.data_version;
+  const numericDataVersion = Number(rawDataVersion);
   return {
     tag,
-    version: matchSpellbookTag(tag),
+    version: moduleVersion(tag) ?? matchSpellbookTag(tag),
     schemaVersion: manifest.schema_version,
-    dataVersion: manifest.data_version,
+    dataVersion: Number.isFinite(numericDataVersion)
+      ? numericDataVersion
+      : rawDataVersion,
     imageBase: swapTagInImageBase(previousImageBase, tag),
     imagesWebp:
       typeof manifest.webp_images === 'string' && manifest.webp_images

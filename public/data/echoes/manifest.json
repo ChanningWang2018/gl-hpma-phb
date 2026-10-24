@@ -1,0 +1,72 @@
+{
+ "schema_version": 1,
+ "data_version": "20261024",
+ "generated_at": "2026-10-24T10:30:07+08:00",
+ "dataset": "echoes",
+ "locales": [
+  "zh",
+  "en"
+ ],
+ "image_spec": "回响图标 PNG（image.npk 原图直出，icon_huixiang_<角色拼音>_00<品质1..4/进化5> 命名，按源文件名去重；另含四品质光环 pic_huixiang_yanwudi_001..004.png）",
+ "webp_images": "images_webp/",
+ "webp_spec": "回响图标 WebP 副本集 images_webp/<同名>.webp（q82）；消费端优先加载、失败回退 PNG",
+ "counts": {
+  "echoes": 184,
+  "characters": 46,
+  "affixes": 270
+ },
+ "coverage": {
+  "echoes": 184,
+  "characters": 46,
+  "affixes": 270,
+  "icons": 76,
+  "icons_webp": 76,
+  "en_name": 183,
+  "dangling_text_keys": 3,
+  "missing_icons": [
+   "image/echo/echo_icon/4131.png",
+   "image/echo/echo_icon/4141.png",
+   "image/echo/echo_icon/4231.png",
+   "image/echo/echo_icon/icon_huixiang_beila_005.png",
+   "image/echo/echo_icon/icon_huixiang_dengbuliduo_002.png",
+   "image/echo/echo_icon/icon_huixiang_dengbuliduo_005.png",
+   "image/echo/echo_icon/icon_huixiang_duobi_005.png",
+   "image/echo/echo_icon/icon_huixiang_filiwei_002.png",
+   "image/echo/echo_icon/icon_huixiang_filiwei_005.png",
+   "image/echo/echo_icon/icon_huixiang_haige_005.png",
+   "image/echo/echo_icon/icon_huixiang_hali_005.png",
+   "image/echo/echo_icon/icon_huixiang_hemin_005.png",
+   "image/echo/echo_icon/icon_huixiang_lideer_001.png",
+   "image/echo/echo_icon/icon_huixiang_lideer_005.png",
+   "image/echo/echo_icon/icon_huixiang_luna_002.png",
+   "image/echo/echo_icon/icon_huixiang_luna_005.png",
+   "image/echo/echo_icon/icon_huixiang_nawei_005.png",
+   "image/echo/echo_icon/icon_huixiang_niute_005.png",
+   "image/echo/echo_icon/icon_huixiang_sineipu_005.png",
+   "image/echo/echo_icon/icon_huixiang_weisilai_005.png",
+   "image/echo/echo_icon/icon_huixiang_xiaotianlangxing_005.png"
+  ]
+ },
+ "lineage": {
+  "successor_of_tag": "spellbook-v8.20261005.0",
+  "predecessor_repo": "ChanningWang2018/hpma-data"
+ },
+ "source": {
+  "game": "哈利波特：魔法觉醒 PC 客户端 (NeoX)",
+  "echo_tables": "dbx_new/echo_* 等 14 张 (via dbx_lib, extract_echoes.py → out/echoes.json)",
+  "text_tables": [
+   "language_text_cn/_en",
+   "language_text_old_cn/_en",
+   "old_language_text_cn/_en"
+  ],
+  "echo_icons": "res/image.npk image/echo/echo_icon/ (via card_art)"
+ },
+ "notes": [
+  "2026-10 拆分: 旧混合单轴包（spellbook-v8.x，cards+echoes 同包）退役，echoes 拆为 hpma-bits/hpma-spellbook 仓与 cards 平级的独立模块，各自独立版本轴（schema_version 从 1 重起）；目录命名统一为 images/ + images_webp/（旧回响专用前缀目录废除），数据字段内嵌图标路径同步改写",
+  "characters[].deck（卡组构筑页可选回响标记，deck_echo_desc 成员 19 人=玩家可见回响总数；1009 为未投放的邓布利多影子表项）与顶层 rarity_backgrounds（四品质光环=卡组构筑页同款 pic_huixiang_yanwudi_001..004，DeckMainPanel 引用实证），check 页主列表据此只展示 19 名并将头像缩叠光环中心",
+  "与 cards 模块的区分约定：文件级——echoes.json 独立成文，图标进本模块 images/（不与 cards 域交叉）；ID 空间——echo id 与 card id 数字上可能交叠，消费端不得按数值范围猜类型；枚举——本数据集 rarity 为 int 1..4（白/蓝/紫/金，labels 查表），与 cards 的字符串枚举码不同",
+  "文案为游戏原文（含 <color>/<link> 富文本与 \\n，消费端自行渲染或剥离）；字段为 null 表示游戏语言表无对应文案",
+  "buffs/labels.buff_types：品质间真正数值差异在 buff_effect.extra_params（如格林德沃 0.2 vs 金 0.25）",
+  "仅供个人研究展示，回响图标著作权属网易及版权方"
+ ]
+}

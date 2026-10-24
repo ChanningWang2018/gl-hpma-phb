@@ -1,13 +1,14 @@
 {
- "schema_version": 6,
+ "schema_version": 1,
+ "data_version": "20261024",
+ "generated_at": "2026-10-24T10:28:55+08:00",
+ "dataset": "cards",
  "face_attrs": [
   "hp",
   "damage",
   "shield",
   "duration"
  ],
- "data_version": 20261004,
- "generated_at": "2026-10-04T13:36:58+08:00",
  "locales": [
   "zh",
   "en"
@@ -16,6 +17,24 @@
  "webp_images": "images_webp/",
  "webp_spec": "卡面 WebP 副本集 images_webp/{id}.webp（375x500 q82，与 images/ 同名同分辨率）；消费端优先加载、失败回退 PNG",
  "frame_spec": "品质边框（书页正框）frames/frame_{rarity}.png （208x272 RGBA）：inner=内窗矩形 [x,y,w,h]，卡面 cover-fit 填满 inner（居中裁切），框图叠满画布",
+ "counts": {
+  "cards": 141
+ },
+ "coverage": {
+  "cards": 141,
+  "en_name": 141,
+  "en_desc": 141,
+  "en_quote": 141,
+  "en_tags": 141,
+  "en_stats": 139,
+  "images": 141,
+  "images_webp": 141,
+  "missing_images": []
+ },
+ "lineage": {
+  "successor_of_tag": "spellbook-v8.20261005.0",
+  "predecessor_repo": "ChanningWang2018/hpma-data"
+ },
  "source": {
   "game": "哈利波特：魔法觉醒 PC 客户端 (NeoX)",
   "card_table": "dbx_new/card (via dbx_lib)",
@@ -32,25 +51,14 @@
   "card_art": "out/card_art (static npk faces + official spine-runtime renders)",
   "card_frames": "ui.npk _bigbg/pic_fashukuang_01..06.dds (运行时寻址 ui/_bigbg/pic_fashukuang_0{rarity})"
  },
- "coverage": {
-  "cards": 141,
-  "images": 141,
-  "images_webp": 141,
-  "en_name": 141,
-  "en_desc": 141,
-  "en_quote": 141,
-  "en_tags": 141,
-  "en_stats": 139,
-  "missing_images": []
- },
  "notes": [
-  "v6: levels 条目重构为 {battle_show?, rows}——rows 与游戏 attr_val_list 逐行 1:1（不再按中文标签去重合并），battle_show 为游戏原字段原样（1-based 行位置，b 即 rows[b-1]，可能含越界脏值，消费端自行防御）",
-  "v6: 卡面头显判定 = 行 attr_name ∈ 顶层 face_attrs（hp/damage/shield/duration，运行时读自游戏 PageCardAttribute 常量元组）；pct 字段删除——其语义本是把 battle_show 按 0-based 误读且误当卡面头显口径，两条游戏口径见 schema 说明",
-  "v6: 行增 attr_name=SKILL_ATTR_NAME 属性名（locale 无关稳定标识，未知 idx 省略）；k/k_en 为中文显示名与英文对译",
+  "2026-10 拆分: 旧混合单轴包（spellbook-v8.x，cards+echoes 同包）退役，cards / echoes 拆为 hpma-bits/hpma-spellbook 仓两个平级模块，各自独立版本轴（schema_version 从 1 重起）；本包 lineage 记录取代的旧 tag 与前身数据仓。目录命名统一为 images/ + images_webp/（cards 另有 frames/）",
+  "v6(旧混合轴) 口径延续: levels 条目为 {battle_show?, rows}——rows 与游戏 attr_val_list 逐行 1:1（不去重不丢行），battle_show 为游戏原字段原样（1-based 行位置，b 即 rows[b-1]，可能含越界脏值，消费端自行防御）",
+  "卡面头显判定 = 行 attr_name ∈ 顶层 face_attrs（hp/damage/shield/duration，运行时读自游戏 PageCardAttribute 常量元组）；与 levels.battle_show（悬停面板口径）互不相干",
   "levels 属性键为游戏中文原值，k_en/unit_en 为 term_text_en 英文对译，无对译时省略该字段",
   "levels 仅含 1~30 级（魔咒书游戏内上限）；card_skill_attr 中 31+ 的行属其他玩法系统，不属于 spellbook，未入包，stats 汇总同口径",
-  "type/rarity 枚举码与游戏显示词同步（v4 起稀有度 5/6 为 dark/mythic，原 forbidden/brilliant）；显示名取自游戏 ui_text（sousuo_lv_01..06、card_design_contest_text2..4）",
-  "v5: frames 品质边框按 rarity 一一对应（common..mythic = pic_fashukuang_01..06 书页正框，内窗全透明），消费端将卡面全幅铺底后叠加框图即为游戏内书页卡观感",
+  "type/rarity 枚举码与游戏显示词同步（稀有度 5/6 为 dark/mythic）；显示名取自游戏 ui_text（sousuo_lv_01..06、card_design_contest_text2..4）",
+  "frames 品质边框按 rarity 一一对应（common..mythic = pic_fashukuang_01..06 书页正框，内窗全透明），消费端将卡面全幅铺底后叠加框图即为游戏内书页卡观感",
   "en 字段缺失表示游戏英文表无对应文案（CN-first 文案）",
   "仅供个人研究展示，卡面图与边框素材著作权属网易及版权方"
  ]
