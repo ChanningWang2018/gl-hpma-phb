@@ -48,14 +48,42 @@
           aria-labelledby="card-levels-title"
         >
           <header class="card-levels-head">
-            <p class="card-kicker">Stats</p>
-            <h2 id="card-levels-title">Level by level</h2>
-            <p class="card-levels-note">
-              Levels 1–30 · values as printed in the game
-            </p>
+            <div class="card-levels-intro">
+              <p class="card-kicker">Stats</p>
+              <h2 id="card-levels-title">Level by level</h2>
+              <p class="card-levels-note">
+                {{ levelSpan }} · values as printed in the game
+              </p>
+            </div>
+
+            <div class="level-jump">
+              <label class="level-jump-label" for="card-level-jump">
+                Jump to level
+              </label>
+              <select
+                id="card-level-jump"
+                class="level-jump-select"
+                @change="jumpToLevel"
+              >
+                <option value="" disabled selected>Level…</option>
+                <option
+                  v-for="group in levelRows"
+                  :key="group.lv"
+                  :value="group.lv"
+                >
+                  Lv.{{ group.lv }}
+                </option>
+              </select>
+            </div>
           </header>
 
-          <div v-for="group in levelRows" :key="group.lv" class="level-group">
+          <div
+            v-for="group in levelPreview"
+            :id="`level-${group.lv}`"
+            :key="group.lv"
+            class="level-group"
+            tabindex="-1"
+          >
             <p class="level-head">Lv.{{ group.lv }}</p>
             <div
               v-for="(unit, unitIndex) in unitGroups(group.entries)"
@@ -77,24 +105,113 @@
               </dl>
             </div>
           </div>
+
+          <details
+            v-if="levelDeep.length"
+            class="level-more"
+            :open="levelsOpen"
+            @toggle="levelsOpen = $event.target.open"
+          >
+            <summary class="level-more-summary">
+              <span class="level-more-title">{{ deepLevelSpan }}</span>
+              <span class="level-more-action">
+                <span class="level-more-open">
+                  Show all {{ levelRows.length }} levels ↓
+                </span>
+                <span class="level-more-close">Collapse ↑</span>
+              </span>
+            </summary>
+
+            <div
+              v-for="group in levelDeep"
+              :id="`level-${group.lv}`"
+              :key="group.lv"
+              class="level-group"
+              tabindex="-1"
+            >
+              <p class="level-head">Lv.{{ group.lv }}</p>
+              <div
+                v-for="(unit, unitIndex) in unitGroups(group.entries)"
+                :key="unitIndex"
+                class="level-unit-block"
+              >
+                <p v-if="unit.unit" class="level-unit">
+                  {{ statUnitLabel(unit) }}
+                </p>
+                <dl class="level-rows">
+                  <div
+                    v-for="(entry, index) in unit.entries"
+                    :key="`${entry.k}-${index}`"
+                    class="level-row"
+                  >
+                    <dt>{{ statLabel(entry) }}</dt>
+                    <dd>{{ displayValue(entry) }}</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+          </details>
         </section>
       </div>
     </article>
+
+    <section
+      v-if="relatedEchoes.length"
+      class="card-related"
+      aria-labelledby="card-related-title"
+    >
+      <header class="card-related-head">
+        <div>
+          <p class="card-kicker">Synergy</p>
+          <h2 id="card-related-title">Echoes that fit this card</h2>
+        </div>
+        <p class="card-related-note">
+          Top {{ relatedEchoes.length }} deck echoes · weight from the game's
+          echo score table.
+        </p>
+      </header>
+
+      <ul class="related-echo-list" role="list">
+        <li v-for="echo in relatedEchoes" :key="echo.id">
+          <RouterLink
+            class="related-echo-link"
+            :to="{ name: 'echo-detail', params: { id: echo.id } }"
+          >
+            <span class="related-echo-name">{{ echo.name }}</span>
+            <span class="related-echo-score">{{ echo.score }}</span>
+          </RouterLink>
+        </li>
+      </ul>
+    </section>
   </div>
 </template>
 
 <script>
 import CardImage from '@/components/CardImage.vue';
 import PressButton from '@/components/ui/PressButton.vue';
+import {
+  echoDisplayName,
+  formatEchoScore,
+  rankDeckEchoesForCard,
+} from '@/services/cardEchoRanking.js';
 import { valueLabel } from '@/services/codexLocale.js';
 import { lookupLabel } from '@/services/spellbookClient.js';
 import { SpellbookService } from '@/services/spellbookService.js';
 import { useCardStore } from '@/stores/cardStore.js';
-import { computed, onMounted } from 'vue';
+import { useEchoStore } from '@/stores/echoStore.js';
+import { computed, nextTick, onMounted, ref } from 'vue';
 import { useHead } from '@vueuse/head';
 import { useRoute } from 'vue-router';
 
 const canonicalFor = (id) => `https://hpma-phb.netlify.app/cards/${id}`;
+
+// Levels 1-10 stay visible; 11-30 are rendered inside <details>. Tradeoff: the
+// deep rows remain in the initial HTML (search engines and the prerenderer see
+// the complete stat table, and the jump control can reach any level without a
+// data fetch) while a closed block keeps the page short for readers. Native
+// <details> also means expand/collapse keeps working without JavaScript; only
+// the jump select opens it programmatically.
+const LEVEL_PREVIEW_MAX = 10;
 
 // CardDetailPage — the standalone /cards/:id page. P0a made the canonical
 // card URL a real page so it can be shared, prerendered and indexed; the grid
@@ -105,7 +222,9 @@ export default {
   inheritAttrs: false,
   setup() {
     const cardStore = useCardStore();
+    const echoStore = useEchoStore();
     const route = useRoute();
+    const levelsOpen = ref(false);
 
     const card = computed(
       () =>
@@ -157,6 +276,39 @@ export default {
     const levelRows = computed(() =>
       card.value ? SpellbookService.formatLevelRows(card.value) : [],
     );
+
+    // Levels 1-10 render outside <details>, 11-30 inside it. Both lists are
+    // rendered from the same source, so the full table stays in the DOM.
+    const levelRangeLabel = (rows) => {
+      if (!rows.length) return '';
+      const first = rows[0].lv;
+      const last = rows[rows.length - 1].lv;
+      return first === last ? `Level ${first}` : `Levels ${first}–${last}`;
+    };
+    const levelPreview = computed(() =>
+      levelRows.value.filter((row) => Number(row.lv) <= LEVEL_PREVIEW_MAX),
+    );
+    const levelDeep = computed(() =>
+      levelRows.value.filter((row) => Number(row.lv) > LEVEL_PREVIEW_MAX),
+    );
+    const levelSpan = computed(() => levelRangeLabel(levelRows.value));
+    const deepLevelSpan = computed(() => levelRangeLabel(levelDeep.value));
+
+    // Reverse the character-first score table: only deck characters get an
+    // /echoes/:id page, so the rank helper filters the rest out.
+    const relatedEchoes = computed(() => {
+      if (!card.value || !echoStore.snapshot) return [];
+      return rankDeckEchoesForCard({
+        cardId: card.value.id,
+        characters: echoStore.deckCharacters,
+        scoresForCharacter: (characterId) =>
+          echoStore.scoresForCharacter(characterId),
+      }).map(({ id, score, character }) => ({
+        id,
+        name: echoDisplayName(character, locale.value),
+        score: formatEchoScore(score),
+      }));
+    });
 
     // schema 6: group a level's rows by the subject they belong to, keep the
     // card's own block first, preserve data order otherwise.
@@ -224,24 +376,64 @@ export default {
       }
     };
 
+    // Jump select: deep levels live in a closed <details>, so open it before
+    // scrolling. Focus the target too, so keyboard users land on the stats.
+    const jumpToLevel = async (event) => {
+      const select = event.target;
+      const level = String(select.value ?? '');
+      select.value = '';
+      if (!level) return;
+      if (Number(level) > LEVEL_PREVIEW_MAX) levelsOpen.value = true;
+      await nextTick();
+      const target = document.getElementById(`level-${level}`);
+      if (!target) return;
+      target.focus({ preventScroll: true });
+      const reducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches;
+      target.scrollIntoView({
+        behavior: reducedMotion ? 'auto' : 'smooth',
+        block: 'start',
+      });
+    };
+
     onMounted(async () => {
-      if (cardStore.cards.length) return;
-      try {
-        await cardStore.loadCards();
-      } catch (error) {
-        console.error('Card detail load failed:', error);
+      const tasks = [];
+      if (!cardStore.cards.length) {
+        tasks.push(
+          cardStore.loadCards().catch((error) => {
+            console.error('Card detail load failed:', error);
+          }),
+        );
       }
+      // Related echoes need the 2026-10 echoes module; load it here instead of
+      // on the card grid so /cards stays two files lighter.
+      if (!echoStore.snapshot) {
+        tasks.push(
+          echoStore.loadEchoes().catch((error) => {
+            console.error('Card detail echo load failed:', error);
+          }),
+        );
+      }
+      await Promise.all(tasks);
     });
 
     return {
       card,
       cardName,
       cardStore,
+      deepLevelSpan,
       desc,
       displayValue,
+      jumpToLevel,
+      levelDeep,
+      levelPreview,
       levelRows,
+      levelSpan,
+      levelsOpen,
       quote,
       rarityLabel,
+      relatedEchoes,
       retry,
       secondaryName,
       spellWord,
@@ -409,6 +601,18 @@ export default {
   border-top: 1px solid var(--ink);
 }
 
+.card-levels-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.card-levels-intro {
+  min-width: 0;
+}
+
 .card-levels-head h2 {
   margin-top: 4px;
   font-family: var(--font-serif);
@@ -424,10 +628,60 @@ export default {
   color: var(--ink-faded);
 }
 
+.level-jump {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.level-jump-label {
+  font-family: var(--font-type);
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  white-space: nowrap;
+}
+
+.level-jump-select {
+  max-width: 100%;
+  min-width: 0;
+  padding: 5px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  background: var(--paper-light);
+  color: var(--ink);
+  font-family: var(--font-type);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.level-jump-select:hover {
+  border-color: var(--ink-faded);
+}
+
+.level-jump-select:focus-visible {
+  outline: 2px solid var(--gold-ink);
+  outline-offset: 2px;
+}
+
 .level-group {
   margin-top: var(--space-3);
   padding-top: var(--space-2);
   border-top: 1px solid var(--rule);
+  scroll-margin-top: 84px;
+}
+
+.level-group:focus {
+  outline: none;
+}
+
+.level-group:focus-visible {
+  outline: 1px dashed var(--gold-ink);
+  outline-offset: 4px;
 }
 
 .level-head {
@@ -462,16 +716,169 @@ export default {
 }
 
 .level-row dt {
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-family: var(--font-sans);
   font-size: 11.5px;
   color: var(--ink-faded);
 }
 
 .level-row dd {
+  flex: none;
+  overflow-wrap: anywhere;
   font-family: var(--font-serif);
   font-size: 14px;
   color: var(--ink);
   text-align: right;
+}
+
+/* Native <details> keeps levels 11-30 in the DOM while collapsing their
+   visual weight; the summary is the expand/collapse affordance. */
+.level-more {
+  margin-top: var(--space-3);
+  border-top: 1px solid var(--rule);
+}
+
+.level-more-summary {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+  list-style: none;
+  cursor: pointer;
+}
+
+.level-more-summary::-webkit-details-marker {
+  display: none;
+}
+
+.level-more-summary::before {
+  content: '+';
+  flex: none;
+  width: 16px;
+  font-family: var(--font-type);
+  font-size: 14px;
+  line-height: 1;
+  color: var(--oxblood);
+}
+
+.level-more[open] .level-more-summary::before {
+  content: '−';
+}
+
+.level-more-summary:focus-visible {
+  outline: 1px dashed var(--gold-ink);
+  outline-offset: 2px;
+}
+
+.level-more-title {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.level-more-summary:hover .level-more-title {
+  color: var(--oxblood);
+}
+
+.level-more-action {
+  margin-left: auto;
+  font-family: var(--font-type);
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  text-align: right;
+}
+
+.level-more-open {
+  display: inline;
+}
+
+.level-more-close {
+  display: none;
+}
+
+.level-more[open] .level-more-open {
+  display: none;
+}
+
+.level-more[open] .level-more-close {
+  display: inline;
+}
+
+.card-related {
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--ink);
+}
+
+.card-related-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.card-related-head h2 {
+  margin-top: 4px;
+  font-family: var(--font-serif);
+  font-size: clamp(23px, 2.6vw, 30px);
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.card-related-note {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 12.5px;
+  color: var(--ink-faded);
+}
+
+.related-echo-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0 var(--space-4);
+  margin-top: var(--space-3);
+  list-style: none;
+  border-top: 1px solid var(--ink);
+}
+
+.related-echo-link {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: 10px 6px;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.related-echo-link:hover {
+  background: rgba(var(--gold-rgb), 0.08);
+}
+
+.related-echo-link:focus-visible {
+  outline: 2px solid var(--gold-ink);
+  outline-offset: -2px;
+}
+
+.related-echo-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-serif);
+  font-size: 16px;
+}
+
+.related-echo-score {
+  flex: none;
+  font-family: var(--font-type);
+  font-size: 9px;
+  color: var(--ink-faded);
 }
 
 @media (max-width: 900px) {
@@ -479,6 +886,8 @@ export default {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  /* No sticky card art on narrow screens: it would steal the viewport while
+     the reader jumps between level rows. */
   .card-figure {
     position: static;
     max-width: 300px;
@@ -488,6 +897,30 @@ export default {
 @media (max-width: 768px) {
   .card-detail-page {
     padding: var(--space-3) var(--space-3) var(--space-5);
+  }
+
+  .level-jump {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .level-jump-select {
+    flex: 1 1 auto;
+  }
+
+  /* One readable column for stats instead of the desktop auto-fill grid. */
+  .level-rows {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .card-related-head {
+    align-items: flex-start;
+  }
+
+  .related-echo-list {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 </style>
