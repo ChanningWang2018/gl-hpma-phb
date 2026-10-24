@@ -11,7 +11,7 @@
         <div class="control-row">
           <div class="control-group">
             <label>{{ labels.ui?.currency?.label || 'Currency' }}</label>
-            <select v-model="currency" @change="handleCurrencyChange">
+            <select v-model="currency">
               <option value="gold">
                 {{ labels.ui?.currency?.gold || 'Gold' }}
               </option>
@@ -32,7 +32,6 @@
               :max="20000"
               :step="1000"
               placeholder="0"
-              @input="debouncedSave"
             />
           </div>
         </div>
@@ -42,7 +41,7 @@
             <label>{{
               labels.ui?.strategy?.label || 'Selling Strategy📈📉'
             }}</label>
-            <select v-model="strategy" @change="debouncedSave">
+            <select v-model="strategy">
               <option value="minimize_stock">
                 {{
                   labels.ui?.strategy?.minimize_stock ||
@@ -339,8 +338,14 @@ import ImageSelector from '@/components/ImageSelector.vue';
 import PageHead from '@/components/ui/PageHead.vue';
 import SalesOptimizerLoader from '@/services/salesOptimizerLoader.js';
 import SalesOptimizerSolver from '@/services/salesOptimizerSolver.js';
+import {
+  DEFAULT_OPTIMIZER_INPUTS,
+  parseOptimizerQuery,
+  serializeOptimizerQuery,
+} from '@/services/optimizerQuery.js';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useHead } from '@vueuse/head';
+import { useRoute, useRouter } from 'vue-router';
 
 export default {
   name: 'SalesOptimizer',
@@ -377,13 +382,13 @@ export default {
       ],
     });
 
-    const currency = ref('gold');
-    const budget = ref(null);
+    const currency = ref(DEFAULT_OPTIMIZER_INPUTS.currency);
+    const budget = ref(DEFAULT_OPTIMIZER_INPUTS.budget);
     const inventory = ref({});
     const plantsRate = ref(0);
     const dishesRate = ref(0);
     const talentBonus = ref(0);
-    const strategy = ref('minimize_stock'); // Default: prioritize low-priced items
+    const strategy = ref(DEFAULT_OPTIMIZER_INPUTS.strategy); // Default: prioritize low-priced items
     const results = ref(null);
     const isSolving = ref(false);
     const copySuccess = ref(false);
@@ -394,6 +399,69 @@ export default {
 
     const allPlants = ref([]);
     const allDishes = ref([]);
+
+    const route = useRoute();
+    const router = useRouter();
+    let syncingQuery = false;
+    let queryReady = false;
+    let pendingSync = false;
+
+    const sameQuery = (a, b) =>
+      Object.keys(a).length === Object.keys(b).length &&
+      Object.entries(a).every(([key, value]) => b[key] === value);
+
+    // route.query -> inputs. Every field falls back independently, so an
+    // invalid parameter never blanks the page. Only inputs sync, never results.
+    const applyQuery = () => {
+      if (route.name !== 'sales-optimizer') return;
+      if (syncingQuery) return;
+      const next = parseOptimizerQuery(route.query);
+      if (next.currency !== currency.value) currency.value = next.currency;
+      if (next.budget !== budget.value) budget.value = next.budget;
+      if (next.strategy !== strategy.value) strategy.value = next.strategy;
+    };
+
+    // inputs -> URL. Defaults are omitted; replace() keeps history clean.
+    const syncQuery = () => {
+      if (route.name !== 'sales-optimizer' || !queryReady) return;
+      if (syncingQuery) {
+        // A newer value landed while a replace was in flight: run once more.
+        pendingSync = true;
+        return;
+      }
+      const query = serializeOptimizerQuery({
+        currency: currency.value,
+        budget: budget.value,
+        strategy: strategy.value,
+      });
+      if (sameQuery(query, route.query)) return;
+      syncingQuery = true;
+      router
+        .replace({ name: 'sales-optimizer', query })
+        .catch(() => {})
+        .finally(() => {
+          syncingQuery = false;
+          if (pendingSync) {
+            pendingSync = false;
+            syncQuery();
+          }
+        });
+    };
+
+    // A different currency invalidates the inventory keyed by currency and any
+    // solution on screen — the same reset the select's old @change handler did.
+    watch(currency, () => {
+      inventory.value = {};
+      results.value = null;
+    });
+
+    watch([currency, budget, strategy], syncQuery);
+    watch(() => route.query, applyQuery, { deep: true });
+
+    // Read the shared URL before the first paint, then let the input watchers
+    // write every later change back.
+    applyQuery();
+    queryReady = true;
 
     // Get unique plant names preserving CSV order
     const currencyPlants = computed(() => {
@@ -591,12 +659,6 @@ export default {
       };
     };
 
-    const handleCurrencyChange = () => {
-      inventory.value = {};
-      results.value = null;
-      // 移除saveToStorage()调用，不保存状态
-    };
-
     const resetItemInventory = (itemName, tiers) => {
       tiers.forEach((tier) => {
         const key = `${itemName}_${tier}`;
@@ -764,13 +826,10 @@ export default {
       }
     };
 
-    const debouncedSave = () => {
-      // 移除状态保存功能，页面刷新时会清除所有用户输入
-    };
-
     onMounted(() => {
       loadData();
-      // 移除loadFromStorage()，确保每次页面加载都是空白状态
+      // Canonicalise the incoming URL: drop defaults and invalid parameters.
+      syncQuery();
     });
 
     return {
@@ -797,7 +856,6 @@ export default {
       bloomsRateOptions,
       confiserieRateOptions,
       talentBonusOptions,
-      handleCurrencyChange,
       handleSolve,
       copyResults,
       formatNumber,
@@ -811,7 +869,6 @@ export default {
       getDishImage,
       getSolutionItemImage,
       handleImageError,
-      debouncedSave,
     };
   },
 };
