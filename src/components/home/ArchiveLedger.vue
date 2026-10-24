@@ -7,8 +7,8 @@
 
     <dl class="figures">
       <div class="figure">
-        <dt>Issues</dt>
-        <dd>{{ issueLabel }}</dd>
+        <dt>Weeks</dt>
+        <dd>{{ weekLabel }}</dd>
       </div>
       <div class="figure">
         <dt>Echoes</dt>
@@ -37,7 +37,7 @@ export default {
   name: 'ArchiveLedger',
   components: { RouterLink },
   props: {
-    // Issue count (periods.length); null while loading
+    // Week count (periods.length); null while loading
     edition: { type: Number, default: null },
     // Echoes charted in the current bracket
     echoCount: { type: Number, default: 0 },
@@ -45,7 +45,7 @@ export default {
     bracketCount: { type: Number, default: 0 },
   },
   computed: {
-    issueLabel() {
+    weekLabel() {
       return this.edition ?? '—';
     },
     echoLabel() {

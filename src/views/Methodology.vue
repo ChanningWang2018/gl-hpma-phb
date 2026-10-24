@@ -217,7 +217,7 @@ const SOURCES = [
     name: '163hot / 网易大神',
     url: 'https://www.163hot.net/hp/phb/getData',
     linkLabel: 'www.163hot.net/hp/phb/getData',
-    body: "The weekly echo table — win rate and pick rate for every echo and bracket — is crawled from 163hot's public HPMA statistics endpoint. A GitHub Actions job requests it once a day at 02:30 UTC, stores the raw JSON in the repository archive (not deployed) and rebuilds the aggregated trends.json the site actually reads. Each response carries its own period label; that label becomes the issue week.",
+    body: "The weekly echo table — win rate and pick rate for every echo and bracket — is crawled from 163hot's public HPMA statistics endpoint. A GitHub Actions job requests it once a day at 02:30 UTC, stores the raw JSON in the repository archive (not deployed) and rebuilds the aggregated trends.json the site actually reads. Each response carries its own period label; that label becomes the data week.",
     zh: '周胜率 / 选取率来自 163hot 的 HPMA 公开数据接口。GitHub Actions 每天 02:30 UTC 抓取一次，原始 JSON 存入仓库 archive/（不部署），再聚合成站点读取的 trends.json；每个响应自带周期标签，即站内的「期」。',
   },
   {

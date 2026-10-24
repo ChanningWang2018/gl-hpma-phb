@@ -12,11 +12,10 @@
 
 <script>
 // UpdatesStrip — 目录下方的一行更新：纯文本，不做链接，也不写数据源名。
-// 期号与期号日期来自共享数据；两个数据版本暂时是静态文案。
+// 最新数据周与两个数据版本；不显示期号。
 export default {
   name: 'UpdatesStrip',
   props: {
-    edition: { type: Number, default: null },
     periodLabel: { type: String, default: '' },
   },
   computed: {
@@ -26,7 +25,7 @@ export default {
       return [
         {
           date: end || '—',
-          label: `Issue No. ${this.edition ?? '—'}`,
+          label: 'Weekly data',
         },
         { date: '24 Oct', label: 'Cards + echoes v1' },
         { date: '09 Oct', label: 'Quiz bank v2' },

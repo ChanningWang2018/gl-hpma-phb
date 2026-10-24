@@ -15,7 +15,6 @@
       </nav>
 
       <div class="controls">
-        <span v-if="showIssue" class="issue-chip">Issue {{ edition }}</span>
         <SearchOverlay />
         <LocaleSwitch tone="paper" />
       </div>
@@ -24,27 +23,17 @@
 </template>
 
 <script>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { RouterLink, useRoute } from 'vue-router';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { RouterLink } from 'vue-router';
 import LocaleSwitch from '@/components/LocaleSwitch.vue';
 import SearchOverlay from '@/components/SearchOverlay.vue';
-import { useChartStore } from '@/stores/chartStore.js';
 
-// SiteHeader — 全站唯一的顶栏，纸色一版到底。首页的期号与日期由头版的
-// 报头承担，这里只在数据页挂一枚期号 chip。滚动后出现一层很轻的阴影。
+// SiteHeader — 全站唯一的顶栏，纸色一版到底。滚动后出现一层很轻的阴影。
 // 栏目里没有 "Home"：品牌字标就是回到头版的入口。
 export default {
   name: 'SiteHeader',
   components: { LocaleSwitch, RouterLink, SearchOverlay },
   setup() {
-    const route = useRoute();
-    const chartStore = useChartStore();
-    const edition = computed(() => chartStore.periods?.length || null);
-    // The issue belongs to the data page; the front page prints its own dateline.
-    const showIssue = computed(
-      () => route.name === 'analytics' && edition.value,
-    );
-
     const sentinel = ref(null);
     const isStuck = ref(false);
     let observer = null;
@@ -65,7 +54,7 @@ export default {
       observer = null;
     });
 
-    return { sentinel, isStuck, edition, showIssue };
+    return { sentinel, isStuck };
   },
 };
 </script>
@@ -166,17 +155,6 @@ export default {
   gap: 12px;
 }
 
-.issue-chip {
-  padding: 5px 8px;
-  border: 1px solid var(--rule);
-  font-family: var(--font-type);
-  font-size: 8.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ink-faded);
-  white-space: nowrap;
-}
-
 @media (max-width: 768px) {
   .header-inner {
     flex-wrap: wrap;
@@ -194,10 +172,6 @@ export default {
   .controls {
     order: 2;
     margin-left: auto;
-  }
-
-  .issue-chip {
-    display: none;
   }
 
   .nav {

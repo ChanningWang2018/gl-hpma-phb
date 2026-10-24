@@ -2,7 +2,7 @@
   <div class="home" lang="en">
     <div class="band">
       <div class="shell">
-        <Masthead :edition="edition" :period-label="periodLabel" />
+        <Masthead :period-label="periodLabel" />
       </div>
     </div>
 
@@ -60,7 +60,7 @@
         </header>
 
         <ToolGrid :edition="edition" />
-        <UpdatesStrip :edition="edition" :period-label="periodLabel" />
+        <UpdatesStrip :period-label="periodLabel" />
       </div>
     </section>
   </div>
@@ -154,7 +154,7 @@ export default {
       return periods.length ? periods[periods.length - 1] : null;
     });
 
-    // 期号 = 归档期数；加载中显示 —（不渲染 Issue No. 0）
+    // 周数 = 归档期数；加载中显示 —（不渲染 No. 0）
     const edition = computed(() => (chartStore.periods || []).length || null);
     const periodLabel = computed(() => formatPeriodRange(currentPeriod.value));
 

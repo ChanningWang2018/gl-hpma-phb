@@ -20,25 +20,25 @@ import { RouterLink } from 'vue-router';
 // ToolGrid — the paper's contents table. Five numbered entries, one rule per
 // row, title and one-line description on a single reading line, the archive
 // size closing on the right. Hover moves the arrow and warms the row; the whole
-// row is the link. Counts other than the issue count are static copy, because
+// row is the link. Counts other than the week count are static copy, because
 // the front page never loads cards.json or quiz.json.
 export default {
   name: 'ToolGrid',
   components: { RouterLink, ToolIcon },
   props: {
-    // Issue count from the shared chart store; null while loading.
+    // Week count from the shared chart store; null while loading.
     edition: { type: Number, default: null },
   },
   computed: {
     tools() {
-      const issueCount = this.edition ? `${this.edition} issues` : '— issues';
+      const weekCount = this.edition ? `${this.edition} weeks` : '— weeks';
       return [
         {
           no: '01',
           icon: 'analytics',
           title: 'Echo analytics',
           desc: 'Standings, trends and every bracket.',
-          count: issueCount,
+          count: weekCount,
           to: '/analytics',
         },
         {

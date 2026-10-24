@@ -16,7 +16,7 @@
         </button>
       </div>
 
-      <p class="plate-date">No. {{ editionLabel }} · {{ periodShortLabel }}</p>
+      <p class="plate-date">{{ periodShortLabel }}</p>
     </header>
 
     <StatRail :stats="stats" @highlight="onHighlight" />
@@ -57,7 +57,7 @@ export default {
   props: {
     // { '1v1-high': [...], '1v1-low': [...], '2v2-high': [...], '2v2-low': [...] }
     rowsByMode: { type: Object, default: () => ({}) },
-    // Issue number (periods.length); null while loading
+    // Week count (periods.length); null while loading
     edition: { type: Number, default: null },
     // Full range label, e.g. '24–30 Sep 2026'
     periodLabel: { type: String, default: '' },
@@ -82,10 +82,7 @@ export default {
     stats() {
       return summarize(this.rows);
     },
-    editionLabel() {
-      return this.edition ?? '—';
-    },
-    // 'Week 37 · 24–30 Sep' — the year stays on the cover kicker
+    // '24–30 Sep' — the year stays on the cover kicker
     periodShortLabel() {
       return this.periodLabel ? this.periodLabel.replace(/ \d{4}$/, '') : '—';
     },
@@ -94,7 +91,7 @@ export default {
       const bracketCount = HOME_MODES.filter(
         (key) => ((this.rowsByMode || {})[key] || []).length > 0,
       ).length;
-      const issueCount = this.edition;
+      const weekCount = this.edition;
 
       const count = (value, one, many) =>
         value ? `${value} ${value === 1 ? one : many}` : `— ${many}`;
@@ -102,7 +99,7 @@ export default {
       return [
         count(echoCount, 'echo', 'echoes'),
         count(bracketCount, 'bracket', 'brackets'),
-        count(issueCount, 'issue', 'issues'),
+        count(weekCount, 'week', 'weeks'),
       ].join(' · ');
     },
   },

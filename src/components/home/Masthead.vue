@@ -1,7 +1,7 @@
 <template>
   <header class="masthead">
     <div class="running-head">
-      <span class="running-edition">The weekly issue</span>
+      <span class="running-edition">The weekly data</span>
       <span class="running-subject">Unofficial · non-commercial</span>
       <span class="running-data">Data through {{ throughLabel }}</span>
     </div>
@@ -18,8 +18,7 @@
       </div>
 
       <div class="issue-block">
-        <p class="issue-label">Issue</p>
-        <p class="issue-no">No. {{ issueLabel }}</p>
+        <p class="issue-label">Data week</p>
         <p class="issue-range">{{ rangeLabel }}</p>
       </div>
     </div>
@@ -29,22 +28,17 @@
 <script>
 import { periodEndLabel } from '@/services/homeStats.js';
 
-// Masthead — the paper front page's nameplate. A running head (issue cadence,
+// Masthead — the paper front page's nameplate. A running head (weekly cadence,
 // provenance, data cut-off), the blackletter wordmark and one deck line on the
-// left; the issue number and its dateline on the right, closed by a double
-// rule. The page has exactly one h1 and this is it.
+// left; the data week's date range on the right, closed by a double rule. The
+// page has exactly one h1 and this is it.
 export default {
   name: 'Masthead',
   props: {
-    // Issue number (periods.length); null while loading
-    edition: { type: Number, default: null },
     // Full range label, e.g. '24–30 Sep 2026'
     periodLabel: { type: String, default: '' },
   },
   computed: {
-    issueLabel() {
-      return this.edition ?? '—';
-    },
     rangeLabel() {
       return this.periodLabel || '—';
     },
@@ -139,16 +133,6 @@ export default {
   color: var(--oxblood);
 }
 
-.issue-no {
-  margin-top: 4px;
-  font-family: var(--font-serif);
-  font-size: clamp(32px, 3.4vw, 46px);
-  line-height: 1;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
 .issue-range {
   margin-top: 7px;
   font-family: var(--font-type);
@@ -180,25 +164,12 @@ export default {
   }
 
   .issue-block {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: baseline;
-    column-gap: 14px;
     min-width: 0;
     padding-top: 8px;
     text-align: left;
   }
 
-  .issue-label {
-    grid-column: 1 / -1;
-  }
-
-  .issue-no {
-    font-size: 28px;
-  }
-
   .issue-range {
-    justify-self: end;
     margin-top: 0;
   }
 }

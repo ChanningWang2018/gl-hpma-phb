@@ -15,7 +15,7 @@
         @update:model-value="mode = $event"
       />
       <p class="echo-note">
-        {{ latestPeriod || 'Loading the latest issue…' }}
+        {{ latestPeriod || 'Loading the latest week…' }}
       </p>
     </div>
 

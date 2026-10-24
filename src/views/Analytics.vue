@@ -7,7 +7,7 @@
         </h1>
         <template #note>
           Weekly standings · 4 brackets · {{ chartStore.periods.length || '—' }}
-          archived issues ·
+          archived weeks ·
           <RouterLink class="echoes-link" to="/echoes"
             >All 19 echoes →</RouterLink
           >
