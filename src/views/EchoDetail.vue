@@ -43,7 +43,6 @@
           </p>
 
           <p v-if="intro" class="echo-copy">{{ intro }}</p>
-          <p v-if="tips" class="echo-tips">{{ tips }}</p>
 
           <dl v-if="statsId" class="echo-numbers">
             <div>
@@ -206,34 +205,6 @@
         </article>
         <p v-else class="echo-note">No rarity variants in this data release.</p>
       </section>
-
-      <section
-        v-if="relatedCards.length"
-        class="echo-section"
-        aria-labelledby="echo-cards-title"
-      >
-        <div class="echo-section-head">
-          <div>
-            <p class="echo-kicker">Synergy</p>
-            <h2 id="echo-cards-title">Cards that fit this echo</h2>
-          </div>
-          <p class="echo-note">Weight from the game's echo score table.</p>
-        </div>
-
-        <ul class="echo-card-list" role="list">
-          <li v-for="card in relatedCards" :key="card.cardId">
-            <RouterLink
-              class="echo-card-link"
-              :to="{ name: 'card-detail', params: { id: card.cardId } }"
-            >
-              <span class="echo-card-name">{{
-                card.nameZh || `Card ${card.cardId}`
-              }}</span>
-              <span class="echo-card-score">{{ formatScore(card.score) }}</span>
-            </RouterLink>
-          </li>
-        </ul>
-      </section>
     </template>
   </div>
 </template>
@@ -279,13 +250,11 @@ const signed = (value) => {
   return `${number > 0 ? '+' : '−'}${Math.abs(number).toFixed(1)}`;
 };
 
-const formatScore = (value) =>
-  Number.isFinite(Number(value)) ? Number(value).toFixed(1) : '—';
-
 // EchoDetail — one character page for the 2026-10 echoes module. Weekly stats
 // still come from trends.json (the crawler's 1..19 ids map onto character ids
-// via EchoService.STATS_ECHO_IDS); skill text, rarity variants and card scores
-// come from echoes.json.
+// via EchoService.STATS_ECHO_IDS); skill text and rarity variants come from
+// echoes.json. Game-sourced strategy tips and card-score recommendations were
+// removed because that advice is stale and not actionable for players.
 export default {
   name: 'EchoDetail',
   components: { EchoImage, PressButton, SegmentControl },
@@ -357,7 +326,6 @@ export default {
       return value && value !== displayName.value ? value : '';
     });
     const intro = computed(() => stripRich(text('intro')));
-    const tips = computed(() => stripRich(text('tips')));
     const tags = computed(() => {
       const list = character.value?.i18n?.[locale.value]?.tags;
       return Array.isArray(list) ? list : [];
@@ -436,12 +404,6 @@ export default {
       };
     });
 
-    const relatedCards = computed(() =>
-      character.value
-        ? echoStore.scoresForCharacter(character.value.id).slice(0, 8)
-        : [],
-    );
-
     const rarityLabel = (rarity) =>
       EchoService.rarityLabel(rarity, locale.value);
 
@@ -465,14 +427,13 @@ export default {
         } — HPMA Echo`;
         const description = `${nameEn}${
           nameZh && nameZh !== nameEn ? ` (${nameZh})` : ''
-        } — HPMA echo stats, rarity variants, skill details and card synergies.`;
+        } — HPMA echo stats, rarity variants and skill details.`;
         const canonical = character.value
           ? absoluteUrl(`/echoes/${character.value.id}`)
           : absoluteUrl('/echoes');
         const image = ogImage.value;
         const introEn = stripRich(text('intro', 'en'));
-        const tipsEn = stripRich(text('tips', 'en'));
-        const aboutDescription = [introEn, tipsEn].filter(Boolean).join(' ');
+        const aboutDescription = introEn;
         return {
           title,
           meta: [
@@ -550,7 +511,6 @@ export default {
       altName,
       echoStore,
       formatModeLabel,
-      formatScore,
       characterIconPath,
       intro,
       latest,
@@ -560,7 +520,6 @@ export default {
       rarityLabel,
       rarityOptions,
       recentTrend,
-      relatedCards,
       retry,
       selectedDetails,
       selectedRarity,
@@ -570,7 +529,6 @@ export default {
       statsId,
       stripRich,
       tags,
-      tips,
       character,
     };
   },
@@ -676,15 +634,6 @@ export default {
   line-height: 1.55;
   color: var(--ink);
   white-space: pre-line;
-}
-
-.echo-tips {
-  margin-top: 8px;
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: 13.5px;
-  line-height: 1.5;
-  color: var(--ink-faded);
 }
 
 .echo-numbers {
@@ -899,40 +848,6 @@ export default {
 .echo-variant-attrs dd {
   font-family: var(--font-serif);
   font-size: 18px;
-}
-
-.echo-card-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 0;
-  list-style: none;
-  border-top: 1px solid var(--ink);
-}
-
-.echo-card-link {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-2);
-  padding: 9px 6px;
-  border-bottom: 1px solid var(--rule);
-  color: var(--ink);
-  text-decoration: none;
-}
-
-.echo-card-link:hover {
-  background: rgba(var(--gold-rgb), 0.08);
-}
-
-.echo-card-name {
-  font-family: var(--font-serif);
-  font-size: 15px;
-}
-
-.echo-card-score {
-  font-family: var(--font-type);
-  font-size: 9px;
-  color: var(--ink-faded);
 }
 
 @media (max-width: 768px) {
