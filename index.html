@@ -16,10 +16,10 @@
     <!-- DNS Prefetch and Preconnect -->
     <link rel="dns-prefetch" href="https://hpma-phb.netlify.app" />
     <link rel="preconnect" href="https://hpma-phb.netlify.app" />
-    <!-- 卡面图源（version.json imageBase）：无 crossorigin，匹配 <img> 的
-         no-cors 请求才能复用预热连接 -->
-    <link rel="dns-prefetch" href="https://fastly.jsdelivr.net" />
-    <link rel="preconnect" href="https://fastly.jsdelivr.net" />
+    <!-- 卡面 / 回响图源（version.json imageBase）：无 crossorigin，匹配 <img>
+         的 no-cors 请求才能复用预热连接。2026-10 起数据仓为 hpma-bits/hpma-spellbook。 -->
+    <link rel="dns-prefetch" href="https://raw.githubusercontent.com" />
+    <link rel="preconnect" href="https://raw.githubusercontent.com" />
 
     <!-- Preload Important Resources -->
     <link rel="preload" href="/favicon.ico" as="image" />
@@ -35,7 +35,7 @@
     <!-- SEO: Meta Description -->
     <meta
       name="description"
-      content="Track Harry Potter: Magic Awakened character performance. Win rates, pick rates, and trends for all 18 Echoes across 1v1 and 2v2 modes."
+      content="An unofficial almanac for Harry Potter: Magic Awakened — weekly echo statistics, a 141-card codex, a sales solver and 1,847 quiz questions."
     />
 
     <!-- SEO: Keywords -->
@@ -47,16 +47,17 @@
     <!-- SEO: Robots -->
     <meta name="robots" content="index, follow" />
 
-    <!-- SEO: Canonical URL (update after deployment) -->
-    <link rel="canonical" href="https://hpma-phb.netlify.app" />
+    <!-- Canonical / og:url are emitted per route by useHead (P0b). -->
 
     <!-- Open Graph: Social Media Preview -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://hpma-phb.netlify.app" />
-    <meta property="og:title" content="HPMA Echo Analytics" />
+    <meta
+      property="og:title"
+      content="my little hpma bits — HPMA weekly data, cards & quiz"
+    />
     <meta
       property="og:description"
-      content="Track character performance in Harry Potter: Magic Awakened. Win rates, pick rates, and trends for all Echoes."
+      content="An unofficial almanac for Harry Potter: Magic Awakened — weekly echo statistics, a 141-card codex, a sales solver and 1,847 quiz questions."
     />
     <meta
       property="og:image"
@@ -65,10 +66,13 @@
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="HPMA Echo Analytics" />
+    <meta
+      name="twitter:title"
+      content="my little hpma bits — HPMA weekly data, cards & quiz"
+    />
     <meta
       name="twitter:description"
-      content="Track character performance in HPMA. Win rates, pick rates, and trends for all Echoes."
+      content="An unofficial almanac for Harry Potter: Magic Awakened — weekly echo statistics, a card codex, a sales solver and a quiz drill."
     />
     <meta
       name="twitter:image"
@@ -80,8 +84,8 @@
       {
         "@context": "https://schema.org",
         "@type": "WebApplication",
-        "name": "HPMA Echo Analytics",
-        "description": "Track character performance metrics in Harry Potter: Magic Awakened. Win rates, pick rates, and historical trends for all 18 Echoes.",
+        "name": "my little hpma bits",
+        "description": "An unofficial almanac for Harry Potter: Magic Awakened — weekly echo statistics, a 141-card codex, a sales solver and 1,847 quiz questions.",
         "url": "https://hpma-phb.netlify.app",
         "applicationCategory": "Game",
         "operatingSystem": "Web Browser",

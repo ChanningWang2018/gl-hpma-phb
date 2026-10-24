@@ -101,7 +101,7 @@
           type="button"
           class="tile-hit"
           :aria-label="t('viewDetail', { name: primaryName(card) })"
-          @click="cardStore.openCard(card.id)"
+          @click="openCard(card.id)"
         >
           <CardImage :card="card" size="tile">
             <span
@@ -129,8 +129,7 @@
       </article>
     </section>
 
-    <!-- 详情弹层（Teleport 到 body；打开状态在 store） -->
-    <CardDetail />
+    <!-- 详情现在是独立页 /cards/:id；保留弹层组件仅为后续 quick-view 预留 -->
 
     <!-- 移动端筛选抽屉（Teleport 到 body；开关状态在本视图） -->
     <CardFilterSheet :open="sheetOpen" @close="sheetOpen = false" />
@@ -138,7 +137,6 @@
 </template>
 
 <script>
-import CardDetail from '@/components/CardDetail.vue';
 import CardFilterSheet from '@/components/CardFilterSheet.vue';
 import CardImage from '@/components/CardImage.vue';
 import PageHead from '@/components/ui/PageHead.vue';
@@ -154,7 +152,6 @@ import { useCardStore } from '@/stores/cardStore.js';
 export default {
   name: 'CardCodex',
   components: {
-    CardDetail,
     CardFilterSheet,
     CardImage,
     PageHead,
@@ -178,6 +175,16 @@ export default {
                 ? '浏览《哈利波特：魔法觉醒》全部卡牌档案——咒语 / 召唤 / 伙伴——支持类型、稀有度、费用筛选及中英文名检索。'
                 : 'Browse all Harry Potter: Magic Awakened cards — spells, summons and companions — with type, rarity and cost filters plus zh/en name search.',
           },
+          {
+            property: 'og:url',
+            content: 'https://hpma-phb.netlify.app/cards',
+          },
+        ],
+        link: [
+          {
+            rel: 'canonical',
+            href: 'https://hpma-phb.netlify.app/cards',
+          },
         ],
       })),
     );
@@ -189,6 +196,8 @@ export default {
       searchTimer: null,
       // 移动端筛选抽屉开关（CardFilterSheet 的 open prop）
       sheetOpen: false,
+      // route.query -> store 回填期间抑制反向写回，避免 replace 循环
+      syncingQuery: false,
     };
   },
   computed: {
@@ -252,9 +261,27 @@ export default {
         this.searchInput = value;
       }
     },
+
+    // 筛选状态是 URL 的一部分：store 变 -> query 变（replace，不堆历史）。
+    'cardStore.filters': {
+      deep: true,
+      handler() {
+        this.syncQuery();
+      },
+    },
+
+    // 浏览器前进/后退或外部链接进站：query 变 -> store 回填。
+    '$route.query': {
+      deep: true,
+      handler() {
+        this.applyRouteQuery();
+      },
+    },
   },
-  mounted() {
-    this.cardStore.loadCards();
+  async mounted() {
+    await this.cardStore.loadCards();
+    this.applyRouteQuery();
+    this.syncQuery();
   },
   deactivated() {
     // keep-alive 下路由离开 /cards：复位详情弹层选中态并关闭筛选抽屉。
@@ -270,6 +297,77 @@ export default {
     clearTimeout(this.searchTimer);
   },
   methods: {
+    // Card detail is a canonical page now; filters live in the store so they
+    // survive the back/forward trip.
+    openCard(id) {
+      this.$router.push({ name: 'card-detail', params: { id } });
+    },
+
+    // Read ?type=&rarity=&cost=&q= into the store. Invalid values fall back
+    // to the unfiltered state rather than filtering everything out.
+    applyRouteQuery() {
+      if (this.$route.name !== 'cards') return;
+      if (this.syncingQuery) return;
+      const query = this.$route.query;
+      const type = this.typeOptions.some((opt) => opt.value === query.type)
+        ? query.type
+        : 'all';
+      const rarity = this.rarityOptions.some(
+        (opt) => opt.value === query.rarity,
+      )
+        ? query.rarity
+        : 'all';
+      const cost = this.costOptions.some(
+        (opt) => String(opt.value) === String(query.cost),
+      )
+        ? query.cost === 'all'
+          ? 'all'
+          : Number(query.cost)
+        : 'all';
+      const search = typeof query.q === 'string' ? query.q : '';
+
+      const next = { type, rarity, cost, search };
+      if (
+        next.type !== this.filters.type ||
+        next.rarity !== this.filters.rarity ||
+        next.cost !== this.filters.cost ||
+        next.search !== this.filters.search
+      ) {
+        this.cardStore.setFilter(next);
+      }
+      if (search !== this.searchInput) {
+        clearTimeout(this.searchTimer);
+        this.searchInput = search;
+      }
+    },
+
+    // Store -> URL. Only non-default values are written, so the clean
+    // /cards URL stays clean.
+    syncQuery() {
+      if (this.$route.name !== 'cards') return;
+      if (this.syncingQuery) return;
+      const f = this.filters;
+      const query = {};
+      if (f.type !== 'all') query.type = f.type;
+      if (f.rarity !== 'all') query.rarity = f.rarity;
+      if (f.cost !== 'all') query.cost = String(f.cost);
+      if (f.search.trim()) query.q = f.search.trim();
+
+      const current = this.$route.query;
+      const same =
+        Object.keys(query).length === Object.keys(current).length &&
+        Object.entries(query).every(([key, value]) => current[key] === value);
+      if (same) return;
+
+      this.syncingQuery = true;
+      this.$router
+        .replace({ name: 'cards', query })
+        .catch(() => {})
+        .finally(() => {
+          this.syncingQuery = false;
+        });
+    },
+
     setType(value) {
       this.cardStore.setFilter({ type: value });
     },

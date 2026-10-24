@@ -9,13 +9,18 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:prerender": "vite build && node scripts/prerender.mjs",
+    "prerender": "node scripts/prerender.mjs",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "lint": "eslint .",
     "format": "prettier --write .",
     "build:trends": "node scripts/build-trends.mjs",
-    "verify:trends": "node scripts/build-trends.mjs --verify"
+    "verify:trends": "node scripts/build-trends.mjs --verify",
+    "fetch:spellbook": "node scripts/fetch-spellbook-modules.mjs update",
+    "check:spellbook": "node scripts/fetch-spellbook-modules.mjs --check",
+    "verify:spellbook": "node scripts/fetch-spellbook-modules.mjs --verify"
   },
   "dependencies": {
     "@vueuse/head": "^2.0.0",
@@ -35,6 +40,8 @@
     "eslint-plugin-vue": "^10.11.0",
     "globals": "^17.12.0",
     "prettier": "^3.9.9",
+    "puppeteer": "^25.16.0",
+    "puppeteer-core": "^25.16.0",
     "vite": "^7.3.0",
     "vite-plugin-vue-devtools": "^8.0.5",
     "vitest": "^4.0.18",

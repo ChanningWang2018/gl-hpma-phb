@@ -7,7 +7,10 @@
         </h1>
         <template #note>
           Weekly standings · 4 brackets · {{ chartStore.periods.length || '—' }}
-          archived issues
+          archived issues ·
+          <RouterLink class="echoes-link" to="/echoes"
+            >All 19 echoes →</RouterLink
+          >
         </template>
       </PageHead>
     </div>
@@ -88,9 +91,11 @@ import LineChart from '@/components/LineChart.vue';
 import ScatterChart from '@/components/ScatterChart.vue';
 import { useChartStore } from '@/stores/chartStore.js';
 import { DataService } from '@/services/dataService.js';
+import { findPeriodBySlug, periodSlug } from '@/services/homeStats.js';
 import { ThemeTokens } from '@/services/themeTokens.js';
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useHead } from '@vueuse/head';
+import { useRoute, useRouter } from 'vue-router';
 import PageHead from '@/components/ui/PageHead.vue';
 
 export default {
@@ -112,7 +117,7 @@ export default {
         {
           name: 'description',
           content:
-            'Track Harry Potter: Magic Awakened character performance. Win rates, pick rates, and trends for all 18 Echoes across 1v1 and 2v2 modes.',
+            'Track Harry Potter: Magic Awakened character performance. Win rates, pick rates, and trends for all 19 Echoes across 1v1 and 2v2 modes.',
         },
         {
           property: 'og:title',
@@ -126,6 +131,12 @@ export default {
         {
           property: 'og:url',
           content: 'https://hpma-phb.netlify.app/analytics',
+        },
+      ],
+      link: [
+        {
+          rel: 'canonical',
+          href: 'https://hpma-phb.netlify.app/analytics',
         },
       ],
     });
@@ -166,9 +177,82 @@ export default {
       );
     });
 
+    const route = useRoute();
+    const router = useRouter();
+    let syncingQuery = false;
+    // Wait until the first applyQuery() has read the incoming URL before the
+    // store watchers are allowed to write defaults back into it.
+    let queryReady = false;
+
+    const sameQuery = (a, b) =>
+      Object.keys(a).length === Object.keys(b).length &&
+      Object.entries(a).every(([key, value]) => b[key] === value);
+
+    // ?period=YYYY-MM-DD&mode=2v2-high&echo=1 -> store. Invalid values fall
+    // back to the store's current/default state.
+    const applyQuery = () => {
+      if (route.name !== 'analytics') return;
+      if (syncingQuery || !chartStore.periods.length) return;
+      const query = route.query;
+      const period = findPeriodBySlug(chartStore.periods, query.period);
+      if (period && period !== chartStore.currentPeriod) {
+        chartStore.setCurrentPeriod(period);
+      }
+      const mode = typeof query.mode === 'string' ? query.mode : null;
+      if (
+        mode &&
+        Object.prototype.hasOwnProperty.call(DataService.modeMapping, mode) &&
+        mode !== chartStore.currentMode
+      ) {
+        chartStore.setCurrentMode(mode);
+      }
+      const echo = Number(query.echo);
+      if (
+        Number.isInteger(echo) &&
+        echo >= 1 &&
+        echo <= 19 &&
+        echo !== chartStore.currentReverberation
+      ) {
+        chartStore.setCurrentReverberation(echo);
+      }
+    };
+
+    // store -> URL (replace: filters should not spam browser history).
+    const syncQuery = () => {
+      if (route.name !== 'analytics') return;
+      if (!queryReady || syncingQuery || !chartStore.currentPeriod) return;
+      const query = {
+        period: periodSlug(chartStore.currentPeriod),
+        mode: chartStore.currentMode,
+        echo: String(chartStore.currentReverberation),
+      };
+      if (!query.period) delete query.period;
+      if (sameQuery(query, route.query)) return;
+      syncingQuery = true;
+      router
+        .replace({ name: 'analytics', query })
+        .catch(() => {})
+        .finally(() => {
+          syncingQuery = false;
+        });
+    };
+
+    watch(
+      () => [
+        chartStore.currentPeriod,
+        chartStore.currentMode,
+        chartStore.currentReverberation,
+      ],
+      syncQuery,
+    );
+    watch(() => route.query, applyQuery, { deep: true });
+
     onMounted(async () => {
       try {
         await chartStore.updateAllData();
+        applyQuery();
+        queryReady = true;
+        syncQuery();
         preloadAvatarImages();
       } catch (error) {
         console.error('初始化失败:', error);
@@ -176,7 +260,7 @@ export default {
     });
 
     const preloadAvatarImages = () => {
-      for (let i = 1; i <= 18; i++) {
+      for (let i = 1; i <= 19; i++) {
         const idStr = i.toString().padStart(2, '0');
 
         const link = document.createElement('link');
@@ -210,6 +294,16 @@ export default {
 <style>
 .analytics-head {
   padding: 24px 30px 0;
+}
+
+.echoes-link {
+  color: var(--oxblood);
+  text-decoration: none;
+  border-bottom: 1px solid var(--gold-leaf);
+}
+
+.echoes-link:hover {
+  color: var(--ink);
 }
 
 @media (max-width: 768px) {

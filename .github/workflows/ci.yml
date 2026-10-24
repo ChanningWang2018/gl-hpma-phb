@@ -30,13 +30,17 @@ jobs:
           cache: npm
 
       # Guard against hand-edited spellbook data drifting from the upstream
-      # release: audits local sha256 against the pinned tag's checksums.txt.
-      # Needs no npm dependencies, only node + network.
+      # release: audits cards + echoes sha256 against each pinned tag's
+      # checksums.txt. Needs no npm dependencies, only node + network.
       - name: Verify spellbook data integrity
-        run: node scripts/fetch-spellbook.mjs --verify
+        run: node scripts/fetch-spellbook-modules.mjs --verify
 
       - name: Install dependencies
         run: npm ci
+        env:
+          # PR CI never prerenders, so skip Puppeteer's Chrome download here;
+          # the prerender gate downloads it only in its own job (see #20).
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
 
       - name: Run tests
         run: npm run test

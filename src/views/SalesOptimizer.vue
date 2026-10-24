@@ -369,6 +369,12 @@ export default {
           content: 'https://hpma-phb.netlify.app/sales-optimizer',
         },
       ],
+      link: [
+        {
+          rel: 'canonical',
+          href: 'https://hpma-phb.netlify.app/sales-optimizer',
+        },
+      ],
     });
 
     const currency = ref('gold');

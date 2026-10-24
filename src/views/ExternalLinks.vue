@@ -42,6 +42,16 @@ export default {
           content:
             'Curated HPMA community resources including guides, calculators, and tools for Harry Potter: Magic Awakened players.',
         },
+        {
+          property: 'og:url',
+          content: 'https://hpma-phb.netlify.app/resources',
+        },
+      ],
+      link: [
+        {
+          rel: 'canonical',
+          href: 'https://hpma-phb.netlify.app/resources',
+        },
       ],
     });
   },

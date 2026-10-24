@@ -80,6 +80,16 @@ export default {
                 ? '收录《哈利波特：魔法觉醒》全部 1847 道课堂问答题——魔法史与麻瓜研究——支持中英文检索，另有计时 O.W.L. 评级挑战与只有选项的级长模式。'
                 : 'All 1847 Harry Potter: Magic Awakened class quiz questions - History of Magic and Muggle Studies - searchable in Chinese/English, plus a timed O.W.L.-graded challenge with the options-only Prefect mode.',
           },
+          {
+            property: 'og:url',
+            content: 'https://hpma-phb.netlify.app/quiz',
+          },
+        ],
+        link: [
+          {
+            rel: 'canonical',
+            href: 'https://hpma-phb.netlify.app/quiz',
+          },
         ],
       })),
     );

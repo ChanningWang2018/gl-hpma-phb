@@ -12,16 +12,17 @@ A Vue 3-based analytics dashboard for tracking character (Reverberation, Echo) p
 
 ## 📄 Pages
 
-- `/` — front page: weekly cover plate, three headline numbers and the five sections
+- `/` — front page: paper masthead, this week's ink plate, movers column and the five sections
 - `/analytics` — full echo analytics (scatter, standings, trends, detailed table)
-- `/cards` — Card Codex
+- `/cards` — Card Codex; `/cards/:id` — one card page
+- `/echoes` — all 19 player echoes; `/echoes/:id` — one echo page (stats, rarity variants, card synergies)
 - `/sales-optimizer` — Sales Optimizer
 - `/quiz` — Magic Quiz
 - `/resources` — the library of external tools
 
 ## 📊 Features
 
-- **Front page**: a dark cover with a live week plate (top win rate, most picked, biggest jump) and a 19-echo scatter, switchable between all four brackets
+- **Front page**: a paper masthead over this week's ink plate (top win rate, most picked, biggest jump, 19-echo scatter), a week-over-week movers column and a five-row contents index, switchable between all four brackets
 - **Interactive Scatter Charts**: Visualize character performance by plotting attendance rate vs win rate
 - **Trend Analysis**: Track win rate and attendance rate trends over time with line charts
 - **Filterable Data**: Filter data by:
@@ -51,7 +52,7 @@ A Vue 3-based analytics dashboard for tracking character (Reverberation, Echo) p
 │   │   └── styles/
 │   │       └── global.css      # Global styling
 │   ├── components/
-│   │   ├── home/               # Front page cover / week plate / scatter
+│   │   ├── home/               # Front page masthead / ink plate / movers / contents
 │   │   ├── site/               # Global SiteHeader + SiteFooter
 │   │   ├── Controls.vue        # Filter and control panel (Mode + Period)
 │   │   ├── EchoSelect.vue      # Character selection for trend charts
@@ -67,9 +68,15 @@ A Vue 3-based analytics dashboard for tracking character (Reverberation, Echo) p
 │   ├── composables/            # Vue composables (if any)
 │   └── utils/                  # Utility functions
 ├── public/
+│   ├── data/
+│   │   ├── spellbook/          # cards module (cards.json + manifest + version)
+│   │   └── echoes/             # echoes module (echoes.json + manifest + version)
 │   ├── images/
-│   │   └── avatars/            # Character avatar images
+│   │   └── avatars/            # Local 24px avatars used by home/analytics
 │   └── archive/                # Deployed data: only the aggregated trends.json
+├── scripts/
+│   ├── fetch-spellbook-modules.mjs  # cards + echoes release sync
+│   └── prerender.mjs                # static HTML for every indexable route
 ├── vite.config.js              # Vite configuration
 ├── jsconfig.json               # JavaScript configuration
 ├── package.json                # Project dependencies
@@ -111,11 +118,25 @@ The application will be available at `http://localhost:5173` (or another port if
 
 ### Build for Production
 
-Create an optimized production build:
+Create an optimized SPA build (fast, no prerender):
 
 ```bash
 npm run build
 ```
+
+Create the deployable build with static HTML for every indexable route
+(requires Chrome/Chromium; Puppeteer downloads one on CI/Netlify):
+
+```bash
+npm run build:prerender
+```
+
+`build:prerender` runs `vite build`, then `scripts/prerender.mjs` writes 167
+static pages (`/`, `/analytics`, `/cards`, `/cards/:id` × 141, `/echoes`,
+`/echoes/:id` × 19, `/quiz`, `/sales-optimizer`, `/resources`) into `dist/`.
+Each page carries its per-entity bilingual title/description, canonical and OG
+tags; `dist/sitemap.xml` is generated from the same data (167 URLs). Netlify
+uses this command (`netlify.toml`).
 
 ### Preview Production Build
 
@@ -127,11 +148,20 @@ npm run preview
 
 ### Spellbook Data Updates
 
-Card Codex data (`public/data/spellbook/`) auto-syncs from upstream [hpma-data](https://github.com/ChanningWang2018/hpma-data) releases: publishing there (3 commands after a game hotfix) → the scheduled `Spellbook Data Update` workflow (Mondays 03:00 UTC) pulls the new tag, commits it → the push triggers the Netlify deploy. To pull immediately, trigger the workflow from the Actions tab (`workflow_dispatch`) or run locally:
+Spellbook data is split into two independent modules in [hpma-spellbook](https://github.com/hpma-bits/hpma-spellbook):
+
+- **cards** (`cards-v*`) → `public/data/spellbook/` (`cards.json` + `manifest.json` + `version.json`)
+- **echoes** (`echoes-v*`) → `public/data/echoes/` (`echoes.json` + `manifest.json` + `version.json`)
+
+The scheduled `Spellbook Data Update` workflow (Mondays 03:00 UTC) runs:
 
 ```bash
-node scripts/fetch-spellbook.mjs update
+node scripts/fetch-spellbook-modules.mjs update
 ```
+
+It fetches both modules' latest releases, audits `cards.json` / `echoes.json` + `manifest.json` against each module's `checksums.txt`, writes the local `version.json` with an `imageBase` pinned to the release tag, and syncs the `/cardimg/*` / `/echoimg/*` proxy tags in `netlify.toml`. `--check` exits 2 when either module is newer; `--verify` audits the committed data.
+
+Card and echo images are hot-linked from `raw.githubusercontent.com` at the pinned tag. The same-origin `/cardimg/*` and `/echoimg/*` Netlify redirects are the fallback for clients that cannot reach GitHub directly.
 
 Quiz data (`public/data/quiz/`) follows the same pipeline from [hpma-quizbank](https://github.com/hpma-bits/hpma-quizbank) releases: the scheduled `Quiz Data Update` workflow (Mondays 03:30 UTC, staggered half an hour after spellbook) pulls the new tag, commits it → the push triggers the Netlify deploy. To pull immediately, trigger the workflow from the Actions tab (`workflow_dispatch`) or run locally:
 

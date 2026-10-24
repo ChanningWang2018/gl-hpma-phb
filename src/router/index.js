@@ -22,6 +22,23 @@ const routes = [
     name: 'cards',
   },
   {
+    path: '/cards/:id',
+    component: () => import('@/views/CardDetailPage.vue'),
+    name: 'card-detail',
+    props: true,
+  },
+  {
+    path: '/echoes',
+    component: () => import('@/views/EchoIndex.vue'),
+    name: 'echoes',
+  },
+  {
+    path: '/echoes/:id',
+    component: () => import('@/views/EchoDetail.vue'),
+    name: 'echo-detail',
+    props: true,
+  },
+  {
     path: '/quiz',
     component: () => import('@/views/Quiz.vue'),
     name: 'quiz',
@@ -36,8 +53,8 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  scrollBehavior() {
-    return { top: 0 };
+  scrollBehavior(to, from, savedPosition) {
+    return savedPosition || { top: 0 };
   },
 });
 

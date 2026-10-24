@@ -9,6 +9,7 @@
       <nav class="footer-nav" aria-label="Footer">
         <RouterLink to="/analytics">Data</RouterLink>
         <RouterLink to="/cards">Cards</RouterLink>
+        <RouterLink to="/echoes">Echoes</RouterLink>
         <RouterLink to="/sales-optimizer">Optimizer</RouterLink>
         <RouterLink to="/quiz">Quiz</RouterLink>
         <RouterLink to="/resources">Library</RouterLink>
