@@ -79,30 +79,10 @@
       content="https://hpma-phb.netlify.app/og-image.webp"
     />
 
-    <!-- Structured Data: Schema.org WebApplication -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "my little hpma bits",
-        "description": "An unofficial almanac for Harry Potter: Magic Awakened — weekly echo statistics, a 141-card codex, a sales solver and 1,847 quiz questions.",
-        "url": "https://hpma-phb.netlify.app",
-        "applicationCategory": "Game",
-        "operatingSystem": "Web Browser",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "featureList": [
-          "Win rate tracking",
-          "Pick rate analysis",
-          "Historical trend visualization",
-          "Multi-mode support (1v1 and 2v2)",
-          "Character performance comparison"
-        ]
-      }
-    </script>
+    <!-- Structured Data: emitted per route by useHead (P2-B), one JSON-LD block
+         per page. No site-wide script here: a static one would collide with the
+         per-entity graph. The OG/Twitter tags above stay as the fallback for
+         routes that do not override them. -->
 
     <!-- Google tag (gtag.js) -->
     <script

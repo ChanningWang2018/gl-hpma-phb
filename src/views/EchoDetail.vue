@@ -245,6 +245,13 @@ import SegmentControl from '@/components/ui/SegmentControl.vue';
 import { DataService } from '@/services/dataService.js';
 import { EchoService } from '@/services/echoService.js';
 import { HOME_MODES, formatModeLabel } from '@/services/homeStats.js';
+import {
+  FALLBACK_OG_IMAGE,
+  absoluteUrl,
+  buildEchoStructuredData,
+  firstAbsoluteUrl,
+  jsonLdScript,
+} from '@/services/structuredData.js';
 import { useChartStore } from '@/stores/chartStore.js';
 import { useEchoStore } from '@/stores/echoStore.js';
 import { useLocaleStore } from '@/stores/localeStore.js';
@@ -438,6 +445,17 @@ export default {
     const rarityLabel = (rarity) =>
       EchoService.rarityLabel(rarity, locale.value);
 
+    // OG/schema image: release icon when version.json resolved an imageBase,
+    // else the same-origin /echoimg proxy, else the local 1200×630 fallback.
+    // The 19 local avatars are 71×72, so they are deliberately not used here.
+    const ogImage = computed(() => {
+      const path = characterIconPath.value;
+      return firstAbsoluteUrl(
+        [EchoService.imageUrl(path), path ? `/echoimg/${path}` : null],
+        FALLBACK_OG_IMAGE,
+      );
+    });
+
     useHead(
       computed(() => {
         const nameEn = stripRich(text('name', 'en')) || 'Echo';
@@ -445,22 +463,51 @@ export default {
         const title = `${nameEn}${
           nameZh && nameZh !== nameEn ? ` ${nameZh}` : ''
         } — HPMA Echo`;
+        const description = `${nameEn}${
+          nameZh && nameZh !== nameEn ? ` (${nameZh})` : ''
+        } — HPMA echo stats, rarity variants, skill details and card synergies.`;
         const canonical = character.value
-          ? `https://hpma-phb.netlify.app/echoes/${character.value.id}`
-          : 'https://hpma-phb.netlify.app/echoes';
+          ? absoluteUrl(`/echoes/${character.value.id}`)
+          : absoluteUrl('/echoes');
+        const image = ogImage.value;
+        const introEn = stripRich(text('intro', 'en'));
+        const tipsEn = stripRich(text('tips', 'en'));
+        const aboutDescription = [introEn, tipsEn].filter(Boolean).join(' ');
         return {
           title,
           meta: [
-            {
-              name: 'description',
-              content: `${nameEn}${
-                nameZh && nameZh !== nameEn ? ` (${nameZh})` : ''
-              } — HPMA echo stats, rarity variants, skill details and card synergies.`,
-            },
+            { name: 'description', content: description },
+            { property: 'og:type', content: 'article' },
             { property: 'og:title', content: title },
+            { property: 'og:description', content: description },
             { property: 'og:url', content: canonical },
+            { property: 'og:image', content: image },
+            { property: 'og:image:alt', content: nameEn },
+            { name: 'twitter:card', content: 'summary_large_image' },
+            { name: 'twitter:title', content: title },
+            { name: 'twitter:description', content: description },
+            { name: 'twitter:image', content: image },
+            { name: 'twitter:image:alt', content: nameEn },
           ],
           link: [{ rel: 'canonical', href: canonical }],
+          script: character.value
+            ? [
+                jsonLdScript(
+                  buildEchoStructuredData({
+                    name: nameEn,
+                    alternateName: nameZh !== nameEn ? nameZh : '',
+                    description: aboutDescription,
+                    image,
+                    url: canonical,
+                    about: {
+                      name: nameEn,
+                      alternateName: nameZh !== nameEn ? nameZh : '',
+                      description: introEn || aboutDescription,
+                    },
+                  }),
+                ),
+              ]
+            : [],
         };
       }),
     );

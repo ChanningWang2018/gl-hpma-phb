@@ -145,7 +145,18 @@ import { useHead } from '@vueuse/head';
 import { translate } from '@/services/codexLocale.js';
 import { lookupLabel } from '@/services/spellbookClient.js';
 import { SpellbookService } from '@/services/spellbookService.js';
+import {
+  FALLBACK_OG_IMAGE,
+  absoluteUrl,
+  buildCollectionPageStructuredData,
+  jsonLdScript,
+} from '@/services/structuredData.js';
 import { useCardStore } from '@/stores/cardStore.js';
+
+const DESCRIPTION_EN =
+  'Browse all Harry Potter: Magic Awakened cards — spells, summons and companions — with type, rarity and cost filters plus zh/en name search.';
+const DESCRIPTION_ZH =
+  '浏览《哈利波特：魔法觉醒》全部卡牌档案——咒语 / 召唤 / 伙伴——支持类型、稀有度、费用筛选及中英文名检索。';
 
 export default {
   name: 'CardCodex',
@@ -158,33 +169,53 @@ export default {
   },
   setup() {
     const cardStore = useCardStore();
-    // 页面标题/描述随全站语言切换；en 文案维持原样，zh 为对应自然翻译
+    // 页面标题/描述随全站语言切换；en 文案维持原样，zh 为对应自然翻译。
+    // JSON-LD 固定用 en 主名（zh 缺失时 lookupText 自动回退），避免预渲染
+    // 结果随 headless 浏览器的语言偏好变化。
     useHead(
-      computed(() => ({
-        title:
+      computed(() => {
+        const title =
           cardStore.locale === 'zh'
             ? '卡牌图鉴 · my little hpma bits'
-            : 'HPMA Card Codex - Every Card, Catalogued',
-        meta: [
-          {
-            name: 'description',
-            content:
-              cardStore.locale === 'zh'
-                ? '浏览《哈利波特：魔法觉醒》全部卡牌档案——咒语 / 召唤 / 伙伴——支持类型、稀有度、费用筛选及中英文名检索。'
-                : 'Browse all Harry Potter: Magic Awakened cards — spells, summons and companions — with type, rarity and cost filters plus zh/en name search.',
-          },
-          {
-            property: 'og:url',
-            content: 'https://hpma-phb.netlify.app/cards',
-          },
-        ],
-        link: [
-          {
-            rel: 'canonical',
-            href: 'https://hpma-phb.netlify.app/cards',
-          },
-        ],
-      })),
+            : 'HPMA Card Codex - Every Card, Catalogued';
+        const description =
+          cardStore.locale === 'zh' ? DESCRIPTION_ZH : DESCRIPTION_EN;
+        const canonical = absoluteUrl('/cards');
+        const image = absoluteUrl(FALLBACK_OG_IMAGE);
+        return {
+          title,
+          meta: [
+            { name: 'description', content: description },
+            { property: 'og:type', content: 'website' },
+            { property: 'og:title', content: title },
+            { property: 'og:description', content: description },
+            { property: 'og:url', content: canonical },
+            { property: 'og:image', content: image },
+            { property: 'og:image:alt', content: 'HPMA Card Codex' },
+            { name: 'twitter:card', content: 'summary_large_image' },
+            { name: 'twitter:title', content: title },
+            { name: 'twitter:description', content: description },
+            { name: 'twitter:image', content: image },
+          ],
+          link: [{ rel: 'canonical', href: canonical }],
+          script: [
+            jsonLdScript(
+              buildCollectionPageStructuredData({
+                name: 'HPMA Card Codex',
+                description: DESCRIPTION_EN,
+                url: canonical,
+                itemListName: 'Cards',
+                items: cardStore.cards.map((card) => ({
+                  name:
+                    SpellbookService.text(card, 'en', 'name') ??
+                    `No. ${card.id}`,
+                  url: `/cards/${card.id}`,
+                })),
+              }),
+            ),
+          ],
+        };
+      }),
     );
     return { cardStore };
   },

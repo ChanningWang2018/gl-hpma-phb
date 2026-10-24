@@ -197,13 +197,20 @@ import {
 import { valueLabel } from '@/services/codexLocale.js';
 import { lookupLabel } from '@/services/spellbookClient.js';
 import { SpellbookService } from '@/services/spellbookService.js';
+import {
+  FALLBACK_OG_IMAGE,
+  absoluteUrl,
+  buildCardStructuredData,
+  firstAbsoluteUrl,
+  jsonLdScript,
+} from '@/services/structuredData.js';
 import { useCardStore } from '@/stores/cardStore.js';
 import { useEchoStore } from '@/stores/echoStore.js';
 import { computed, nextTick, onMounted, ref } from 'vue';
 import { useHead } from '@vueuse/head';
 import { useRoute } from 'vue-router';
 
-const canonicalFor = (id) => `https://hpma-phb.netlify.app/cards/${id}`;
+const canonicalFor = (id) => absoluteUrl(`/cards/${id}`);
 
 // Levels 1-10 stay visible; 11-30 are rendered inside <details>. Tradeoff: the
 // deep rows remain in the initial HTML (search engines and the prerenderer see
@@ -338,6 +345,24 @@ export default {
       locale.value === 'en' && group.unitEn ? group.unitEn : group.unit;
     const displayValue = (entry) => valueLabel(locale.value, entry.display);
 
+    // OG/schema image: the release image when version.json has resolved an
+    // imageBase, else the same-origin /cardimg proxy, else the local 1200×630
+    // fallback. Entity art is portrait (375×500), so the fallback is the only
+    // 1200×630 asset; it is still preferable to a broken absolute URL.
+    const ogImage = computed(() => {
+      if (!card.value) return absoluteUrl(FALLBACK_OG_IMAGE);
+      let primary = null;
+      try {
+        primary = SpellbookService.imageUrl(card.value);
+      } catch {
+        // imageBase not ready — fall through to the proxy candidate.
+      }
+      return firstAbsoluteUrl(
+        [primary, card.value.img ? `/cardimg/${card.value.img}` : null],
+        FALLBACK_OG_IMAGE,
+      );
+    });
+
     useHead(
       computed(() => {
         const nameEn = card.value
@@ -349,20 +374,48 @@ export default {
         const title = `${nameEn}${
           nameZh && nameZh !== nameEn ? ` ${nameZh}` : ''
         } — HPMA Card Codex`;
+        const description = `${nameEn}${
+          nameZh && nameZh !== nameEn ? ` (${nameZh})` : ''
+        } — HPMA card stats, level values, rarity and tags.`;
         const canonical = canonicalFor(card.value?.id ?? route.params.id);
+        const image = ogImage.value;
+        // Titles/descriptions/schema stay en-anchored (zh only as a suffix or
+        // fallback), so the prerendered HTML does not change with the headless
+        // browser's language preference.
         return {
           title,
           meta: [
-            {
-              name: 'description',
-              content: `${nameEn}${
-                nameZh && nameZh !== nameEn ? ` (${nameZh})` : ''
-              } — HPMA card stats, level values, rarity and tags.`,
-            },
+            { name: 'description', content: description },
+            { property: 'og:type', content: 'article' },
             { property: 'og:title', content: title },
+            { property: 'og:description', content: description },
             { property: 'og:url', content: canonical },
+            { property: 'og:image', content: image },
+            { property: 'og:image:alt', content: nameEn },
+            { name: 'twitter:card', content: 'summary_large_image' },
+            { name: 'twitter:title', content: title },
+            { name: 'twitter:description', content: description },
+            { name: 'twitter:image', content: image },
+            { name: 'twitter:image:alt', content: nameEn },
           ],
           link: [{ rel: 'canonical', href: canonical }],
+          script: card.value
+            ? [
+                jsonLdScript(
+                  buildCardStructuredData({
+                    name: nameEn,
+                    alternateName: nameZh !== nameEn ? nameZh : '',
+                    description: SpellbookService.text(
+                      card.value,
+                      'en',
+                      'desc',
+                    ),
+                    image,
+                    url: canonical,
+                  }),
+                ),
+              ]
+            : [],
         };
       }),
     );

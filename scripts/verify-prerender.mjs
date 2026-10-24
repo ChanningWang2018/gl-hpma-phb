@@ -7,6 +7,10 @@
 // prerender exists to guarantee:
 //
 //   - exactly one rel="canonical" pointing at the page's own URL
+//   - exactly one application/ld+json graph whose @type matches the route and
+//     whose url matches the canonical (no invented ratings/reviews/offers)
+//   - one og:url (== canonical), one og:type (website/article), one absolute
+//     og:image and twitter:card=summary_large_image
 //   - card / echo pages whose <title> keeps the entity name
 //   - no "Loading card…" / "Loading echo…" client-only placeholders
 //
@@ -76,6 +80,41 @@ function attribute(tag, name) {
   const match = pattern.exec(tag);
   if (!match) return null;
   return match[1] ?? match[2] ?? match[3];
+}
+
+// Every <meta> carrying attr=value, decoded. Duplicate meta tags are an SEO
+// bug, so callers check the length as well as the content.
+function metaContent(html, attr, value) {
+  return (html.match(/<meta\b[^>]*>/gi) ?? [])
+    .filter((tag) => attribute(tag, attr) === value)
+    .map((tag) => decodeEntities(attribute(tag, 'content') ?? ''));
+}
+
+function jsonLdScripts(html) {
+  return [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
+    .map((match) => ({
+      tag: `<script ${match[1]}>`,
+      content: match[2],
+    }))
+    .filter(
+      ({ tag }) =>
+        (attribute(tag, 'type') ?? '').toLowerCase() === 'application/ld+json',
+    );
+}
+
+// P2-B contract: one graph per page, chosen by route shape.
+function expectedSchemaType(route) {
+  if (route.startsWith('/cards/') || route.startsWith('/echoes/'))
+    return 'CreativeWork';
+  if (route === '/cards' || route === '/echoes') return 'CollectionPage';
+  if (route === '/') return 'WebSite';
+  return 'WebApplication';
+}
+
+function expectedOgType(route) {
+  return route.startsWith('/cards/') || route.startsWith('/echoes/')
+    ? 'article'
+    : 'website';
 }
 
 function pageFile(route) {
@@ -288,6 +327,7 @@ function main() {
     const canonicalTags = (html.match(/<link\b[^>]*>/gi) ?? []).filter(
       (tag) => (attribute(tag, 'rel') ?? '').toLowerCase() === 'canonical',
     );
+    let canonicalHref = null;
     if (canonicalTags.length !== 1) {
       fail(
         `${route}: expected exactly 1 rel="canonical" link, found ${canonicalTags.length}`,
@@ -297,10 +337,13 @@ function main() {
       const expectedHref = `${SITE_ORIGIN}${route}`;
       if (!href) {
         fail(`${route}: rel="canonical" link has no href`);
-      } else if (decodeEntities(href) !== expectedHref) {
-        fail(
-          `${route}: canonical points to ${decodeEntities(href)}, expected ${expectedHref}`,
-        );
+      } else {
+        canonicalHref = decodeEntities(href);
+        if (canonicalHref !== expectedHref) {
+          fail(
+            `${route}: canonical points to ${canonicalHref}, expected ${expectedHref}`,
+          );
+        }
       }
     }
 
@@ -319,6 +362,114 @@ function main() {
           );
         }
       }
+    }
+
+    // P2-B contract: exactly one JSON-LD graph per page, absolute URLs and
+    // OG/Twitter tags consistent with the canonical. Zero blocks means the
+    // per-page data is missing; two means a static script collided with it.
+    const ldScripts = jsonLdScripts(html);
+    const schemaType = expectedSchemaType(route);
+    if (ldScripts.length !== 1) {
+      fail(
+        `${route}: expected exactly 1 application/ld+json script, found ${ldScripts.length}`,
+      );
+    } else {
+      let data = null;
+      try {
+        data = JSON.parse(ldScripts[0].content);
+      } catch (error) {
+        fail(`${route}: JSON-LD does not parse (${error.message})`);
+      }
+      if (data) {
+        if (data['@context'] !== 'https://schema.org') {
+          fail(
+            `${route}: JSON-LD @context is ${JSON.stringify(data['@context'])}`,
+          );
+        }
+        if (data['@type'] !== schemaType) {
+          fail(
+            `${route}: JSON-LD @type is ${JSON.stringify(data['@type'])}, expected ${schemaType}`,
+          );
+        }
+        if (canonicalHref && data.url !== canonicalHref) {
+          fail(
+            `${route}: JSON-LD url ${JSON.stringify(data.url)} does not match canonical ${canonicalHref}`,
+          );
+        }
+        if ('aggregateRating' in data || 'review' in data || 'offers' in data) {
+          fail(`${route}: JSON-LD contains invented rating/review/price data`);
+        }
+        if (data['@type'] === 'CollectionPage') {
+          const items = data.mainEntity?.itemListElement ?? [];
+          if (!items.length) {
+            fail(`${route}: CollectionPage has no ItemList items`);
+          }
+          if (data.mainEntity?.numberOfItems !== items.length) {
+            fail(
+              `${route}: ItemList numberOfItems ${data.mainEntity?.numberOfItems} does not match its ${items.length} entries`,
+            );
+          }
+          for (const item of items) {
+            if (!item.name || !item.url || !item.position) {
+              fail(`${route}: ItemList entry is missing name/url/position`);
+              break;
+            }
+          }
+        }
+        if (data['@type'] === 'CreativeWork') {
+          for (const field of ['name', 'description', 'image', 'url']) {
+            if (!data[field]) {
+              fail(`${route}: CreativeWork.${field} is missing`);
+            }
+          }
+          if (!/^https?:\/\//.test(data.image ?? '')) {
+            fail(
+              `${route}: CreativeWork.image is not an absolute URL: ${JSON.stringify(data.image)}`,
+            );
+          }
+          if (route.startsWith('/echoes/') && !data.about?.name) {
+            fail(`${route}: echo CreativeWork.about is missing the character`);
+          }
+        }
+        if (data['@type'] === 'WebSite' && 'potentialAction' in data) {
+          fail(`${route}: WebSite must not declare a SearchAction yet`);
+        }
+      }
+    }
+
+    const ogUrls = metaContent(html, 'property', 'og:url');
+    const ogTypes = metaContent(html, 'property', 'og:type');
+    const ogImages = metaContent(html, 'property', 'og:image');
+    const twitterCards = metaContent(html, 'name', 'twitter:card');
+    if (ogUrls.length !== 1) {
+      fail(`${route}: expected exactly 1 og:url meta, found ${ogUrls.length}`);
+    } else if (canonicalHref && ogUrls[0] !== canonicalHref) {
+      fail(
+        `${route}: og:url ${ogUrls[0]} does not match canonical ${canonicalHref}`,
+      );
+    }
+    if (ogTypes.length !== 1) {
+      fail(
+        `${route}: expected exactly 1 og:type meta, found ${ogTypes.length}`,
+      );
+    } else if (ogTypes[0] !== expectedOgType(route)) {
+      fail(
+        `${route}: og:type ${ogTypes[0]} does not match ${expectedOgType(route)}`,
+      );
+    }
+    if (ogImages.length !== 1) {
+      fail(
+        `${route}: expected exactly 1 og:image meta, found ${ogImages.length}`,
+      );
+    } else if (!/^https?:\/\//.test(ogImages[0])) {
+      fail(`${route}: og:image is not an absolute URL: ${ogImages[0]}`);
+    }
+    if (twitterCards.length !== 1) {
+      fail(
+        `${route}: expected exactly 1 twitter:card meta, found ${twitterCards.length}`,
+      );
+    } else if (twitterCards[0] !== 'summary_large_image') {
+      fail(`${route}: twitter:card is ${JSON.stringify(twitterCards[0])}`);
     }
 
     for (const placeholder of LOADING_PLACEHOLDERS) {
@@ -340,7 +491,7 @@ function main() {
   }
 
   console.log(
-    `Prerender verification passed: ${EXPECTED_TOTAL} pages (${INDEX_ROUTES.length} index + ${EXPECTED_CARDS} cards + ${EXPECTED_ECHOES} echoes), ${EXPECTED_TOTAL} sitemap URLs, one canonical per page, no loading placeholders.`,
+    `Prerender verification passed: ${EXPECTED_TOTAL} pages (${INDEX_ROUTES.length} index + ${EXPECTED_CARDS} cards + ${EXPECTED_ECHOES} echoes), ${EXPECTED_TOTAL} sitemap URLs, one canonical and one JSON-LD graph per page, consistent og:url/og:type/og:image, no loading placeholders.`,
   );
 }
 

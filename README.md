@@ -136,8 +136,10 @@ npm run build:prerender
 static pages (`/`, `/analytics`, `/cards`, `/cards/:id` × 141, `/echoes`,
 `/echoes/:id` × 19, `/quiz`, `/sales-optimizer`, `/resources`) into `dist/`.
 Each page carries its per-entity bilingual title/description, canonical and OG
-tags; `dist/sitemap.xml` is generated from the same data (167 URLs). Netlify
-uses this command (`netlify.toml`).
+tags, plus exactly one JSON-LD graph: `CreativeWork` on card/echo pages,
+`CollectionPage` + `ItemList` on `/cards` and `/echoes`, `WebSite` on the home
+page and `WebApplication` on the tool pages; `dist/sitemap.xml` is generated
+from the same data (167 URLs). Netlify uses this command (`netlify.toml`).
 
 Verify the prerendered output:
 
@@ -148,11 +150,15 @@ npm run verify:prerender
 `verify:prerender` is a dependency-free Node check over the built `dist/`: it
 requires exactly 167 pages (7 index pages, 141 cards, 19 deck echoes), 167
 sitemap URLs that each resolve to a page file, exactly one canonical link per
-page pointing at that page's URL, detail titles that contain the entity name,
-and no `Loading card…` / `Loading echo…` placeholders. It exits non-zero and
-lists every failure. Run it after `npm run build:prerender`; the 167-page
-contract lives in `scripts/verify-prerender.mjs` and must be updated when the
-spellbook or echoes module changes the entity counts.
+page pointing at that page's URL, exactly one parseable JSON-LD graph per page
+whose `@type` and `url` match the route and canonical, one `og:url` (equal to
+the canonical), one `og:type` (`website` for indexes/home, `article` for detail
+pages), one absolute `og:image` and `twitter:card=summary_large_image`, detail
+titles that contain the entity name, and no `Loading card…` / `Loading echo…`
+placeholders. It exits non-zero and lists every failure. Run it after
+`npm run build:prerender`; the 167-page contract lives in
+`scripts/verify-prerender.mjs` and must be updated when the spellbook or echoes
+module changes the entity counts.
 
 The `Prerender gate` workflow (`.github/workflows/prerender.yml`) runs
 `npm run build:prerender`, then `npm run verify:prerender`, nightly, on every
