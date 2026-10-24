@@ -98,7 +98,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useHead } from '@vueuse/head';
 
 const DESCRIPTION =
-  'All 19 player echoes in Harry Potter: Magic Awakened — win rate, pick rate, rarity variants and card synergies.';
+  'All 19 player echoes in Harry Potter: Magic Awakened — win rate, pick rate and rarity variants.';
 
 const oneDecimal = (value) =>
   value === null || value === undefined || value === ''

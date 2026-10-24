@@ -15,7 +15,7 @@ A Vue 3-based analytics dashboard for tracking character (Reverberation, Echo) p
 - `/` — front page: paper masthead, this week's ink plate, movers column and the five sections
 - `/analytics` — full echo analytics (scatter, standings, trends, detailed table)
 - `/cards` — Card Codex; `/cards/:id` — one card page
-- `/echoes` — all 19 player echoes; `/echoes/:id` — one echo page (stats, rarity variants, card synergies)
+- `/echoes` — all 19 player echoes; `/echoes/:id` — one echo page (stats, rarity variants)
 - `/sales-optimizer` — Sales Optimizer
 - `/quiz` — Magic Quiz
 - `/resources` — the library of external tools
