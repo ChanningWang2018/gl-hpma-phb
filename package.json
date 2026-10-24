@@ -8,8 +8,12 @@
   },
   "scripts": {
     "dev": "vite",
+    "predev": "node scripts/build-search-index.mjs",
     "build": "vite build",
+    "prebuild": "node scripts/build-search-index.mjs",
     "build:prerender": "vite build && node scripts/prerender.mjs",
+    "prebuild:prerender": "node scripts/build-search-index.mjs",
+    "build:search-index": "node scripts/build-search-index.mjs",
     "prerender": "node scripts/prerender.mjs",
     "verify:prerender": "node scripts/verify-prerender.mjs",
     "preview": "vite preview",

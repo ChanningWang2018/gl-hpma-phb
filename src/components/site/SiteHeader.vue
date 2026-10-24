@@ -16,6 +16,7 @@
 
       <div class="controls">
         <span v-if="showIssue" class="issue-chip">Issue {{ edition }}</span>
+        <SearchOverlay />
         <LocaleSwitch tone="paper" />
       </div>
     </div>
@@ -26,6 +27,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import LocaleSwitch from '@/components/LocaleSwitch.vue';
+import SearchOverlay from '@/components/SearchOverlay.vue';
 import { useChartStore } from '@/stores/chartStore.js';
 
 // SiteHeader — 全站唯一的顶栏，纸色一版到底。首页的期号与日期由头版的
@@ -33,7 +35,7 @@ import { useChartStore } from '@/stores/chartStore.js';
 // 栏目里没有 "Home"：品牌字标就是回到头版的入口。
 export default {
   name: 'SiteHeader',
-  components: { LocaleSwitch, RouterLink },
+  components: { LocaleSwitch, RouterLink, SearchOverlay },
   setup() {
     const route = useRoute();
     const chartStore = useChartStore();
