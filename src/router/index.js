@@ -48,6 +48,16 @@ const routes = [
     component: () => import('@/views/ExternalLinks.vue'),
     name: 'resources',
   },
+  {
+    path: '/methodology',
+    component: () => import('@/views/Methodology.vue'),
+    name: 'methodology',
+  },
+  {
+    path: '/changelog',
+    component: () => import('@/views/Changelog.vue'),
+    name: 'changelog',
+  },
 ];
 
 const router = createRouter({

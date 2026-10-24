@@ -19,6 +19,8 @@ A Vue 3-based analytics dashboard for tracking character (Reverberation, Echo) p
 - `/sales-optimizer` — Sales Optimizer
 - `/quiz` — Magic Quiz
 - `/resources` — the library of external tools
+- `/methodology` — data sources, field definitions, the four brackets, update cadence and disclaimer
+- `/changelog` — current cards / echoes / quiz / trends versions and site changes (hand-maintained in `src/data/changelog.json`)
 
 ## 📊 Features
 
@@ -132,11 +134,12 @@ Create the deployable build with static HTML for every indexable route
 npm run build:prerender
 ```
 
-`build:prerender` runs `vite build`, then `scripts/prerender.mjs` writes 167
+`build:prerender` runs `vite build`, then `scripts/prerender.mjs` writes 169
 static pages (`/`, `/analytics`, `/cards`, `/cards/:id` × 141, `/echoes`,
-`/echoes/:id` × 19, `/quiz`, `/sales-optimizer`, `/resources`) into `dist/`.
+`/echoes/:id` × 19, `/quiz`, `/sales-optimizer`, `/resources`, `/methodology`,
+`/changelog`) into `dist/`.
 Each page carries its per-entity bilingual title/description, canonical and OG
-tags; `dist/sitemap.xml` is generated from the same data (167 URLs). Netlify
+tags; `dist/sitemap.xml` is generated from the same data (169 URLs). Netlify
 uses this command (`netlify.toml`).
 
 Verify the prerendered output:
@@ -146,11 +149,11 @@ npm run verify:prerender
 ```
 
 `verify:prerender` is a dependency-free Node check over the built `dist/`: it
-requires exactly 167 pages (7 index pages, 141 cards, 19 deck echoes), 167
+requires exactly 169 pages (9 index pages, 141 cards, 19 deck echoes), 169
 sitemap URLs that each resolve to a page file, exactly one canonical link per
 page pointing at that page's URL, detail titles that contain the entity name,
 and no `Loading card…` / `Loading echo…` placeholders. It exits non-zero and
-lists every failure. Run it after `npm run build:prerender`; the 167-page
+lists every failure. Run it after `npm run build:prerender`; the 169-page
 contract lives in `scripts/verify-prerender.mjs` and must be updated when the
 spellbook or echoes module changes the entity counts.
 

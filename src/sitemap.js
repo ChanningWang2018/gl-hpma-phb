@@ -18,10 +18,12 @@ export default async function sitemapRoutes() {
   const cards = readJson('public/data/spellbook/cards.json');
   const echoes = readJson('public/data/echoes/echoes.json');
   const trends = readJson('public/archive/trends.json');
+  const changelog = readJson('src/data/changelog.json');
 
   const cardsUpdated = String(cards.generated_at ?? '').slice(0, 10);
   const echoesUpdated = String(echoes.generated_at ?? '').slice(0, 10);
   const trendsUpdated = String(trends.generatedAt ?? '').slice(0, 10);
+  const changelogUpdated = String(changelog.updated ?? '').slice(0, 10);
 
   const routes = [
     {
@@ -62,6 +64,17 @@ export default async function sitemapRoutes() {
       url: `${BASE}/resources`,
       changefreq: 'monthly',
       priority: 0.6,
+    },
+    {
+      url: `${BASE}/methodology`,
+      changefreq: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${BASE}/changelog`,
+      changefreq: 'monthly',
+      priority: 0.5,
+      lastmod: changelogUpdated || undefined,
     },
   ];
 

@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-10-24",
+  "dataVersions": [
+    {
+      "id": "cards",
+      "name": {
+        "en": "Cards",
+        "zh": "卡牌"
+      },
+      "tag": "cards-v1.20261024.0",
+      "tagKind": "release",
+      "date": "2026-10-24",
+      "sourceLabel": "hpma-bits/hpma-spellbook",
+      "sourceUrl": "https://github.com/hpma-bits/hpma-spellbook/releases/tag/cards-v1.20261024.0",
+      "note": {
+        "en": "141 cards with every level and both language tables.",
+        "zh": "141 张卡牌，含全部等级与中英文文案。"
+      }
+    },
+    {
+      "id": "echoes",
+      "name": {
+        "en": "Echoes",
+        "zh": "回响"
+      },
+      "tag": "echoes-v1.20261024.0",
+      "tagKind": "release",
+      "date": "2026-10-24",
+      "sourceLabel": "hpma-bits/hpma-spellbook",
+      "sourceUrl": "https://github.com/hpma-bits/hpma-spellbook/releases/tag/echoes-v1.20261024.0",
+      "note": {
+        "en": "184 echoes and 270 affixes; 19 player echoes are indexed.",
+        "zh": "184 个回响、270 条词条；站内索引 19 个玩家回响。"
+      }
+    },
+    {
+      "id": "quiz",
+      "name": {
+        "en": "Quiz",
+        "zh": "题库"
+      },
+      "tag": "quiz-v2.20261009.0",
+      "tagKind": "release",
+      "date": "2026-10-09",
+      "sourceLabel": "hpma-bits/hpma-quizbank",
+      "sourceUrl": "https://github.com/hpma-bits/hpma-quizbank/releases/tag/quiz-v2.20261009.0",
+      "note": {
+        "en": "1,847 bilingual questions across the two banks.",
+        "zh": "两个题库共 1,847 道双语题。"
+      }
+    },
+    {
+      "id": "trends",
+      "name": {
+        "en": "Weekly trends",
+        "zh": "周趋势"
+      },
+      "tag": "v20261022-075214",
+      "tagKind": "snapshot",
+      "date": "2026-10-22",
+      "sourceLabel": "163hot API",
+      "sourceUrl": "https://www.163hot.net/hp/phb/getData",
+      "note": {
+        "en": "40 weekly periods across the four brackets, rebuilt from the archive snapshots.",
+        "zh": "40 个周期、四档数据，由归档快照重新聚合。"
+      }
+    }
+  ],
+  "siteChanges": [
+    {
+      "date": "2026-10-24",
+      "refs": ["#24"],
+      "title": {
+        "en": "Methodology and changelog",
+        "zh": "数据说明与更新日志"
+      },
+      "summary": {
+        "en": "Two new indexable pages explain where every number comes from and record each data and site release.",
+        "zh": "新增两个可预渲染页面，说明数据来源与口径，并记录每次数据与站点更新。"
+      }
+    },
+    {
+      "date": "2026-10-24",
+      "refs": ["#20"],
+      "title": {
+        "en": "Prerender verifier",
+        "zh": "预渲染校验"
+      },
+      "summary": {
+        "en": "The build now verifies every prerendered page, canonical and sitemap URL before the gate passes; the route contract lives in scripts/verify-prerender.mjs.",
+        "zh": "构建后会校验每个静态页、canonical 与 sitemap URL；路由契约写在 scripts/verify-prerender.mjs。"
+      }
+    },
+    {
+      "date": "2026-10-24",
+      "refs": ["#19"],
+      "title": {
+        "en": "Echo image fallback chain",
+        "zh": "回响图片降级链"
+      },
+      "summary": {
+        "en": "Echo images walk WebP, PNG, the same-origin proxy, a local avatar and finally an initial placeholder without shifting layout.",
+        "zh": "回响图片按 WebP → PNG → 同源代理 → 本地头像 → 首字母占位依次降级，失败也不抖动布局。"
+      }
+    },
+    {
+      "date": "2026-10-24",
+      "refs": ["#18"],
+      "title": {
+        "en": "Optimizer URL state",
+        "zh": "优化器 URL 状态"
+      },
+      "summary": {
+        "en": "Sales Optimizer inputs and selling strategy are kept in the URL, so a setup can be bookmarked or shared.",
+        "zh": "销售优化器的输入与出售策略写入 URL，可收藏或分享配置。"
+      }
+    },
+    {
+      "date": "2026-10-24",
+      "refs": ["#17"],
+      "title": {
+        "en": "Quiz URL state",
+        "zh": "测验 URL 状态"
+      },
+      "summary": {
+        "en": "Quiz tab, filters, permalinks and challenge setup now live in the URL.",
+        "zh": "测验的页签、筛选、固定链接与挑战配置都同步到 URL。"
+      }
+    },
+    {
+      "date": "2026-10-24",
+      "refs": [],
+      "title": {
+        "en": "Object pages and static prerender",
+        "zh": "对象页与静态预渲染"
+      },
+      "summary": {
+        "en": "Cards, echoes and every index page got their own indexable URL, per-page metadata and a generated sitemap.",
+        "zh": "卡牌、回响与各索引页都有了独立 URL、逐页元数据与自动生成的 sitemap。"
+      }
+    },
+    {
+      "date": "2026-10-10",
+      "refs": [],
+      "title": {
+        "en": "Site-wide language switch",
+        "zh": "全站语言切换"
+      },
+      "summary": {
+        "en": "One zh/en switch in the header drives the whole site, and the choice is remembered across visits.",
+        "zh": "顶栏一个中英切换控制全站语言，选择会跨访问保留。"
+      }
+    }
+  ]
+}
