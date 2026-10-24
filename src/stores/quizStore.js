@@ -6,6 +6,11 @@
 // delegating getter + forwarding action so the store's API surface is
 // unchanged for the views/components.
 import { QuizService } from '@/services/quizService.js';
+import {
+  DEFAULT_CHALLENGE_SETUP,
+  DEFAULT_FILTERS,
+  QUIZ_PAGE_SIZE,
+} from '@/services/quizQuery.js';
 import { translate } from '@/services/quizLocale.js';
 import { useLocaleStore } from '@/stores/localeStore.js';
 import { defineStore } from 'pinia';
@@ -25,8 +30,13 @@ export const useQuizStore = defineStore('quiz', {
     // 两科原始题目（quiz.json banks.<id>.questions，数组引用）
     banks: { history_of_magic: [], muggle_studies: [] },
 
-    // 检索过滤（'all' 表示不筛科目；query 跨语言匹配题干/选项/讲解）
-    searchFilters: { bank: 'all', query: '' },
+    // 检索过滤（'all' 表示不筛科目/主题；query 跨语言匹配题干/选项/讲解）。
+    // theme 仅由 URL ?theme= 驱动（题库数据无玩家可见分类语义，UI 不设控件）
+    searchFilters: { ...DEFAULT_FILTERS },
+
+    // 题目直达高亮：{ bank, id } | null。只作展示锚点，不写进成绩/会话；
+    // bank 前缀消除两库 id 冲突（531 个 id 跨库重名）
+    highlight: null,
 
     // 挑战会话：buildChallenge 产物 + 运行时字段
     // （index 当前题下标 / answers 每题作答 / presentedAt 本题出题时刻）
@@ -49,12 +59,7 @@ export const useQuizStore = defineStore('quiz', {
     // 挂 store 而非组件 data：作答/成绩单态期间配置屏被卸载，草稿不丢，
     // 「调整设置」返回时保留用户四项选择（#9 拆分时回归的原行为）。
     // 初始值 = 默认配置：魔法史 / 随机盲抽 / 10 题 / 标准模式
-    setupDraft: {
-      bank: 'history_of_magic',
-      draw: 'random',
-      count: QuizService.CHALLENGE_COUNTS[0],
-      mode: QuizService.MODES[0],
-    },
+    setupDraft: { ...DEFAULT_CHALLENGE_SETUP },
   }),
 
   getters: {
@@ -146,20 +151,51 @@ export const useQuizStore = defineStore('quiz', {
       useLocaleStore().setLocale(value);
     },
 
-    // 切换页签（非法值忽略）
+    // 切换页签（非法值忽略）。切到另一页签时清掉题目直达锚点：
+    // question 只属于题库页，跨页签保留会在写 URL 时变成幽灵参数
     setTab(tab) {
-      if (tab === 'bank' || tab === 'challenge') this.tab = tab;
+      if (tab !== 'bank' && tab !== 'challenge') return;
+      if (tab !== this.tab) this.highlight = null;
+      this.tab = tab;
     },
 
-    // 合并式更新检索过滤（setSearch({ bank: 'history_of_magic' }) 等）；
-    // query 变化时分页归位到第 1 页
+    // 合并式更新检索过滤（setSearch({ bank: 'history_of_magic' }) 等）。
+    // 任一过滤变化时分页归位到第 1 页，并清掉题目直达锚点（用户已离开
+    // 该题的筛选上下文；question 不应在 URL 里残留）
     setSearch(patch) {
-      const queryChanged =
+      const changed =
         patch != null &&
-        patch.query !== undefined &&
-        patch.query !== this.searchFilters.query;
+        ['bank', 'theme', 'query'].some(
+          (key) =>
+            patch[key] !== undefined && patch[key] !== this.searchFilters[key],
+        );
       Object.assign(this.searchFilters, patch ?? {});
-      if (queryChanged) this.page = 1;
+      if (changed) this.page = 1;
+      this.highlight = null;
+    },
+
+    // 题目直达：切到题库页并定位到该题所在页（高亮由 QuizBankBrowser 渲染）。
+    // bank 前缀消除跨库 id 冲突；非法入参防御性忽略
+    focusQuestion({ bank, id } = {}) {
+      const numericId = Number(id);
+      if (
+        !QuizService.BANK_IDS.includes(bank) ||
+        !Number.isSafeInteger(numericId) ||
+        numericId <= 0
+      ) {
+        return;
+      }
+      this.setTab('bank');
+      this.highlight = { bank, id: numericId };
+      const index = this.searchResults.findIndex(
+        (row) => row.bank === bank && Number(row.id) === numericId,
+      );
+      this.page = index >= 0 ? Math.floor(index / QUIZ_PAGE_SIZE) + 1 : 1;
+    },
+
+    // 清掉题目直达锚点（离开该题/改筛选/翻页时调用）
+    clearHighlight() {
+      this.highlight = null;
     },
 
     // 检索翻页（防御非法值：最小第 1 页）

@@ -43,6 +43,7 @@
           v-for="row in pageRows"
           :key="rowKey(row)"
           class="question-card"
+          :class="{ 'question-card--highlight': isHighlighted(row) }"
         >
           <div class="card-head">
             <h3 class="card-stem">
@@ -158,7 +159,7 @@
           type="button"
           class="pager-btn"
           :disabled="safePage <= 1"
-          @click="quizStore.setPage(safePage - 1)"
+          @click="goToPage(safePage - 1)"
         >
           {{ t('pagePrev') }}
         </button>
@@ -167,7 +168,7 @@
           type="button"
           class="pager-btn"
           :disabled="safePage >= totalPages"
-          @click="quizStore.setPage(safePage + 1)"
+          @click="goToPage(safePage + 1)"
         >
           {{ t('pageNext') }}
         </button>
@@ -188,6 +189,7 @@ import {
   sanitizeMarkup,
   shuffledOptions,
 } from '@/services/quizClient.js';
+import { QUIZ_PAGE_SIZE } from '@/services/quizQuery.js';
 import { translate } from '@/services/quizLocale.js';
 import { useQuizStore } from '@/stores/quizStore.js';
 import SegmentControl from '@/components/ui/SegmentControl.vue';
@@ -196,7 +198,7 @@ import SegmentControl from '@/components/ui/SegmentControl.vue';
 const LETTERS = ['A', 'B', 'C', 'D'];
 
 /** Hits per page (docs/quiz.md T5). */
-const PAGE_SIZE = 50;
+const PAGE_SIZE = QUIZ_PAGE_SIZE;
 
 /** Keystroke debounce before the search box writes to the store (ms). */
 const SEARCH_DEBOUNCE_MS = 200;
@@ -242,13 +244,36 @@ export default {
       return this.searchResults.slice(start, start + PAGE_SIZE);
     },
   },
+  watch: {
+    // 输入框是 store.searchFilters.query 的投影：URL 回填（刷新/粘贴/后退）
+    // 时把输入框同步过来；组件在切页签时会卸载重建，故 immediate 兜底
+    'quizStore.searchFilters.query': {
+      immediate: true,
+      handler(value) {
+        if (value !== this.searchInput) {
+          clearTimeout(this.searchTimer);
+          this.searchInput = value;
+        }
+      },
+    },
+
+    // 题目直达：高亮题可能在第 N 页，focusQuestion 已把 page 定位好；
+    // 渲染完成后滚到卡片（block: center，避免被页头/工具栏遮住）
+    'quizStore.highlight': {
+      immediate: true,
+      handler(value) {
+        if (value) this.scrollToHighlight();
+      },
+    },
+  },
   beforeUnmount() {
     clearTimeout(this.searchTimer);
   },
   methods: {
     setBank(value) {
-      this.quizStore.setSearch({ bank: value });
-      // store.setSearch 只在 query 变化时归位页码，科目切换在此显式回第 1 页
+      // 题库页无主题控件；用户手动换科目/改检索即退出隐藏的 ?theme= 过滤
+      this.quizStore.setSearch({ bank: value, theme: 'all' });
+      // setSearch 在任一过滤变化时归位页码；显式再设一次防御同值切换
       this.quizStore.setPage(1);
     },
 
@@ -257,8 +282,26 @@ export default {
       this.searchInput = event.target.value;
       clearTimeout(this.searchTimer);
       this.searchTimer = setTimeout(() => {
-        this.quizStore.setSearch({ query: this.searchInput });
+        this.quizStore.setSearch({
+          query: this.searchInput,
+          theme: 'all',
+        });
       }, SEARCH_DEBOUNCE_MS);
+    },
+
+    // 翻页不属于 URL 状态；翻页即离开题目直达的上下文，清掉锚点
+    goToPage(page) {
+      this.quizStore.clearHighlight();
+      this.quizStore.setPage(page);
+    },
+
+    scrollToHighlight() {
+      this.$nextTick(() => {
+        const card = this.$el?.querySelector?.('.question-card--highlight');
+        if (card && typeof card.scrollIntoView === 'function') {
+          card.scrollIntoView({ block: 'center' });
+        }
+      });
     },
 
     // id 仅 bank 内唯一，跨库键需带 bank 前缀
@@ -312,13 +355,24 @@ export default {
       return list;
     },
 
+    isHighlighted(row) {
+      const highlight = this.quizStore.highlight;
+      return (
+        !!highlight &&
+        highlight.bank === row.bank &&
+        String(highlight.id) === String(row.id)
+      );
+    },
+
     isRevealed(row) {
-      return !!this.revealed[this.rowKey(row)];
+      return !!this.revealed[this.rowKey(row)] || this.isHighlighted(row);
     },
 
     toggleReveal(row) {
       const key = this.rowKey(row);
-      if (this.revealed[key]) {
+      if (this.isRevealed(row)) {
+        // 收起高亮题同时撤掉直达锚点：question 参数随 URL 一起消失
+        if (this.isHighlighted(row)) this.quizStore.clearHighlight();
         delete this.revealed[key];
       } else {
         this.revealed[key] = true;
@@ -417,6 +471,12 @@ export default {
 
 .question-card:hover {
   border-color: var(--ink-faded);
+}
+
+/* 题目直达锚点：金叶描边不占布局（outline 不触发重排），与 hover 共存 */
+.question-card--highlight {
+  outline: 2px solid var(--gold-leaf);
+  outline-offset: 2px;
 }
 
 .card-head {
