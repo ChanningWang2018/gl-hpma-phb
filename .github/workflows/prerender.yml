@@ -24,7 +24,7 @@ concurrency:
 jobs:
   prerender:
     runs-on: ubuntu-latest
-    timeout-minutes: 30 # The 167-page prerender is the slow part
+    timeout-minutes: 30 # The 169-page prerender is the slow part
 
     steps:
       - name: Checkout repository

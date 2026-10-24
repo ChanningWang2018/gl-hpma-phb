@@ -1,8 +1,8 @@
 // Verify the static output of `npm run build:prerender` (issue #20).
 //
 // This is the post-build smoke test: no browser and no dependencies, just the
-// files in dist/. It pins the indexable-route contract (7 index pages + 141
-// cards + 19 deck echoes = 167 pages), checks that dist/sitemap.xml describes
+// files in dist/. It pins the indexable-route contract (9 index pages + 141
+// cards + 19 deck echoes = 169 pages), checks that dist/sitemap.xml describes
 // exactly those pages, and inspects every page for the SEO invariants the
 // prerender exists to guarantee:
 //
@@ -30,10 +30,12 @@ const INDEX_ROUTES = [
   '/quiz',
   '/sales-optimizer',
   '/resources',
+  '/methodology',
+  '/changelog',
 ];
 const EXPECTED_CARDS = 141;
 const EXPECTED_ECHOES = 19;
-const EXPECTED_TOTAL = 167;
+const EXPECTED_TOTAL = 169;
 
 const LOADING_PLACEHOLDERS = ['Loading card…', 'Loading echo…'];
 

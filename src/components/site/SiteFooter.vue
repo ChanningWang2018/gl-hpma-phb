@@ -13,6 +13,8 @@
         <RouterLink to="/sales-optimizer">Optimizer</RouterLink>
         <RouterLink to="/quiz">Quiz</RouterLink>
         <RouterLink to="/resources">Library</RouterLink>
+        <RouterLink to="/methodology">Methodology</RouterLink>
+        <RouterLink to="/changelog">Changelog</RouterLink>
       </nav>
     </div>
 

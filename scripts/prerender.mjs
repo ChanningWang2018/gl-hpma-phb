@@ -1,6 +1,7 @@
 // Prerender the SPA into static HTML for the indexable routes:
 //
 //   /  /analytics  /cards  /echoes  /quiz  /sales-optimizer  /resources
+//   /methodology  /changelog
 //   /cards/:id   (141)
 //   /echoes/:id  (19 deck characters)
 //
@@ -107,6 +108,8 @@ function buildRoutes() {
     '/quiz',
     '/sales-optimizer',
     '/resources',
+    '/methodology',
+    '/changelog',
   ];
   for (const card of cards.cards ?? []) {
     routes.push(`/cards/${card.id}`);
