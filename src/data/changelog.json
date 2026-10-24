@@ -106,18 +106,6 @@
     },
     {
       "date": "2026-10-24",
-      "refs": ["#18"],
-      "title": {
-        "en": "Optimizer URL state",
-        "zh": "优化器 URL 状态"
-      },
-      "summary": {
-        "en": "Sales Optimizer inputs and selling strategy are kept in the URL, so a setup can be bookmarked or shared.",
-        "zh": "销售优化器的输入与出售策略写入 URL，可收藏或分享配置。"
-      }
-    },
-    {
-      "date": "2026-10-24",
       "refs": ["#17"],
       "title": {
         "en": "Quiz URL state",
