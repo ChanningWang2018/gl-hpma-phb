@@ -106,6 +106,7 @@
           @focus="showTip(point)"
           @blur="hideTip"
         >
+          <circle class="pt-hit" r="17" />
           <circle class="pt-ring" r="13" />
           <image
             class="pt-img"
@@ -413,6 +414,13 @@ export default {
   transition:
     stroke 0.18s,
     stroke-width 0.18s;
+}
+
+/* Invisible, larger hit area: 24px portraits scale down to ~16px in the
+   mobile's 520px-wide scroller, and a 16px tap target is not a tap target. */
+.pt-hit {
+  fill: transparent;
+  pointer-events: all;
 }
 
 .pt:hover .pt-ring,

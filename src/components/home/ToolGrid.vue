@@ -1,30 +1,27 @@
 <template>
-  <ul class="tools" role="list">
-    <li v-for="tool in tools" :key="tool.no" class="tool-item">
-      <RouterLink class="tool" :to="tool.to">
-        <span class="tool-top">
-          <span class="tool-no">{{ tool.no }}</span>
-          <ToolIcon class="tool-icon" :name="tool.icon" />
-        </span>
-        <h3>{{ tool.title }}</h3>
-        <p>{{ tool.desc }}</p>
-        <span class="tool-meta">
-          <span>{{ tool.count }}</span>
-          <span class="tool-arrow" aria-hidden="true">→</span>
-        </span>
+  <ol class="index" role="list">
+    <li v-for="tool in tools" :key="tool.no" class="index-item">
+      <RouterLink class="index-row" :to="tool.to">
+        <span class="index-no">{{ tool.no }}</span>
+        <ToolIcon class="index-icon" :name="tool.icon" />
+        <h3 class="index-title">{{ tool.title }}</h3>
+        <span class="index-desc">{{ tool.desc }}</span>
+        <span class="index-count">{{ tool.count }}</span>
+        <span class="index-arrow" aria-hidden="true">→</span>
       </RouterLink>
     </li>
-  </ul>
+  </ol>
 </template>
 
 <script>
 import ToolIcon from '@/components/home/ToolIcon.vue';
 import { RouterLink } from 'vue-router';
 
-// ToolGrid — 目录的五栏（01–05）：编号 / 28px 线图标 / 标题 / 一行说明 /
-// 计数 + 箭头。整卡是一个链接，顶栏细线在悬停时转金、图标转赭红、箭头
-// 右移。≤980 三栏，≤768 两栏且第 5 栏横铺，≤480 单栏；除期号外计数是
-// 静态文案（首页不加载 cards.json / quiz.json）。
+// ToolGrid — the paper's contents table. Five numbered entries, one rule per
+// row, title and one-line description on a single reading line, the archive
+// size closing on the right. Hover moves the arrow and warms the row; the whole
+// row is the link. Counts other than the issue count are static copy, because
+// the front page never loads cards.json or quiz.json.
 export default {
   name: 'ToolGrid',
   components: { RouterLink, ToolIcon },
@@ -40,7 +37,7 @@ export default {
           no: '01',
           icon: 'analytics',
           title: 'Echo analytics',
-          desc: 'Rankings, trends and every bracket.',
+          desc: 'Standings, trends and every bracket.',
           count: issueCount,
           to: '/analytics',
         },
@@ -56,7 +53,7 @@ export default {
           no: '03',
           icon: 'optimizer',
           title: 'Sales optimizer',
-          desc: 'Best haul from a bag of duplicates.',
+          desc: 'The best haul from a bag of duplicates.',
           count: 'LP solver',
           to: '/sales-optimizer',
         },
@@ -83,197 +80,176 @@ export default {
 </script>
 
 <style scoped>
-.tools {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: clamp(16px, 2.2vw, 30px);
+.index {
   list-style: none;
+  border-top: 1px solid var(--ink);
 }
 
-.tool-item {
+.index-item {
   min-width: 0;
 }
 
-.tool {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 198px;
-  padding: 15px 2px 0;
-  border-top: 1px solid var(--rule);
+.index-row {
+  display: grid;
+  grid-template-columns:
+    46px 30px minmax(150px, 0.9fr) minmax(0, 1.25fr)
+    108px 20px;
+  align-items: center;
+  gap: clamp(10px, 1.5vw, 22px);
+  padding: 18px 10px 18px 4px;
+  border-bottom: 1px solid var(--rule);
   color: var(--ink);
   text-decoration: none;
   transition:
-    border-color 0.25s,
-    background 0.25s;
+    background 0.22s,
+    border-color 0.22s;
 }
 
-.tool:hover {
-  border-top-color: var(--gold);
+.index-row:hover {
+  border-bottom-color: var(--ink);
   background: linear-gradient(
-    180deg,
-    rgba(var(--gold-rgb), 0.07),
-    transparent 60%
+    90deg,
+    rgba(var(--gold-rgb), 0.08),
+    transparent 72%
   );
 }
 
-.tool:focus-visible {
+.index-row:focus-visible {
   outline: 2px solid var(--gold-ink);
-  outline-offset: 3px;
+  outline-offset: 2px;
 }
 
-.tool-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.tool-no {
-  padding-top: 4px;
+.index-no {
   font-family: var(--font-type);
-  font-size: 8.5px;
+  font-size: 9px;
   line-height: 1.5;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.16em;
   color: var(--gold-ink);
 }
 
-.tool-icon {
+.index-icon {
   color: var(--ink-faded);
   transition:
-    color 0.25s,
-    transform 0.25s;
+    color 0.22s,
+    transform 0.22s;
 }
 
-.tool:hover .tool-icon {
+.index-row:hover .index-icon {
   color: var(--oxblood);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
-.tool h3 {
-  margin-top: 14px;
+.index-title {
   font-family: var(--font-serif);
-  font-size: 21px;
-  font-weight: 400;
+  font-size: clamp(21px, 1.85vw, 25px);
   line-height: 1.15;
   color: var(--ink);
 }
 
-.tool p {
-  max-width: 23ch;
-  margin-top: 5px;
-  font-size: 11.5px;
-  line-height: 1.55;
+.index-desc {
+  max-width: 52ch;
+  font-size: 12.5px;
+  line-height: 1.5;
   color: var(--ink-faded);
+  text-wrap: pretty;
 }
 
-.tool-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: auto;
-  padding-top: 16px;
+.index-count {
   font-family: var(--font-type);
-  font-size: 8px;
+  font-size: 8.5px;
   line-height: 1.5;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink-faded);
+  text-align: right;
+  white-space: nowrap;
 }
 
-.tool-arrow {
-  font-size: 15px;
+.index-arrow {
+  font-family: var(--font-sans);
+  font-size: 16px;
   line-height: 1;
   color: var(--oxblood);
-  transition: transform 0.2s;
+  text-align: right;
+  transition: transform 0.22s;
 }
 
-.tool:hover .tool-arrow {
+.index-row:hover .index-arrow {
   transform: translateX(4px);
 }
 
 @media (max-width: 980px) {
-  .tools {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .index-row {
+    grid-template-columns:
+      40px 26px minmax(130px, 0.9fr) minmax(0, 1.2fr)
+      92px 18px;
+    gap: 12px;
+  }
+
+  .index-desc {
+    font-size: 12px;
   }
 }
 
 @media (max-width: 768px) {
-  .tools {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 22px 18px;
+  .index-row {
+    grid-template-columns: 26px 24px minmax(0, 1fr) 18px;
+    grid-template-areas:
+      'no icon title arrow'
+      'no icon desc desc'
+      'no icon count count';
+    align-items: start;
+    gap: 3px 10px;
+    padding: 15px 4px 16px 0;
   }
 
-  .tool {
-    min-height: 170px;
+  .index-no {
+    grid-area: no;
+    padding-top: 6px;
   }
 
-  .tool p {
-    font-size: 11px;
+  .index-icon {
+    grid-area: icon;
+    padding-top: 2px;
   }
 
-  /* 第 5 栏横铺，避免落单 */
-  .tool-item:last-child {
-    grid-column: 1 / -1;
+  .index-title {
+    grid-area: title;
+    font-size: 21px;
   }
 
-  .tool-item:last-child .tool {
-    display: grid;
-    grid-template-columns: 40px minmax(0, 1fr) auto;
-    align-items: center;
-    column-gap: 14px;
-    min-height: 0;
-  }
-
-  .tool-item:last-child .tool-top {
-    display: block;
-    grid-row: 1 / span 2;
-  }
-
-  .tool-item:last-child .tool-no {
-    display: none;
-  }
-
-  .tool-item:last-child h3 {
-    margin-top: 0;
-  }
-
-  .tool-item:last-child p {
+  .index-desc {
+    grid-area: desc;
     max-width: none;
-    margin-top: 2px;
+    font-size: 12px;
   }
 
-  .tool-item:last-child .tool-meta {
-    grid-column: 3;
-    grid-row: 1 / span 2;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
-    margin-top: 0;
-    padding-top: 0;
+  .index-count {
+    grid-area: count;
+    text-align: left;
+  }
+
+  .index-arrow {
+    grid-area: arrow;
+    padding-top: 4px;
   }
 }
 
 @media (max-width: 480px) {
-  .tools {
-    grid-template-columns: minmax(0, 1fr);
+  .index-row {
+    grid-template-columns: 22px 20px minmax(0, 1fr) 16px;
+    gap: 2px 8px;
   }
 
-  .tool,
-  .tool-item .tool {
-    min-height: 0;
-  }
-
-  .tool p {
-    max-width: none;
+  .index-title {
+    font-size: 20px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tool,
-  .tool-icon,
-  .tool-arrow {
+  .index-row,
+  .index-icon,
+  .index-arrow {
     transition: none;
   }
 }

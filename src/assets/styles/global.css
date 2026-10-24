@@ -52,8 +52,9 @@
   --silver-ink: #a9b2b8;
   --forest-ink: #2f5245;
 
-  /* Cover palette — the dark front-page hero and its chrome.
-     Kept separate from the paper palette; used by SiteHeader on `/`. */
+  /* Ink-plate palette — the dark data plate on the paper front page, plus the
+     few dark surfaces that sit inside it. Kept separate from the paper
+     palette so a plate can invert without touching the page. */
   --cover: #171210;
   --cover-2: #1f1814;
   --cover-rgb: 23, 18, 16;

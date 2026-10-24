@@ -12,7 +12,10 @@
       @blur="$emit('highlight', null)"
     >
       <dt class="stat-label">{{ block.label }}</dt>
-      <dd class="stat-value num">{{ block.value }}</dd>
+      <dd class="stat-value num">
+        {{ block.value
+        }}<span v-if="block.unit" class="stat-unit">{{ block.unit }}</span>
+      </dd>
       <dd class="stat-who">{{ block.who }}</dd>
     </div>
   </dl>
@@ -69,6 +72,7 @@ export default {
           row: topJump || null,
           id: topJump?.id ?? null,
           value: topJump ? jumpLabel(topJump.dWin) : '—',
+          unit: topJump ? 'pts' : '',
           who: topJump ? `${topJump.name} · now ${fmt(topJump.win)}%` : '—',
         },
       ];
@@ -111,10 +115,21 @@ export default {
 .stat-value {
   margin-top: 3px;
   font-family: var(--font-serif);
-  font-size: clamp(28px, 2.6vw, 36px);
+  font-size: clamp(28px, 2.6vw, 34px);
   line-height: 1.05;
   color: var(--gold);
   font-variant-numeric: tabular-nums;
+}
+
+.stat-unit {
+  margin-left: 5px;
+  font-family: var(--font-type);
+  font-size: 8px;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.65;
 }
 
 .stat-who {

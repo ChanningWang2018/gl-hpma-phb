@@ -1,4 +1,11 @@
-import { mergeRows, summarize } from '../../src/services/homeStats.js';
+import {
+  formatModeLabel,
+  formatPeriodRange,
+  mergeRows,
+  periodEndLabel,
+  rankMovers,
+  summarize,
+} from '../../src/services/homeStats.js';
 import { DataService } from '../../src/services/dataService.js';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -114,6 +121,93 @@ describe('homeStats.mergeRows', () => {
     expect(mergeRows([], [])).toEqual([]);
     expect(mergeRows(null, null)).toEqual([]);
     expect(mergeRows(undefined, [archiveRow(1, 50, 5)])).toEqual([]);
+  });
+});
+
+describe('homeStats.formatPeriodRange', () => {
+  it('prints a same-month range once', () => {
+    expect(formatPeriodRange('2026/09/24 - 2026/09/30')).toBe('24–30 Sep 2026');
+  });
+
+  it('prints both months for a cross-month range', () => {
+    expect(formatPeriodRange('2026/09/28 - 2026/10/04')).toBe(
+      '28 Sep – 04 Oct 2026',
+    );
+  });
+
+  it('returns unusable input unchanged instead of throwing', () => {
+    expect(formatPeriodRange('')).toBe('');
+    expect(formatPeriodRange('not a period')).toBe('not a period');
+    expect(formatPeriodRange('2026/13/40 - 2026/13/41')).toBe(
+      '2026/13/40 - 2026/13/41',
+    );
+  });
+});
+
+describe('homeStats.periodEndLabel', () => {
+  it('takes the closing day of a dateline', () => {
+    expect(periodEndLabel('24–30 Sep 2026')).toBe('30 Sep 2026');
+    expect(periodEndLabel('28 Sep – 04 Oct 2026')).toBe('04 Oct 2026');
+  });
+
+  it('prints an em dash when there is no dateline', () => {
+    expect(periodEndLabel('')).toBe('—');
+    expect(periodEndLabel(null)).toBe('—');
+    expect(periodEndLabel(undefined)).toBe('—');
+  });
+});
+
+describe('homeStats.formatModeLabel', () => {
+  it('turns a mode key into a tab label', () => {
+    expect(formatModeLabel('2v2-high')).toBe('2v2 High');
+    expect(formatModeLabel('1v1-low')).toBe('1v1 Low');
+    expect(formatModeLabel('')).toBe('');
+  });
+});
+
+describe('homeStats.rankMovers', () => {
+  const row = (id, dWin) => ({
+    id,
+    name: `Echo ${id}`,
+    win: 50,
+    pick: 5,
+    dWin,
+  });
+
+  it('takes the three largest rises and two largest falls, by magnitude', () => {
+    const rows = [
+      row(1, 2),
+      row(2, -8),
+      row(3, 5),
+      row(4, 0),
+      row(5, -3),
+      row(6, 7),
+      row(7, 1),
+      row(8, -1),
+    ];
+
+    expect(rankMovers(rows).map((entry) => entry.id)).toEqual([2, 6, 3, 5, 1]);
+  });
+
+  it('keeps a rise above a fall when the moves are equally large', () => {
+    const rows = [row(1, 4), row(2, -4), row(3, 1), row(4, -1)];
+
+    expect(rankMovers(rows).map((entry) => entry.id)).toEqual([1, 2, 3, 4]);
+  });
+
+  it('returns [] for a flat or empty week', () => {
+    expect(rankMovers([])).toEqual([]);
+    expect(rankMovers(null)).toEqual([]);
+    expect(rankMovers([row(1, 0), row(2, 0)])).toEqual([]);
+    expect(rankMovers([null, { name: 'no delta' }])).toEqual([]);
+  });
+
+  it('honours a custom split', () => {
+    const rows = [row(1, 9), row(2, 8), row(3, 7), row(4, -6), row(5, -5)];
+
+    expect(rankMovers(rows, { ups: 1, downs: 1 }).map((e) => e.id)).toEqual([
+      1, 4,
+    ]);
   });
 });
 

@@ -16,7 +16,7 @@
         </button>
       </div>
 
-      <p class="plate-date">Week {{ editionLabel }} · {{ periodShortLabel }}</p>
+      <p class="plate-date">No. {{ editionLabel }} · {{ periodShortLabel }}</p>
     </header>
 
     <StatRail :stats="stats" @highlight="onHighlight" />
@@ -40,21 +40,17 @@
 <script>
 import MetaScatter from '@/components/home/MetaScatter.vue';
 import StatRail from '@/components/home/StatRail.vue';
-import { summarize } from '@/services/homeStats.js';
+import {
+  DEFAULT_HOME_MODE,
+  HOME_MODES,
+  formatModeLabel,
+  summarize,
+} from '@/services/homeStats.js';
 
-const MODE_KEYS = ['1v1-high', '1v1-low', '2v2-high', '2v2-low'];
-
-// '1v1-high' -> '1v1 High'
-const modeLabel = (key) =>
-  key
-    .split('-')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-
-// WeekPlate — 封面内的深色版画。四档模式是本地状态（默认 2v2-high），
-// 三个数字在上、散点在下；StatRail 悬停抛出的 echo id 存在 highlightId
-// 里，交给 MetaScatter 点亮金环。Home 一次传入四档 rows（rowsByMode），
-// 换档不再请求数据。
+// WeekPlate — 封面内的深色版画。四档模式由 Home 持有（右侧的涨跌榜要跟着
+// 同一档走），这里只发 update:mode，不本地改状态。三个数字在上、散点在下；
+// StatRail 悬停抛出的 echo id 存在 highlightId 里，交给 MetaScatter 点亮
+// 金环。Home 一次传入四档 rows（rowsByMode），换档不再请求数据。
 export default {
   name: 'WeekPlate',
   components: { MetaScatter, StatRail },
@@ -65,17 +61,19 @@ export default {
     edition: { type: Number, default: null },
     // Full range label, e.g. '24–30 Sep 2026'
     periodLabel: { type: String, default: '' },
+    // Controlled bracket selection, owned by Home
+    mode: { type: String, default: DEFAULT_HOME_MODE },
   },
+  emits: ['update:mode'],
   data() {
     return {
-      mode: '2v2-high',
       highlightId: null,
       pannable: false,
     };
   },
   computed: {
     modes() {
-      return MODE_KEYS.map((key) => ({ key, label: modeLabel(key) }));
+      return HOME_MODES.map((key) => ({ key, label: formatModeLabel(key) }));
     },
     rows() {
       const rows = (this.rowsByMode || {})[this.mode];
@@ -93,7 +91,7 @@ export default {
     },
     countsLabel() {
       const echoCount = this.rows.length;
-      const bracketCount = MODE_KEYS.filter(
+      const bracketCount = HOME_MODES.filter(
         (key) => ((this.rowsByMode || {})[key] || []).length > 0,
       ).length;
       const issueCount = this.edition;
@@ -108,11 +106,16 @@ export default {
       ].join(' · ');
     },
   },
+  watch: {
+    // A new bracket invalidates the highlighted portrait and the tooltip
+    mode() {
+      this.highlightId = null;
+    },
+  },
   methods: {
     setMode(key) {
       if (this.mode === key) return;
-      this.mode = key;
-      this.highlightId = null;
+      this.$emit('update:mode', key);
     },
     onHighlight(id) {
       this.highlightId = id ?? null;
@@ -124,11 +127,11 @@ export default {
 <style scoped>
 .plate {
   position: relative;
-  max-width: 1180px;
-  margin: clamp(32px, 4.2vw, 50px) auto 0;
+  width: 100%;
+  min-width: 0;
   background: var(--cover-2);
-  border: 1px solid var(--gold-line);
-  box-shadow: 0 34px 80px rgba(var(--ink-rgb), 0.36);
+  border: 1px solid var(--ink);
+  box-shadow: 0 22px 54px rgba(var(--ink-rgb), 0.2);
   text-align: left;
   animation: rise 0.8s 0.18s both;
 }
@@ -226,10 +229,6 @@ export default {
 }
 
 @media (max-width: 768px) {
-  .plate {
-    margin-top: 28px;
-  }
-
   .plate-top {
     flex-wrap: wrap;
     gap: 8px;
@@ -252,7 +251,7 @@ export default {
 
   .mode-btn {
     flex: 1;
-    padding: 7px 2px;
+    padding: 10px 2px;
     text-align: center;
   }
 }

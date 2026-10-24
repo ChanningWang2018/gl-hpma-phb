@@ -1,10 +1,6 @@
 <template>
   <div ref="sentinel" class="header-sentinel" aria-hidden="true"></div>
-  <header
-    lang="en"
-    class="site-header"
-    :class="{ 'site-header--cover': isCover, 'is-stuck': isStuck }"
-  >
+  <header lang="en" class="site-header" :class="{ 'is-stuck': isStuck }">
     <div class="header-inner">
       <RouterLink class="brand" to="/">my little hpma bits</RouterLink>
 
@@ -20,7 +16,7 @@
 
       <div class="controls">
         <span v-if="showIssue" class="issue-chip">Issue {{ edition }}</span>
-        <LocaleSwitch :tone="isCover ? 'cover' : 'paper'" />
+        <LocaleSwitch tone="paper" />
       </div>
     </div>
   </header>
@@ -32,20 +28,19 @@ import { RouterLink, useRoute } from 'vue-router';
 import LocaleSwitch from '@/components/LocaleSwitch.vue';
 import { useChartStore } from '@/stores/chartStore.js';
 
-// SiteHeader — 全站唯一的顶栏。首页（封面）用深墨版，其余页面用纸色版；
-// 两边共用同一组栏目与右侧控件（期号 + 语言）。滚动后出现一层很轻的阴影。
-// 栏目里没有 "Home"：品牌字标就是回到封面的入口。
+// SiteHeader — 全站唯一的顶栏，纸色一版到底。首页的期号与日期由头版的
+// 报头承担，这里只在数据页挂一枚期号 chip。滚动后出现一层很轻的阴影。
+// 栏目里没有 "Home"：品牌字标就是回到头版的入口。
 export default {
   name: 'SiteHeader',
   components: { LocaleSwitch, RouterLink },
   setup() {
     const route = useRoute();
     const chartStore = useChartStore();
-    const isCover = computed(() => route.name === 'home');
     const edition = computed(() => chartStore.periods?.length || null);
-    // The issue belongs to the data pages; hide it on pages that never load the archive.
+    // The issue belongs to the data page; the front page prints its own dateline.
     const showIssue = computed(
-      () => (isCover.value || route.name === 'analytics') && edition.value,
+      () => route.name === 'analytics' && edition.value,
     );
 
     const sentinel = ref(null);
@@ -68,7 +63,7 @@ export default {
       observer = null;
     });
 
-    return { sentinel, isCover, isStuck, edition, showIssue };
+    return { sentinel, isStuck, edition, showIssue };
   },
 };
 </script>
@@ -91,17 +86,8 @@ export default {
     box-shadow 0.25s;
 }
 
-.site-header--cover {
-  background: rgba(var(--cover-rgb), 0.92);
-  border-bottom-color: var(--gold-line);
-}
-
 .site-header.is-stuck {
   box-shadow: 0 10px 26px rgba(var(--ink-rgb), 0.12);
-}
-
-.site-header--cover.is-stuck {
-  box-shadow: 0 12px 30px rgba(var(--ink-rgb), 0.55);
 }
 
 .header-inner {
@@ -121,10 +107,6 @@ export default {
   white-space: nowrap;
   text-decoration: none;
   padding-bottom: 2px;
-}
-
-.site-header--cover .brand {
-  color: var(--cream);
 }
 
 .nav {
@@ -175,20 +157,6 @@ export default {
   background: var(--gold-leaf);
 }
 
-.site-header--cover .nav-link {
-  color: var(--cream-muted);
-}
-
-.site-header--cover .nav-link:hover,
-.site-header--cover .nav-link.router-link-active {
-  color: var(--cream);
-}
-
-.site-header--cover .nav-link:hover::after,
-.site-header--cover .nav-link.router-link-active::after {
-  background: var(--gold);
-}
-
 .controls {
   display: flex;
   flex: none;
@@ -205,11 +173,6 @@ export default {
   text-transform: uppercase;
   color: var(--ink-faded);
   white-space: nowrap;
-}
-
-.site-header--cover .issue-chip {
-  border-color: var(--gold-line);
-  color: var(--gold);
 }
 
 @media (max-width: 768px) {
@@ -242,10 +205,6 @@ export default {
     gap: 18px;
     padding: 6px 0;
     border-top: 1px solid var(--rule);
-  }
-
-  .site-header--cover .nav {
-    border-top-color: var(--gold-line);
   }
 
   .nav-link {

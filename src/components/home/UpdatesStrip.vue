@@ -3,7 +3,8 @@
     <span id="updates-label" class="updates-label">Latest</span>
     <ul class="updates-list" role="list" aria-labelledby="updates-label">
       <li v-for="item in items" :key="`${item.date}-${item.label}`">
-        <span class="updates-date">{{ item.date }}</span> · {{ item.label }}
+        <span class="updates-date">{{ item.date }}</span>
+        <span class="updates-what">{{ item.label }}</span>
       </li>
     </ul>
   </div>
@@ -40,41 +41,57 @@ export default {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 26px;
-  margin-top: clamp(42px, 5vw, 62px);
-  padding: 14px var(--home-gutter);
-  border-top: 1px solid var(--rule);
-  /* 下缘那条线由 SiteFooter 的 border-top 画，避免叠成 2px 双线 */
+  gap: 12px 30px;
+  margin-top: clamp(40px, 5vw, 58px);
+  padding-top: 13px;
+  border-top: 1px solid var(--ink);
   font-family: var(--font-type);
-  font-size: 8.5px;
   line-height: 1.6;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-faded);
 }
 
 .updates-label {
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
   color: var(--oxblood);
 }
 
 .updates-list {
   display: flex;
+  flex: 1;
   flex-wrap: wrap;
-  gap: 9px 26px;
+  gap: 8px 34px;
   list-style: none;
 }
 
+.updates-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+}
+
 .updates-date {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  line-height: 1.2;
   color: var(--ink);
+  white-space: nowrap;
+}
+
+.updates-what {
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
 }
 
 @media (max-width: 768px) {
   .updates {
-    gap: 9px 18px;
+    gap: 8px 18px;
   }
 
   .updates-list {
-    gap: 9px 18px;
+    gap: 6px 20px;
   }
 }
 </style>
