@@ -35,9 +35,6 @@ export const useCardStore = defineStore('card', {
       cost: 'all', // 'all' | number
       search: '', // zh/en 卡名、spell_word 跨语言匹配
     },
-
-    // 详情弹层当前选中的卡 id（null = 弹层关闭；URL 不同步，刷新即复位）
-    selectedCardId: null,
   }),
 
   getters: {
@@ -114,10 +111,6 @@ export const useCardStore = defineStore('card', {
         })),
       ];
     },
-
-    // 详情弹层选中的卡（byId 语义；未选或找不到时返回 null）
-    selectedCard: (state) =>
-      state.cards.find((card) => card.id === state.selectedCardId) ?? null,
   },
 
   actions: {
@@ -152,16 +145,6 @@ export const useCardStore = defineStore('card', {
     // 切换 UI 语言（转发全站 localeStore：赋值 + 持久化，非法值由其忽略）
     setLocale(value) {
       useLocaleStore().setLocale(value);
-    },
-
-    // 打开详情弹层（记录卡 id；由 CardDetail.vue 消费）
-    openCard(id) {
-      this.selectedCardId = id;
-    },
-
-    // 关闭详情弹层
-    closeCard() {
-      this.selectedCardId = null;
     },
   },
 });
