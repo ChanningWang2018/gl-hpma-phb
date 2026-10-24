@@ -76,8 +76,10 @@ async function resolveBrowser() {
   // downloaded browser (extracted on install in CI/Netlify); then an
   // installed Edge/Chrome. puppeteer >= 22 returns a Promise from
   // executablePath(), so this must be awaited.
-  const override = [process.env.CHROME_PATH, process.env.PUPPETEER_EXECUTABLE_PATH]
-    .find((candidate) => candidate && existsSync(candidate));
+  const override = [
+    process.env.CHROME_PATH,
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+  ].find((candidate) => candidate && existsSync(candidate));
   if (override) return override;
   try {
     const bundled = await puppeteer.executablePath();
