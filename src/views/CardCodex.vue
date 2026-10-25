@@ -442,7 +442,7 @@ export default {
 
 <style scoped>
 /*
- * 稀有度视觉：主视觉是 CardImage 叠加的游戏原生品质边框（schema 5 frames 表）；
+ * 稀有度视觉：主视觉是 CardImage 叠加的 release 品质边框（schema 5 frames 表）；
  * CSS 色条（全局 --rarity-* token）降级兜底——仅当边框图两级加载都失败时显示。
  *   common    普通 -> 灰白
  *   rare      稀有 -> 蓝

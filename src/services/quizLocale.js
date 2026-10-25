@@ -48,8 +48,7 @@ export const MESSAGES = {
     badgeConflict: '数据冲突',
     badgeUgc: '玩家投稿',
     badgeDuplicate: '重复题',
-    adjudicatedNote:
-      '该题游戏内判分与本站标答不同（官方录错选项顺序），详见数据集裁决记录。',
+    adjudicatedNote: '该题标答与原始记录不一致，已按数据集裁决记录处理。',
     empty: '没有命中的题目——换个关键词试试。',
 
     // 挑战
@@ -141,7 +140,7 @@ export const MESSAGES = {
     badgeUgc: 'Player-made',
     badgeDuplicate: 'Duplicate',
     adjudicatedNote:
-      "The in-game scoring marks a different option than this site's answer (an official data-entry mistake) — see the dataset's adjudication note for details.",
+      "This question's key was adjudicated and differs from the original record — see the dataset's adjudication note for details.",
     empty: 'No matching questions — try another keyword.',
 
     // Challenge

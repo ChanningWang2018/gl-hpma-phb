@@ -10,7 +10,7 @@
 现状：`QuizService.buildChallenge` 把选中科目池整池洗牌取前 `count` 题，
 局与局之间无记忆；最佳记录 `bests` 按 `{bank}:{count}:{mode}` 键存
 `hpma-quiz-bests`，dataVersion 变即全弃；题库数据每周一自动更新
-（`fetch-quiz` cron），题目 id 来自源库、跨版本稳定。
+（`fetch-quiz` cron），题目 id 跨版本稳定。
 
 **四项确认题用户未答，按推荐项执行（均可逆，2026-10-10）：**
 

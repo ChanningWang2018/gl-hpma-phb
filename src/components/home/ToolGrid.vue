@@ -61,7 +61,7 @@ export default {
           no: '04',
           icon: 'quiz',
           title: 'Magic quiz',
-          desc: "1,847 questions from the game's banks.",
+          desc: 'A 1,847-question class quiz bank.',
           count: '2 banks',
           to: '/quiz',
         },

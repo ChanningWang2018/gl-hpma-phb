@@ -5,7 +5,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
-// Raw crawler snapshots live at the repo root; only trends.json is deployed
+// Raw archived snapshots live at the repo root; only trends.json is deployed
 const ARCHIVE_DIR = join(ROOT, 'archive');
 const PUBLIC_ARCHIVE_DIR = join(ROOT, 'public', 'archive');
 
@@ -120,8 +120,8 @@ describe('buildTrends', () => {
     );
   });
 
-  it('keeps only the first snapshot for a duplicated period label (stale game re-serve)', () => {
-    // Mirrors the 2026-06-05 game rollback: the API re-served period
+  it('keeps only the first snapshot for a duplicated period label (stale re-serve)', () => {
+    // Mirrors the 2026-06-05 upstream rollback: the API re-served period
     // 2026/03/19 - 2026/03/25 one day after the normal 06/04 snapshot.
     const genuine = {
       name: '20260327-131520.json',

@@ -28,8 +28,8 @@
 <script>
 import { RouterLink } from 'vue-router';
 
-// SiteFooter — 纸色页脚，全站共用。刻意不列数据源：页面只保留版权与
-// 非官方声明，来源留在工程文档里。
+// SiteFooter — 纸色页脚，全站共用。刻意不列数据仓信息：页面只保留版权
+// 与非官方声明，工程细节留在工程文档里。
 export default {
   name: 'SiteFooter',
   components: { RouterLink },

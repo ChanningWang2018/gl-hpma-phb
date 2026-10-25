@@ -205,7 +205,7 @@ const SEARCH_DEBOUNCE_MS = 200;
 
 /**
  * Shuffled display order per question row, cached by row identity. The raw
- * data parks the correct answer at options[0], so the source order must never
+ * data parks the correct answer at options[0], so the stored order must never
  * be shown — shuffledOptions() on every render would reshuffle under the
  * reader on each unrelated re-render (reveal toggles, paging), hence the
  * WeakMap: one shuffle per row object for the row's lifetime.

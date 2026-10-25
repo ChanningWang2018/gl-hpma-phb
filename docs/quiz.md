@@ -1,15 +1,12 @@
 # 魔法测验页（Quiz）设计与任务分割
 
-> 2026-10-09 制定。数据源为已发布的 hpma-quizbank 题库数据包（生产链路见下），
+> 2026-10-09 制定。数据为已发布的 hpma-quizbank 题库数据包（同步链路见下），
 > 本文是给 subagent 的自包含任务书：每个任务含上下文、要动的文件、验收标准。
 > 范本：`docs/card-codex.md`（/cards 页，本页完全克隆其分层与惯例）。
 
 ## 0. 背景与数据链路（已建成的部分，不要重建）
 
 ```
-HPMA-Research (E:\Scripts\HPMA-Research)
-  游戏客户端 dbx_new 提取 → export_class_quiz_bundle.py → 打包发布
-    ↓ 发布（已自动化）
 hpma-quizbank 公开仓 (github.com/hpma-bits/hpma-quizbank，本地 E:\Scripts\hpma-quizbank)
   仓库根: quiz.json (1.9MB raw / ~340KB gzip) + manifest.json + schema/ + check.html
   版本契约: Release tag = quiz-v{schema}.{data}.0，当前 quiz-v2.20261009.0
@@ -19,7 +16,7 @@ gl-hpma-phb (本站) 新增 /quiz 魔法测验页
 
 ### Intent
 
-> **/quiz 是 HPMA 游戏内「魔法史 / 麻瓜研究」课堂答题的仿真训练场**：一面是
+> **/quiz 是 HPMA「魔法史 / 麻瓜研究」课堂答题的仿真训练场**：一面是
 > 对照游戏事实的**题库检索工具**（1847 题双语可查，含答案与讲解），一面是
 > **计时答题挑战**（含背题库向的「级长模式」地狱难度）。成绩以 O.W.L. 评级
 > 呈现、可分享，为核心引流点；排行榜留好数据形状、后续再上。
@@ -49,7 +46,7 @@ gl-hpma-phb (本站) 新增 /quiz 魔法测验页
   "answer_conflict": true,          // 可选，仅 1 题（101301103）
   "answer_adjudicated": {           // 可选，仅 1 题
     "correct_no": 2,
-    "note": "用户裁决(2026-10-09)按原著口径... 游戏运行时仍按 option1 判分..."
+    "note": "用户裁决(2026-10-09)按原著口径…（全文见 quiz.json 该题 note）"
   },
   "provider_name": "可爱的小沉沉",   // 可选，UGC 题（568 题），theme 为 "ugc"
   "duplicate_of": [502]             // 可选，重复题（54 题），数组
@@ -59,15 +56,15 @@ gl-hpma-phb (本站) 新增 /quiz 魔法测验页
 **已核实的关键事实（消费端规则由此导出，照做）：**
 
 1. **全库不变量**：每题恰好 4 个选项、恰好一个 `is_correct=true`。
-   **除裁决题外正确项恒在 options[0]**（源表 option1 恒为答案、客户端运行时
-   洗牌）→ **本站展示前必须 Fisher-Yates 洗牌选项**，`is_correct` 是唯一
+   **除裁决题外正确项恒在 options[0]**（数据集将正确项置于 options[0]）→
+   **本站展示前必须 Fisher-Yates 洗牌选项**，`is_correct` 是唯一
    事实来源，重排后跟字段走。题序同样自洗。
 2. **裁决题 101301103（魁地奇世界杯年份）在 v2 里 `is_correct` 已翻转到
    option2（1473）**：正确性判定无需特殊逻辑（继续只看 `is_correct`）；
-   `answer_conflict`/`answer_adjudicated` 仅作展示徽标——该题游戏内判分与本站
-   标答不同（官方录错选项顺序），徽标点开要能看到 note 原文。
-3. **内联标记只有两种**：`<color=focus_light>…</color>`（1118 处，游戏内关键
-   词高亮）与 `<color=warn_light>…</color>`（5 处）。消费端解析为
+   `answer_conflict`/`answer_adjudicated` 仅作展示徽标——该题标答与原始记录
+   不一致，已按数据集裁决记录处理，徽标点开要能看到 note 原文。
+3. **内联标记只有两种**：`<color=focus_light>…</color>`（1118 处，关键词
+   高亮）与 `<color=warn_light>…</color>`（5 处）。消费端解析为
    `[{ text, mark }]` 段落（mark ∈ null|'focus'|'warn'）渲染强调样式；其余
    `<…>` 标签一律防御性剥离，绝不 innerHTML。
 4. 最长题干/选项 108 个汉字，无排版压力；quiz.json 1.9MB raw / ~340KB gzip，
@@ -109,7 +106,7 @@ gl-hpma-phb (本站) 新增 /quiz 魔法测验页
 
 ### T1 数据层：数据入库 + quizClient（所有任务的前置）
 
-**上下文**：建立数据契约。数据源 = 本地 `E:\Scripts\hpma-quizbank\`（已发布
+**上下文**：建立数据契约。数据仓 = 本地 `E:\Scripts\hpma-quizbank\`（已发布
 v2）。loader 范本 = `src/services/spellbookClient.js`（loadJson 的 node:fs
 分支、schema 守卫中文报错、createClient 单例缓存模式全部照搬）。
 
@@ -184,7 +181,7 @@ v2）。loader 范本 = `src/services/spellbookClient.js`（loadJson 的 node:fs
      `hitLine`（命中 {shown} / {total} 题）、`pagePrev`（上一页）/ `pageNext`（下一页）、
      `revealAnswer`（查看答案与讲解）/ `hideAnswer`（收起）、`correctLabel`（正确答案）、
      `explanationLabel`（讲解）、`badgeAdjudicated`（裁决题）/ `badgeConflict`（数据冲突）/
-     `badgeUgc`（玩家投稿）/ `badgeDuplicate`（重复题）、`adjudicatedNote`（该题游戏内判分与本站标答不同（官方录错选项顺序），详见数据集裁决记录。）、
+     `badgeUgc`（玩家投稿）/ `badgeDuplicate`（重复题）、`adjudicatedNote`（该题标答与原始记录不一致，已按数据集裁决记录处理。）、
      `empty`（没有命中的题目——换个关键词试试。）
    - 挑战：`setupTitle`（挑战设置）、`bankLabel`（科目）、`bankMixed`（混合双科）、
      `countLabel`（题量）、`modeLabel`（模式）、`modeNormal`（普通模式）、

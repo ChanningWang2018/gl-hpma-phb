@@ -30,7 +30,7 @@
  *                     // frame art specs { file, size, inner } pointing at the
  *                     // release's frames/ dir; resolved via frameUrl() with
  *                     // the same image-base priority as imageUrl()
- *   manifest.json = extraction metadata (coverage, source, notes, ...)
+ *   manifest.json = release metadata (coverage, notes, ...)
  *   version.json  = { tag, version, schemaVersion, dataVersion, imageBase,
  *                     imagesWebp, generatedAt }  // imagesWebp: dir of the
  *                     // release's card-art WebP copy set (e.g.

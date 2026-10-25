@@ -6,43 +6,43 @@
           Methodology <span class="page-title-zh">数据说明</span>
         </h1>
         <template #note>
-          Where every number comes from, what it means, and when it refreshes ·
-          英文正文 / 中文摘要
+          Data &amp; definitions — what each figure means and when it refreshes
+          · 英文正文 / 中文摘要
         </template>
       </PageHead>
 
       <p class="lede">
-        This almanac is assembled from the daily crawl of the weekly echo table
-        and two published data projects. Nothing in the tables is hand-entered:
-        every figure traces back to one of the sources below, and every data
-        release is pinned to the tag listed on the
-        <RouterLink to="/changelog">changelog</RouterLink>.
+        This almanac is assembled from the weekly echo statistics and two
+        published data modules; each release is mirrored in the site's data
+        directory and pinned to the tag listed on the
+        <RouterLink to="/changelog">changelog</RouterLink>. Nothing in the
+        tables is hand-entered.
       </p>
       <p class="zh-summary" lang="zh">
-        本站数据来自每周回响统计的每日采集，以及两个已发布的数据项目；表格中的数字均不做手工录入，每一项都能追溯到下列来源，每个数据版本都固定到
-        changelog 中列出的 tag。
+        本站数据由每周回响统计与两个已发布的数据模块组成；每个版本都镜像在站内数据目录，并固定到
+        changelog 中列出的 tag。表格中的数字均不做手工录入。
       </p>
 
-      <section class="method-section" aria-labelledby="sources-heading">
-        <h2 id="sources-heading">
-          Sources <span class="heading-zh">数据源</span>
+      <section class="method-section" aria-labelledby="modules-heading">
+        <h2 id="modules-heading">
+          Data modules <span class="heading-zh">数据模块</span>
         </h2>
 
-        <ul class="source-list" role="list">
-          <li v-for="source in sources" :key="source.id" class="source-item">
-            <div class="source-head">
-              <h3 class="source-name">{{ source.name }}</h3>
+        <ul class="module-list" role="list">
+          <li v-for="module in modules" :key="module.id" class="module-item">
+            <div class="module-head">
+              <h3 class="module-name">{{ module.name }}</h3>
               <a
-                class="source-link"
-                :href="source.url"
+                class="module-link"
+                :href="module.url"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {{ source.linkLabel }} ↗
+                {{ module.linkLabel }} ↗
               </a>
             </div>
-            <p class="source-body">{{ source.body }}</p>
-            <p class="zh-summary" lang="zh">{{ source.zh }}</p>
+            <p class="module-body">{{ module.body }}</p>
+            <p class="zh-summary" lang="zh">{{ module.zh }}</p>
           </li>
         </ul>
 
@@ -77,7 +77,7 @@
 
         <p class="zh-summary" lang="zh">
           每行数据 = 一个回响 × 一个 bracket ×
-          一个周期。胜率（winrate）是该周期内使用该回响的胜场占比；选取率在源字段中叫
+          一个周期。胜率（winrate）是该周期内使用该回响的胜场占比；选取率在数据集字段中叫
           attendancerate（README 称 attendance
           rate），指该回响在比赛中的出场占比，不是出场次数。Δ
           是同回响、同档位相邻两期的百分点差：首页保留一位小数，上一期缺失按 0
@@ -91,7 +91,7 @@
         </h2>
 
         <p>
-          The source splits the ladder into four brackets at 7,500 rating
+          The dataset splits the ladder into four brackets at 7,500 rating
           points. The site keeps all four separate; every chart, plate and
           standings table has a bracket switch, and no view averages across
           brackets.
@@ -107,7 +107,7 @@
                 <th scope="col">Bracket</th>
                 <th scope="col">Queue</th>
                 <th scope="col">Rating</th>
-                <th scope="col">Source label</th>
+                <th scope="col">Dataset label</th>
               </tr>
             </thead>
             <tbody>
@@ -115,14 +115,16 @@
                 <th scope="row">{{ bracket.label }}</th>
                 <td>{{ bracket.queue }}</td>
                 <td>{{ bracket.rating }}</td>
-                <td class="source-label" lang="zh">{{ bracket.source }}</td>
+                <td class="dataset-label" lang="zh">
+                  {{ bracket.datasetLabel }}
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
 
         <p class="zh-summary" lang="zh">
-          源数据按 7,500 分把匹配分成四档：1v1 低分（低于 7500）、1v1 高分（7500
+          数据集按 7,500 分把匹配分成四档：1v1 低分（低于 7500）、1v1 高分（7500
           及以上）、2v2 低分、2v2 高分。站内四档始终分开呈现，不做跨档平均。
         </p>
       </section>
@@ -160,7 +162,7 @@
         </div>
 
         <p class="zh-summary" lang="zh">
-          回响统计每日 02:30 UTC 抓取，周期随源站换周更新；卡牌与回响每周一
+          回响统计每日 02:30 UTC 归档，周期随数据仓换周更新；卡牌与回响每周一
           03:00 UTC 同步；题库每周一 03:30 UTC 同步；数据提交后 Netlify
           自动执行预渲染构建并部署。定时任务可能被 GitHub
           延迟，延迟只会推后数据，不改变口径。
@@ -179,12 +181,12 @@
           research and reference only.
         </p>
         <p class="disclaimer-caution">
-          Figures describe the source's own sample, not the whole player base. A
+          Figures describe the data sample, not the whole player base. A
           one-week move can be noise; treat small differences between echoes
           cautiously rather than as proof of a stronger or weaker card.
         </p>
         <p class="zh-summary" lang="zh">
-          本站为非官方、非商业的同人项目，与网易及华纳兄弟无隶属或背书关系。游戏数据、卡面、回响图标与题目文案版权归各自权利人所有，仅供个人研究参考。数字反映的是数据源样本而非全体玩家；单周波动可能只是噪声，小幅差距不宜当作强弱结论。
+          本站为非官方、非商业的同人项目，与网易及华纳兄弟无隶属或背书关系。游戏数据、卡面、回响图标与题目文案版权归各自权利人所有，仅供个人研究参考。数字反映的是数据样本而非全体玩家；单周波动可能只是噪声，小幅差距不宜当作强弱结论。
         </p>
 
         <p class="corrections">
@@ -211,30 +213,30 @@ import {
 } from '@/services/structuredData.js';
 import { useHead } from '@vueuse/head';
 
-const SOURCES = [
+const MODULES = [
   {
     id: 'echoes',
     name: '163hot / 网易大神',
     url: 'https://www.163hot.net/hp/phb/getData',
     linkLabel: 'www.163hot.net/hp/phb/getData',
-    body: "The weekly echo table — win rate and pick rate for every echo and bracket — is crawled from 163hot's public HPMA statistics endpoint. A GitHub Actions job requests it once a day at 02:30 UTC, stores the raw JSON in the repository archive (not deployed) and rebuilds the aggregated trends.json the site actually reads. Each response carries its own period label; that label becomes the data week.",
-    zh: '周胜率 / 选取率来自 163hot 的 HPMA 公开数据接口。GitHub Actions 每天 02:30 UTC 抓取一次，原始 JSON 存入仓库 archive/（不部署），再聚合成站点读取的 trends.json；每个响应自带周期标签，即站内的「期」。',
+    body: 'The weekly echo table — win rate and pick rate for every echo and bracket — is archived daily as raw snapshots in the repository archive/ (not deployed) and rebuilt into the aggregated trends.json the site actually reads. Each snapshot carries its own period label; that label becomes the data week.',
+    zh: '周胜率 / 选取率数据每日归档为仓库 archive/ 下的原始快照（不部署），再聚合成站点读取的 trends.json；每个快照自带周期标签，即站内的「期」。',
   },
   {
     id: 'spellbook',
     name: 'hpma-bits/hpma-spellbook',
     url: 'https://github.com/hpma-bits/hpma-spellbook',
     linkLabel: 'github.com/hpma-bits/hpma-spellbook',
-    body: "Cards and echoes are extracted from the game client and published as two independent release modules: cards (cards-v*) for cost, type, rarity, every level and the bilingual text, and echoes (echoes-v*) for the echo list, rarity variants and affixes. The site pins each release in the module's version.json, audits the downloaded files against the release checksums, and refreshes both modules weekly.",
-    zh: '卡牌与回响由 hpma-spellbook 从游戏客户端提取，按两个独立模块发布：cards-v*（费用、类型、品质、全部等级与中英文文案）与 echoes-v*（回响列表、品质变体与词条）。站点在各自 version.json 中固定版本，按发布 checksums 校验，并每周同步。',
+    body: "Cards and echoes are published as two independent release modules in hpma-bits/hpma-spellbook: cards (cards-v*) for cost, type, rarity, every level and the bilingual text, and echoes (echoes-v*) for the echo list, rarity variants and affixes. The site pins each release in the module's version.json, verifies the downloaded files against the release checksums, and refreshes both modules weekly.",
+    zh: '卡牌与回响以 hpma-spellbook 数据仓的两个独立模块发布：cards-v*（费用、类型、品质、全部等级与中英文文案）与 echoes-v*（回响列表、品质变体与词条）。站点在各自 version.json 中固定版本，按发布 checksums 校验，并每周同步。',
   },
   {
     id: 'quiz',
     name: 'hpma-bits/hpma-quizbank',
     url: 'https://github.com/hpma-bits/hpma-quizbank',
     linkLabel: 'github.com/hpma-bits/hpma-quizbank',
-    body: "The Magic Quiz bank is published by hpma-quizbank from the game's History of Magic and Muggle Studies question tables as quiz-v* releases. The source keeps the correct answer in the first option; the site shuffles options on display and always follows the is_correct flag, so a reshuffled question cannot drift from its answer.",
-    zh: '魔法测验题库由 hpma-quizbank 从游戏「魔法史 / 麻瓜研究」题目表导出，以 quiz-v* 发布。源表把正确答案放在第一个选项；站内展示时重新洗牌，并始终以 is_correct 为准，避免洗牌后答案错位。',
+    body: 'The Magic Quiz bank is published by hpma-quizbank as quiz-v* releases. The dataset keeps the correct answer in the first option; the site shuffles options on display and always follows the is_correct flag, so a reshuffled question cannot drift from its answer.',
+    zh: '魔法测验题库由 hpma-quizbank 以 quiz-v* 发布。数据集中正确答案固定于第一个选项；站内展示时重新洗牌，并始终以 is_correct 为准，避免洗牌后答案错位。',
   },
 ];
 
@@ -243,13 +245,13 @@ const FIELDS = [
     id: 'winrate',
     term: 'Win rate',
     field: 'winrate',
-    body: 'The share of matches won with the echo in a given period, exactly as reported by the source. The site prints one decimal place and does not re-weight by bracket size or sample count.',
+    body: 'The share of matches won with the echo in a given period, exactly as reported in the dataset. The site prints one decimal place and does not re-weight by bracket size or sample count.',
   },
   {
     id: 'pickrate',
     term: 'Pick rate',
     field: 'attendancerate',
-    body: 'The share of matches the echo was used in. The source field and the README call it attendance rate; the charts and tables label the same number pick rate. It is a usage share, not a raw number of selections.',
+    body: 'The share of matches the echo was used in. The dataset field and the README call it attendance rate; the charts and tables label the same number pick rate. It is a usage share, not a raw number of selections.',
   },
   {
     id: 'delta',
@@ -265,28 +267,28 @@ const BRACKETS = [
     label: '1v1 Low',
     queue: '1v1',
     rating: 'Below 7,500',
-    source: '1v1:7500分以下',
+    datasetLabel: '1v1:7500分以下',
   },
   {
     key: '1v1-high',
     label: '1v1 High',
     queue: '1v1',
     rating: '7,500 and above',
-    source: '1v1:7500分以上',
+    datasetLabel: '1v1:7500分以上',
   },
   {
     key: '2v2-low',
     label: '2v2 Low',
     queue: '2v2',
     rating: 'Below 7,500',
-    source: '2v2:7500分以下',
+    datasetLabel: '2v2:7500分以下',
   },
   {
     key: '2v2-high',
     label: '2v2 High',
     queue: '2v2',
     rating: '7,500 and above',
-    source: '2v2:7500分以上',
+    datasetLabel: '2v2:7500分以上',
   },
 ];
 
@@ -294,8 +296,8 @@ const CADENCE = [
   {
     id: 'echoes',
     dataset: 'Echo statistics',
-    when: 'Daily crawl · 02:30 UTC',
-    how: 'api_crawler workflow; raw snapshot → trends.json',
+    when: 'Daily archive · 02:30 UTC',
+    how: 'archive workflow; raw snapshot → trends.json',
   },
   {
     id: 'spellbook',
@@ -317,16 +319,17 @@ const CADENCE = [
   },
 ];
 
-// Methodology — a plain-language account of the data pipeline. It is static
-// on purpose: the page explains definitions, which change far less often than
-// the values, and it prerenders as the same bilingual text for every crawler.
+// Methodology — a plain-language account of the data modules and field
+// definitions. It is static on purpose: the page explains definitions, which
+// change far less often than the values, and it prerenders as the same
+// bilingual text for every search engine.
 export default {
   name: 'Methodology',
   components: { PageHead },
   setup() {
-    const title = 'HPMA Methodology — Where the Numbers Come From';
+    const title = 'HPMA Methodology — Data & Definitions';
     const description =
-      'How my little hpma bits collects and defines its HPMA data: 163hot echo statistics, hpma-bits/hpma-spellbook cards and echoes, hpma-quizbank questions, the four rating brackets and the update cadence.';
+      'How my little hpma bits versions and verifies its HPMA data: the weekly echo statistics, the spellbook cards and echoes, the quiz bank, the four rating brackets and the update cadence.';
     const pageUrl = `${SITE_ORIGIN}/methodology`;
     const ogImage = `${SITE_ORIGIN}${FALLBACK_OG_IMAGE}`;
 
@@ -360,7 +363,7 @@ export default {
       brackets: BRACKETS,
       cadence: CADENCE,
       fields: FIELDS,
-      sources: SOURCES,
+      modules: MODULES,
     };
   },
 };
@@ -420,7 +423,7 @@ export default {
 }
 
 .method-section > p,
-.source-body,
+.module-body,
 .field-body {
   max-width: 70ch;
   font-size: var(--type-body);
@@ -432,19 +435,19 @@ export default {
   margin-top: var(--space-2);
 }
 
-.source-list {
+.module-list {
   margin: var(--space-3) 0 0;
   padding: 0;
   list-style: none;
   border-top: 1px solid var(--ink);
 }
 
-.source-item {
+.module-item {
   padding: var(--space-3) 0;
   border-bottom: 1px solid var(--rule);
 }
 
-.source-head {
+.module-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -453,14 +456,14 @@ export default {
   margin-bottom: var(--space-2);
 }
 
-.source-name {
+.module-name {
   font-family: var(--font-serif);
   font-size: 20px;
   font-weight: 400;
   line-height: 1.2;
 }
 
-.source-link {
+.module-link {
   max-width: 100%;
   font-family: var(--font-type);
   font-size: 9.5px;
@@ -471,7 +474,7 @@ export default {
   overflow-wrap: anywhere;
 }
 
-.source-link:hover {
+.module-link:hover {
   text-decoration: underline;
 }
 
@@ -563,7 +566,7 @@ tbody th {
   font-weight: 600;
 }
 
-.source-label {
+.dataset-label {
   color: var(--ink-faded);
 }
 
@@ -629,7 +632,7 @@ tbody th {
     font-size: 16px;
   }
 
-  .source-name {
+  .module-name {
     font-size: 18px;
   }
 

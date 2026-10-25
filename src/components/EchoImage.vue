@@ -52,7 +52,7 @@ export default {
       type: String,
       default: '',
     },
-    // crawler 的 1..19 回响编号；提供时最后回退到本站头像
+    // 数据集的 1..19 回响编号；提供时最后回退到本站头像
     statsId: {
       type: [Number, String],
       default: null,

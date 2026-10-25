@@ -15,7 +15,7 @@
  *                   Bank  = { id, source_table, questions: Question[],
  *                             play_configs }  // play_configs is game-side
  *                             // matchmaking config — not consumed by this site
- *   manifest.json = extraction metadata; coverage.questions mirrors the bank
+ *   manifest.json = release metadata; coverage.questions mirrors the bank
  *                   sizes, coverage.answer_conflicts lists adjudicated
  *                   "bank:questionId" entries
  *   version.json  = { tag, version, schemaVersion, dataVersion, sourceRepo,
@@ -31,13 +31,13 @@
  * Consuming rules baked into the data (verified against the v2 release):
  *   - Every question has exactly 4 options and exactly one is_correct=true.
  *     Outside the single adjudicated question the correct option always sits
- *     at options[0] (the game client shuffles at runtime), so consumers MUST
- *     shuffle options via shuffledOptions() before display — is_correct is
- *     the only source of truth and follows the option object. Questions are
- *     shuffled too, never presented in file order.
+ *     at options[0] (the dataset stores the key first; the site shuffles on
+ *     display), so consumers MUST shuffle options via shuffledOptions() before
+ *     display — is_correct is the only source of truth and follows the option
+ *     object. Questions are shuffled too, never presented in file order.
  *   - Question id 101301103 carries answer_conflict/answer_adjudicated: the
  *     dataset's correct answer (option 2, AD 1473) deliberately differs from
- *     the in-game scoring (option 1 — an official data-entry mistake). No
+ *     option 1 — an adjudicated mis-entry in the original record. No
  *     special-casing needed: correctness always reads is_correct.
  *   - Inline markup comes in exactly two flavors, <color=focus_light>…
  *     </color> and <color=warn_light>…</color>; sanitizeMarkup() turns them
@@ -111,7 +111,7 @@ export function shuffle(array, rng = Math.random) {
 
 /**
  * The question's options in shuffled display order (new array, same option
- * object references — is_correct travels with its option). The source order
+ * object references — is_correct travels with its option). The stored order
  * must never be shown: outside the adjudicated question the answer always
  * sits at options[0] in the raw data.
  */

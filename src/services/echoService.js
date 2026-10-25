@@ -4,7 +4,7 @@
 // - echoes.json: 184 echo variants / 46 character rows / labels / rarity
 //   backgrounds / affixes / growth / economy / card↔character scores.
 // - The 19 `deck: true` characters are the player-visible echoes; weekly
-//   stats still key on the crawler's old 1..19 reverberation ids, so the
+//   stats still key on the dataset's 1..19 reverberation ids, so the
 //   explicit STATS_ECHO_IDS table maps those to character ids.
 //
 // Image paths are relative to the module root (images/<name>.png); the
@@ -15,7 +15,7 @@ import { joinUrl } from '@/services/spellbookClient.js';
 export const EXPECTED_SCHEMA_VERSION = 1;
 export const DEFAULT_DATA_BASE_URL = '/data/echoes/';
 
-// Crawler `reverberationid` (1..19) -> echoes.json character id.
+// Dataset `reverberationid` (1..19) -> echoes.json character id.
 // Explicit on purpose: ids are independent spaces (see echoes.schema.json).
 export const STATS_ECHO_IDS = Object.freeze({
   1: 1001, // Hermione Granger
@@ -220,14 +220,14 @@ export class EchoService {
 
   /**
    * L2 同源代理（netlify.toml `/echoimg/*` -> 锁定 tag 的 raw 图源）。
-   * 只在客户端直连 GitHub 失败时使用；路径与 L1 的发布包内相对路径一致。
+   * 只在访客网络直连 GitHub 失败时使用；路径与 L1 的发布包内相对路径一致。
    */
   static proxyImageUrl(path, format = 'png') {
     const relative = EchoService.imageRelativePath(path, format);
     return relative ? joinUrl('/echoimg/', relative) : null;
   }
 
-  /** L3 本站 19 名 deck 角色头像；statsId 与 crawler 的 1..19 编号一致。 */
+  /** L3 本站 19 名 deck 角色头像；statsId 与数据集的 1..19 编号一致。 */
   static localAvatarUrl(statsId) {
     const id = Number(statsId);
     if (!Number.isInteger(id) || id < 1 || id > 19) return null;

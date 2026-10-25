@@ -3,9 +3,9 @@
 > 2026-10-01 制定；2026-10-24 按 issue #25 更新数据链路。
 > 本文最初是给 subagent 的自包含任务书：每个任务含上下文、要动的文件、验收标准。
 >
-> **文档状态（2026-10-24）**：§0、§1 描述**当前**实现——数据源是
+> **文档状态（2026-10-24）**：§0、§1 描述**当前**实现——数据仓是
 > `hpma-bits/hpma-spellbook` 的 **cards 模块**（release tag `cards-v*`，当前
-> `cards-v1.20261024.0`）。§1.1 的历史裁决记录、§2 任务书、§4 变更记录属于
+> `cards-v1.20261024.1`）。§1.1 的历史裁决记录、§2 任务书、§4 变更记录属于
 > 历史材料，保留原文并标注 **legacy**；其中出现的
 > `ChanningWang2018/hpma-data` 与 `spellbook-v*` 是 2026-10 拆分前的旧口径，
 > 不再指导当前实现。
@@ -15,14 +15,14 @@
 ### 0.1 当前链路（2026-10 起，以此为准）
 
 ```
-HPMA-Research (E:\Scripts\HPMA-Research)
-  游戏客户端提取 → export_spellbook_web_bundle.py → 打包发布
-    ↓ 发布（游戏热更后 3 条命令，已自动化）
 hpma-bits/hpma-spellbook 公开仓 (github.com/hpma-bits/hpma-spellbook)
+  cards-v*/echoes-v* release
   cards 模块: cards.json (141 卡) + manifest.json + checksums.txt
               + images/*.png (375x500) + images_webp/*.webp + frames/*.png
-  版本契约:  Release tag = cards-v{schema}.{data}.0，当前 cards-v1.20261024.0
+  版本契约:  Release tag = cards-v{schema}.{data}.{patch}，当前 cards-v1.20261024.1
   同级模块:  echoes 模块（echoes-v*）；两模块独立版本轴，schema_version 从 1 重起
+    ↓ 每周同步（.github/workflows/spellbook-update.yml → scripts/fetch-spellbook-modules.mjs）
+public/data/spellbook/（本站数据目录）
     ↓ 消费（已建成）
 gl-hpma-phb (本站) /cards 图鉴页 + /cards/:id 独立详情页
 ```
@@ -31,7 +31,7 @@ gl-hpma-phb (本站) /cards 图鉴页 + /cards/:id 独立详情页
 | --- | --- |
 | 数据快照 | `public/data/spellbook/{cards,manifest,version}.json`（提交进仓） |
 | 版本单一事实源 | `public/data/spellbook/version.json`：`tag` / `version` / `schemaVersion` / `dataVersion` / `imageBase` / `imagesWebp` / `generatedAt` |
-| 卡面图 L1 | `version.json.imageBase` = `https://raw.githubusercontent.com/hpma-bits/hpma-spellbook/cards-v1.20261024.0/cards/`（外链，tag 锁定） |
+| 卡面图 L1 | `version.json.imageBase` = `https://raw.githubusercontent.com/hpma-bits/hpma-spellbook/cards-v1.20261024.1/cards/`（外链，tag 锁定） |
 | 卡面图 L2 | 同源代理 `/cardimg/*` → 同一 tag 的 raw.githubusercontent（`netlify.toml`） |
 | 卡面图 L3 | 占位卡背（token 色块 + 卡名，见 §1.1） |
 | 自动更新 | `.github/workflows/spellbook-update.yml` → `node scripts/fetch-spellbook-modules.mjs update`（cards + echoes） |
@@ -47,9 +47,6 @@ WebP 副本走 `imagesWebp` 前缀（`images_webp/{id}.webp`）；品质边框�
 以下为制定本文时的单轴数据包口径，2026-10 拆分后已退役：
 
 ```
-HPMA-Research (E:\Scripts\HPMA-Research)
-  游戏客户端提取 → export_spellbook_web_bundle.py → 打包发布
-    ↓ 发布（游戏热更后 3 条命令，已自动化）
 hpma-data 公开仓 (github.com/ChanningWang2018/hpma-data)
   spellbook/ : cards.json (2.2MB, 141 卡) + manifest.json + images/*.png (34MB)
                + schema/*.schema.json + checksums.txt
@@ -84,8 +81,8 @@ gl-hpma-phb (本站) 新增 /cards 图鉴页
                "tags": ["输出","控制"],
                "i18n": { "zh": {"name","desc","quote","stats","tags"},
                          "en": {"name","desc","quote","stats","tags"} }, // en 可缺失，回退 zh
-               // levels 键 = "1".."30"；battle_show 为游戏 1-based 行位，
-               // rows 与游戏 attr_val_list 逐行 1:1；attr_name 为稳定英文标识
+               // levels 键 = "1".."30"；battle_show 为数据集 1-based 行位，
+               // rows 与数据集字段逐行 1:1；attr_name 为稳定英文标识
                "levels": { "1": { "battle_show": [1, 3],
                                   "rows": [ {"attr_name","k","k_en","v","unit?"}, ... ] },
                            ... } } ]
@@ -97,7 +94,7 @@ gl-hpma-phb (本站) 新增 /cards 图鉴页
 | 决策           | 结论                                                                                                                                  | 理由                                                                                                                                                                                                                                   |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 数据 JSON      | **提交进仓** `public/data/spellbook/{cards,manifest,version}.json`                                                                    | dev 免网络、构建无外部依赖、每次更新的 git diff 可审；`/data/*` 在 netlify.toml 已有 1h 缓存头；cards.json 约 2MB/次可接受                                                                                                             |
-| 卡面 PNG       | **不进本站仓库**，运行时外链 `version.json.imageBase` 锁 tag：`https://raw.githubusercontent.com/hpma-bits/hpma-spellbook/cards-v1.20261024.0/cards/` | 版权约束（hpma-spellbook manifest notes：卡面图与边框素材著作权属网易及版权方，禁止再分发图源）→ 只引用不复制；raw tag 内容不可变。大陆可达性不稳，L2 同源代理兜底，三级降级链见 §1.1 |
+| 卡面 PNG       | **不进本站仓库**，运行时外链 `version.json.imageBase` 锁 tag：`https://raw.githubusercontent.com/hpma-bits/hpma-spellbook/cards-v1.20261024.1/cards/` | 版权约束（hpma-spellbook manifest notes：卡面图与边框素材著作权属网易及版权方，禁止再分发图源）→ 只引用不复制；raw tag 内容不可变。大陆可达性不稳，L2 同源代理兜底，三级降级链见 §1.1 |
 | 版本单一事实源 | `public/data/spellbook/version.json`：`{ "tag", "version", "schemaVersion", "dataVersion", "imageBase", "imagesWebp", "generatedAt" }` | `fetch-spellbook-modules.mjs` 更新它、卡面 L1 base 从它读、`--verify` 用它做一致性校验                                                                                                                                                  |
 | 加载器         | 移植 `hpma-cards.js` → `src/services/spellbookClient.js`（保留纯函数导出），外面包 `src/services/spellbookService.js` 静态类门面      | 纯函数便于 vitest（node 环境）直测；门面符合 AGENTS.md 服务层惯例。**关键改造**：数据 base 与卡面 base 分离（数据来自本站 `/data/spellbook/`，图来自 `version.json` 的 `imageBase`），`createClient({ dataBaseUrl, imageBaseUrl })`    |
 | 状态           | `src/stores/cardStore.js`（Options 风格 defineStore，仿 chartStore：loading/error + try-catch-finally）                               | AGENTS.md 规约                                                                                                                                                                                                                         |
@@ -114,7 +111,7 @@ gl-hpma-phb (本站) 新增 /cards 图鉴页
 raw.githubusercontent.com，并继续用 tag 锁定：
 
 - **L1 直连**：`version.json.imageBase` =
-  `https://raw.githubusercontent.com/hpma-bits/hpma-spellbook/cards-v1.20261024.0/cards/`，
+  `https://raw.githubusercontent.com/hpma-bits/hpma-spellbook/cards-v1.20261024.1/cards/`，
   快、零本站流量。`img` 是相对路径 `images/{id}.png`；WebP 副本走
   `imagesWebp` + `images_webp/{id}.webp`；品质边框走 `frames/frame_{rarity}.png`。
 - **L2 本站透明代理**：`<img>` onerror 时自动把 src 换成
@@ -122,7 +119,7 @@ raw.githubusercontent.com，并继续用 tag 锁定：
   ```toml
   [[redirects]]
     from = "/cardimg/*"
-    to = "https://raw.githubusercontent.com/hpma-bits/hpma-spellbook/cards-v1.20261024.0/cards/:splat"
+    to = "https://raw.githubusercontent.com/hpma-bits/hpma-spellbook/cards-v1.20261024.1/cards/:splat"
     status = 200
     force = true
   ```
@@ -137,7 +134,7 @@ raw.githubusercontent.com，并继续用 tag 锁定：
 
 #### 历史裁决记录（legacy）
 
-2026-10-01 ~ 2026-10-04 的默认源裁决与 WebP 上线记录，当时数据源是
+2026-10-01 ~ 2026-10-04 的默认源裁决与 WebP 上线记录，当时数据仓是
 `ChanningWang2018/hpma-data` 的 `spellbook-v*` 单轴包、卡面走 jsDelivr；
 2026-10 拆分后已切到上面的 raw.githubusercontent 口径，以下仅存档：
 
@@ -280,13 +277,13 @@ costOptions`（从 labels 与数据派生，带 zh 显示名与计数）。
 > 现由 `scripts/fetch-spellbook-modules.mjs` + `spellbook-update.yml` 同步
 > `hpma-bits/hpma-spellbook` 的 cards / echoes 两个模块（见 §0.1 与 README）。
 
-**上下文**：目标是"游戏热更 → 生产端发布（已有链路）→ 本站最迟下个周期自动跟上，
+**上下文**：目标是"上游发布新版后，本站最迟下个周期自动跟上，
 全程零人工"。检测端：`GET https://api.github.com/repos/ChanningWang2018/hpma-data/releases/latest`
 （已实测匿名可查；workflow 里用 GITHUB_TOKEN 提限额）。**取数端**：不下载
 release zip（Node 零依赖解 zip 不值得），改为按 tag 从
 `https://raw.githubusercontent.com/ChanningWang2018/hpma-data/<tag>/spellbook/`
 下载三个裸文件：`checksums.txt` + `cards.json` + `manifest.json`，用
-`node:crypto` 计算 sha256 与 checksums.txt 逐条比对（来源是不可变 tag，
+`node:crypto` 计算 sha256 与 checksums.txt 逐条比对（对象是不可变 tag，
 完整性等价于 release zip + sha256；实施时先看一眼
 `E:\Scripts\hpma-data\spellbook\checksums.txt` 的实际行格式再写解析）。
 
@@ -421,13 +418,13 @@ schema 4 相对 3 的实质变化与适配：
    目录（frame_common.png 等 6 张，208×272 RGBA，花纹带 + 透明卡面窗口，
    `inner` 即窗口矩形）。入库时未消费（CSS 色条当主视觉）；
    **2026-10-03 已采用**：CardImage 叠加原生边框层（tile 与详情大图共用），
-   卡面按 `inner` 缩进定位还原游戏内构图，容器比例锁定 208:272，URL 走
+   卡面按 `inner` 缩进定位还原书页卡构图，容器比例锁定 208:272，URL 走
    与卡面相同的 jsDelivr 外链口径（imageBase + `frames/<file>`，
    `/cardimg/` 代理透传）；边框加载失败逐级降级，两级皆失败回退 CSS
    稀有度视觉（tile 色条自动恢复显示）。
 2. **卡数据形状零变化**：id 集合 141 张、类型/稀有度计数、labels、
    i18n/levels 键全部不变；仅 ~18 张卡的 stats 摘要与 levels 数值随
-   平衡补丁刷新（并修正了 v4 的两个提取错误：1068 生命值 12114199→1161、
+   平衡补丁刷新（并修正了 v4 的两处数据错误：1068 生命值 12114199→1161、
    1087 伤害 10→12247→22→156）。1002 石礅出动等级表从 1..30+41..60
    （50 级）重做为连续 1..30，全数据集已无非连续等级键的卡——原真数据
    断言改为合成 fixture 用例（保留空隙不补齐的行为覆盖）。
@@ -445,12 +442,12 @@ pct 排查的"根治待办"兑现，但上游最终方案不是改名 headline�
 结构 diff 结论：
 
 1. **levels 条目重构**：每级从行数组改为 `{ battle_show?, rows }` 块。
-   `rows` 与游戏 attr_val_list 逐行 1:1（不再按中文标签去重合并），
+   `rows` 与数据集字段逐行 1:1（不再按中文标签去重合并），
    行增 `attr_name`（SKILL_ATTR_NAME，locale 无关稳定标识，未知 idx 省略；
-   实测 v6 全部 25020 行均有值）。`battle_show` 为游戏原字段原样——
+   实测 v6 全部 25020 行均有值）。`battle_show` 为数据集原字段原样——
    1-based 行位（rows[b-1]），可能含越界脏值，消费端自行防御。
 2. **新增顶层 `face_attrs`**：`["hp","damage","shield","duration"]`
-   （运行时读自游戏 PageCardAttribute 常量元组）。卡面头显判定 =
+   （常量表判定，见 manifest notes）。卡面头显判定 =
    行 attr_name ∈ face_attrs；`pct` 字段删除——其语义本是把 battle_show
    按 0-based 误读（实测卡 1001 lv1：battle_show=[1,3]→第 1/3 行"伤害/二段
    伤害"，旧 pct 恰好标在第 2/4 行"宽度/范围半径"），三口径
@@ -484,9 +481,9 @@ pct 排查的"根治待办"兑现，但上游最终方案不是改名 headline�
   区块节奏统一 --space-4。
 - **卡格不动**（用户决策）：手机仍 3 列 minmax(110px)，仅间距 token 化。
 
-### 2026-10-24 旧弹层清理 + 数据源文档对齐（issue #25）
+### 2026-10-24 旧弹层清理 + 数据仓文档对齐（issue #25）
 
-- 数据源口径：`hpma-bits/hpma-spellbook` cards 模块（`cards-v*`，当前
+- 数据仓口径：`hpma-bits/hpma-spellbook` cards 模块（`cards-v*`，当前
   `cards-v1.20261024.0`）；`imageBase` 为 raw.githubusercontent 同 tag，
   `/cardimg/*` 代理同步（§0.1 / §1.1）。
 - 删除 `src/components/CardDetail.vue`（P0a 起详情改为 `/cards/:id` 独立页）；

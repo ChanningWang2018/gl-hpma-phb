@@ -24,7 +24,7 @@
       <span class="card-image-fallback-id">No. {{ card.id }}</span>
       <span class="card-image-fallback-name">{{ cardName }}</span>
     </div>
-    <!-- 游戏原生品质边框（schema 5 frames 表，imageBase/frames/<file> 外链）：
+    <!-- release 品质边框（schema 5 frames 表，imageBase/frames/<file> 外链）：
          花纹带 + 透明卡面窗口，窗口内卡面按 frame.inner 缩进定位。加载失败
          逐级降级，两级都失败时整体回退 CSS 稀有度视觉（色条/发丝边）。 -->
     <img
@@ -136,7 +136,7 @@ export default {
       return Boolean(this.currentFrameUrl);
     },
     // 卡面窗口定位：边框显示中且规格齐全时，把卡面绝对定位到 frame.inner
-    //（frame-PNG 像素换算成容器百分比），还原游戏内「花纹压住卡面四缘」的
+    //（frame-PNG 像素换算成容器百分比），还原书页卡「花纹压住卡面四缘」的
     // 构图；边框缺席/降级关闭时返回 null，卡面铺满整个容器（原行为）
     insetStyle() {
       const meta = this.frame;
@@ -248,7 +248,7 @@ export default {
   pointer-events: none;
 }
 
-/* L3 占位卡背：游戏内框色 token 色块（与色条同源映射）
+/* L3 占位卡背：书页卡框色 token 色块（与色条同源映射）
  *   common 灰白 | rare 蓝 | epic 紫 | legendary 金 | mythic 银白 | dark 墨绿
  */
 .card-image-fallback {

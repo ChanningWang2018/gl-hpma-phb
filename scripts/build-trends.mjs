@@ -1,5 +1,5 @@
 // Aggregates all raw archive snapshots (repo-root archive/) into a single
-// compact public/archive/trends.json so the client needs one small request
+// compact public/archive/trends.json so the site needs one small request
 // instead of fetching every archive file.
 //
 // Usage:
@@ -11,7 +11,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(SCRIPT_DIR, '..');
-// Raw crawler snapshots live at the repo root (NOT deployed); only the
+// Raw archived snapshots live at the repo root (NOT deployed); only the
 // aggregated trends.json is served from public/archive/.
 const ARCHIVE_DIR = join(REPO_ROOT, 'archive');
 const TRENDS_FILE = join(REPO_ROOT, 'public', 'archive', 'trends.json');
@@ -28,7 +28,7 @@ function readArchives() {
     }));
 }
 
-// Period label mirrors the manifest format produced by the crawler workflow:
+// Period label mirrors the manifest format produced by the archive workflow:
 // "YYYY/MM/DD - YYYY/MM/DD" from the snapshot's own date fields.
 function derivePeriod(records, fileName) {
   const first = records[0] || {};
@@ -82,10 +82,10 @@ export function derivePeriodEntries(archives) {
     );
 }
 
-// The game's API occasionally re-serves an old period label after a data
-// rollback (e.g. 20260605-064929 crawled "2026/03/19 - 2026/03/25" again),
+// The upstream occasionally re-serves an old period label after a data
+// rollback (e.g. 20260605-064929 archived "2026/03/19 - 2026/03/25" again),
 // which would show the same date twice in the UI. Keep the first snapshot
-// captured for each period label — the genuine one from right after the
+// archived for each period label — the genuine one from right after the
 // period ended — and skip later stale re-serves.
 export function dedupeByPeriod(periodEntries) {
   const seen = new Set();

@@ -11,7 +11,7 @@
 </template>
 
 <script>
-// UpdatesStrip — 目录下方的一行更新：纯文本，不做链接，也不写数据源名。
+// UpdatesStrip — 目录下方的一行更新：纯文本，不做链接，也不写数据仓名。
 // 最新数据周与两个数据版本；不显示期号。
 export default {
   name: 'UpdatesStrip',

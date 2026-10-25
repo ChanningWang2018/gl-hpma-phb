@@ -152,7 +152,7 @@ SiteFooter
 - 散点只用内联 SVG，不引 Chart.js；横轴选取率、纵轴胜率，刻度 10。
 - 头像 24px（viewBox），奶油细环；悬停/聚焦变金环；`StatRail` 悬停时点亮对应头像。
 - 移动端版画内部保持 520px 最小宽，真正溢出时才出现「Swipe the chart →」；头像加了一圈半径 17 的透明命中区。
-- 版画底部只保留规模计数与操作提示，不写数据源。
+- 版画底部只保留规模计数与操作提示，不写数据仓信息。
 
 **涨跌榜**（`MoversRail`）：
 
@@ -169,7 +169,7 @@ SiteFooter
 - **Data through** = 本期区间的最后一天（`30 Sep 2026`）。
 - **High / Low** 仍是「7500 分以上 / 以下」的简称；版画内保持短标签，完整说法留在 Analytics。
 - **单位**：胜率/选取率用 `%`；Biggest jump 与涨跌榜用 `pts`（胜率百分点）；负数用 U+2212。
-- **Latest** 的后两条（Cards + echoes v1 / Quiz bank v2）是静态数据版本文案；期号一行才来自 archive。
+- **Latest** 的后两条（Cards + echoes v1 / Quiz bank v2）是静态数据版本文案；期号一行才取自 archive。
 
 ---
 
@@ -201,7 +201,7 @@ SiteFooter
 - 1440 / 1024 / 768 / 390 四档无横向溢出；移动端版画内部横向拖动是设计行为。
 - 用 CDP 实测 `2v2 High → 1v1 High`：三个数字（66.1 / 13.0 / +10.7 pts）与涨跌榜（Harry +10.7、Hagrid +10.6、Minerva +9.6、Snape −4.1、Cedric −4.0）同步更新。
 - 键盘可切档、可聚焦头像；`prefers-reduced-motion` 无动效。
-- 页面不出现数据源名称与外链；期号在报头 / 版画 / 计数 / Latest 四处同源。
+- 页面不出现数据仓名称与外链；期号在报头 / 版画 / 计数 / Latest 四处同源。
 
 ---
 

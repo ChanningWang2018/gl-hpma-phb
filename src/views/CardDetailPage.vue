@@ -166,7 +166,7 @@
           <h2 id="card-related-title">Echoes that fit this card</h2>
         </div>
         <p class="card-related-note">
-          Top {{ relatedEchoes.length }} deck echoes · weight from the game's
+          Top {{ relatedEchoes.length }} deck echoes · weight per the dataset's
           echo score table.
         </p>
       </header>

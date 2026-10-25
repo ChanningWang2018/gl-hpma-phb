@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-10-24",
+  "updated": "2026-10-25",
   "dataVersions": [
     {
       "id": "cards",
@@ -8,11 +8,11 @@
         "en": "Cards",
         "zh": "卡牌"
       },
-      "tag": "cards-v1.20261024.0",
+      "tag": "cards-v1.20261024.1",
       "tagKind": "release",
-      "date": "2026-10-24",
+      "date": "2026-10-25",
       "sourceLabel": "hpma-bits/hpma-spellbook",
-      "sourceUrl": "https://github.com/hpma-bits/hpma-spellbook/releases/tag/cards-v1.20261024.0",
+      "sourceUrl": "https://github.com/hpma-bits/hpma-spellbook/releases/tag/cards-v1.20261024.1",
       "note": {
         "en": "141 cards with every level and both language tables.",
         "zh": "141 张卡牌，含全部等级与中英文文案。"
@@ -24,11 +24,11 @@
         "en": "Echoes",
         "zh": "回响"
       },
-      "tag": "echoes-v1.20261024.0",
+      "tag": "echoes-v1.20261024.1",
       "tagKind": "release",
-      "date": "2026-10-24",
+      "date": "2026-10-25",
       "sourceLabel": "hpma-bits/hpma-spellbook",
-      "sourceUrl": "https://github.com/hpma-bits/hpma-spellbook/releases/tag/echoes-v1.20261024.0",
+      "sourceUrl": "https://github.com/hpma-bits/hpma-spellbook/releases/tag/echoes-v1.20261024.1",
       "note": {
         "en": "184 echoes and 270 affixes; 19 player echoes are indexed.",
         "zh": "184 个回响、270 条词条；站内索引 19 个玩家回响。"
@@ -76,8 +76,8 @@
         "zh": "数据说明与更新日志"
       },
       "summary": {
-        "en": "Two new indexable pages explain where every number comes from and record each data and site release.",
-        "zh": "新增两个可预渲染页面，说明数据来源与口径，并记录每次数据与站点更新。"
+        "en": "Two new indexable pages document the data definitions and record each data and site release.",
+        "zh": "新增两个可预渲染页面，说明数据口径，并记录每次数据与站点更新。"
       }
     },
     {

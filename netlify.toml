@@ -29,7 +29,7 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# ====== 动态数据：每hour缓存（游戏每周更新） ======
+# ====== 动态数据：每hour缓存（数据仓每周更新） ======
 
 # Archive 数据文件（1 hour）
 [[headers]]
@@ -70,17 +70,17 @@
 # ====== 卡面 / 回响图标透明代理（数据仓 L2 降级源） ======
 # 2026-10 起数据仓拆为 hpma-bits/hpma-spellbook 的 cards/ 与 echoes/ 两个模块。
 # L1 直连 raw.githubusercontent（version.json imageBase）；L2 用同源代理兜底，
-# 避免客户端网络无法直连 GitHub 时图片全灭。必须放在下方 catch-all 之前。
+# 避免访客网络无法直连 GitHub 时图片全灭。必须放在下方 catch-all 之前。
 
 [[redirects]]
   from = "/cardimg/*"
-  to = "https://raw.githubusercontent.com/hpma-bits/hpma-spellbook/cards-v1.20261024.0/cards/:splat"
+  to = "https://raw.githubusercontent.com/hpma-bits/hpma-spellbook/cards-v1.20261024.1/cards/:splat"
   status = 200
   force = true
 
 [[redirects]]
   from = "/echoimg/*"
-  to = "https://raw.githubusercontent.com/hpma-bits/hpma-spellbook/echoes-v1.20261024.0/echoes/:splat"
+  to = "https://raw.githubusercontent.com/hpma-bits/hpma-spellbook/echoes-v1.20261024.1/echoes/:splat"
   status = 200
   force = true
 

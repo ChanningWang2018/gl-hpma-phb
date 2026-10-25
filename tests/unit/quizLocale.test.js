@@ -68,7 +68,7 @@ describe('translate', () => {
     expect(translate('zh', 'expandOptions')).toBe('展开选项');
     expect(translate('zh', 'collapseOptions')).toBe('收起选项');
     expect(translate('zh', 'adjudicatedNote')).toBe(
-      '该题游戏内判分与本站标答不同（官方录错选项顺序），详见数据集裁决记录。',
+      '该题标答与原始记录不一致，已按数据集裁决记录处理。',
     );
     expect(translate('zh', 'empty')).toBe('没有命中的题目——换个关键词试试。');
     expect(translate('zh', 'prefectBlurb')).toBe(
@@ -93,6 +93,9 @@ describe('translate', () => {
     expect(translate('en', 'answerPrefix')).toBe('Answer: ');
     expect(translate('en', 'expandOptions')).toBe('Show options');
     expect(translate('en', 'collapseOptions')).toBe('Hide options');
+    expect(translate('en', 'adjudicatedNote')).toBe(
+      "This question's key was adjudicated and differs from the original record — see the dataset's adjudication note for details.",
+    );
     expect(translate('en', 'owlO')).toBe('O · Outstanding');
     expect(translate('en', 'owlT')).toBe('T · Troll');
     expect(translate('en', 'resultTitle')).toBe('O.W.L. Report Card');

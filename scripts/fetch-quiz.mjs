@@ -8,7 +8,7 @@
 //   node scripts/fetch-quiz.mjs --verify  # audit local files against version.json (pure local, no network)
 //   --repo owner/name                     # override data repo (env: HPMA_QUIZ_REPO)
 //
-// Data source: release tags named quiz-v{schema}.{YYYYMMDD}.0 on the public
+// Data repo: release tags named quiz-v{schema}.{YYYYMMDD}.0 on the public
 // hpma-quizbank repo. Unlike spellbook, the upstream repo has no
 // checksums.txt (release assets are zip + .sha256, which we deliberately do
 // not unzip). Instead the two needed files (quiz.json, manifest.json) are

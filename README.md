@@ -19,7 +19,7 @@ A Vue 3-based analytics dashboard for tracking character (Reverberation, Echo) p
 - `/sales-optimizer` — Sales Optimizer
 - `/quiz` — Magic Quiz
 - `/resources` — the library of external tools
-- `/methodology` — data sources, field definitions, the four brackets, update cadence and disclaimer
+- `/methodology` — data modules, field definitions, the four brackets, update cadence and disclaimer
 - `/changelog` — current cards / echoes / quiz / trends versions and site changes (hand-maintained in `src/data/changelog.json`)
 
 ## 📊 Features
@@ -47,7 +47,7 @@ A Vue 3-based analytics dashboard for tracking character (Reverberation, Echo) p
 ## 📁 Project Structure
 
 ```
-├── archive/                    # Raw crawler snapshots + manifest (NOT deployed)
+├── archive/                    # Raw data snapshots + manifest (NOT deployed)
 ├── src/
 │   ├── App.vue                 # Main application component
 │   ├── main.js                 # Application entry point
@@ -229,7 +229,7 @@ node scripts/fetch-spellbook-modules.mjs update
 
 It fetches both modules' latest releases, audits `cards.json` / `echoes.json` + `manifest.json` against each module's `checksums.txt`, writes the local `version.json` with an `imageBase` pinned to the release tag, and syncs the `/cardimg/*` / `/echoimg/*` proxy tags in `netlify.toml`. `--check` exits 2 when either module is newer; `--verify` audits the committed data.
 
-Card and echo images are hot-linked from `raw.githubusercontent.com` at the pinned tag. The same-origin `/cardimg/*` and `/echoimg/*` Netlify redirects are the fallback for clients that cannot reach GitHub directly.
+Card and echo images are hot-linked from `raw.githubusercontent.com` at the pinned tag. The same-origin `/cardimg/*` and `/echoimg/*` Netlify redirects are the fallback for networks that cannot reach GitHub directly.
 
 ### Echo image loading
 
@@ -266,7 +266,7 @@ The proxied runs add `-x http://127.0.0.1:7890`.
 Direct `fastly.jsdelivr.net` answered with a 301 to the identical
 `raw.githubusercontent.com` object, so it cannot beat raw from this network — it
 only adds a round trip. Raw won on median (PNG 0.88 s, WebP 1.10 s) and serves
-without a redirect; `/echoimg` stays the client fallback for networks where raw
+without a redirect; `/echoimg` stays the same-origin fallback for networks where raw
 is unreachable. **Final choice: keep the raw imageBase** (no data change). A
 side check of `cdn.jsdelivr.net` returned HTTP 200 directly in 0.81–1.35 s with
 no redirect; it is a candidate for the next data-update probe, but not adopted
@@ -320,11 +320,11 @@ The dashboard supports four game modes:
 
 ## 💾 Data Storage
 
-- Raw data snapshots are stored in the repo-root `archive/` directory (crawler output and build input, **not** deployed with the site)
+- Raw data snapshots are stored in the repo-root `archive/` directory (raw snapshots and build input, **not** deployed with the site)
 - Data files include timestamps for version tracking
 - Current working data is in `snapshot.json`
-- The client reads only `public/archive/trends.json` (served at `/archive/trends.json`), a compact aggregate ([period, echo, mode, winrate, pickrate] rows) built from all snapshots in `archive/` with `npm run build:trends`; the crawler workflow regenerates it automatically on every new snapshot (`npm run verify:trends` re-checks it against the raw archives)
-- Raw archive files are kept as the source of truth and download archive, but are no longer fetched by the app
+- The site reads only `public/archive/trends.json` (served at `/archive/trends.json`), a compact aggregate ([period, echo, mode, winrate, pickrate] rows) built from all snapshots in `archive/` with `npm run build:trends`; the archive workflow regenerates it automatically on every new snapshot (`npm run verify:trends` re-checks it against the raw archives)
+- Raw archive files are kept as the canonical archive and download backup, but are no longer fetched by the app
 
 ## 📝 License
 

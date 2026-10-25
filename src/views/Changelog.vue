@@ -14,14 +14,14 @@
       <p class="lede">
         Every data release is pinned to a tag and every site change is recorded
         here. The list below is the current state of each dataset, not a full
-        history: older releases stay on the source repositories.
+        history: older releases stay on the data repositories.
       </p>
       <p class="zh-summary" lang="zh">
         每一次数据发布都固定到
-        tag，每一次站点改动都记录在此。下列是各数据集的当前版本；历史版本保留在数据源仓库。
+        tag，每一次站点改动都记录在此。下列是各数据集的当前版本；历史版本保留在数据仓库。
       </p>
       <p class="crosslink">
-        How the numbers are collected and defined:
+        Data definitions and update cadence:
         <RouterLink to="/methodology">Methodology 数据说明 →</RouterLink>
       </p>
 
@@ -69,11 +69,11 @@
 
         <p class="method-note">
           Weekly trends has no release tag of its own. It is rebuilt from the
-          archive snapshot taken by the crawler, and the tag above is that
+          snapshots archived in this repository, and the tag above is that
           snapshot's git tag (<code>vYYYYMMDD-HHMMSS</code>).
         </p>
         <p class="zh-summary" lang="zh">
-          周趋势没有独立发布 tag：它由爬虫抓取的归档快照重新聚合，上表的 tag
+          周趋势没有独立发布 tag：它由仓库内的归档快照重新聚合，上表的 tag
           就是该快照的 git tag（格式 <code>vYYYYMMDD-HHMMSS</code>）。
         </p>
       </section>

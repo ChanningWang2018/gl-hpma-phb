@@ -1,5 +1,5 @@
 // Syncs the committed spellbook data in public/data/spellbook/ with the
-// upstream hpma-data GitHub release, so game data updates reach the site
+// upstream hpma-data GitHub release, so data updates reach the site
 // without hand-edited JSON drift.
 //
 // LEGACY (2026-10): the single-axis hpma-data / spellbook-v* pipeline has been
@@ -13,7 +13,7 @@
 //   node scripts/fetch-spellbook.mjs --verify  # audit local data against the pinned tag's checksums.txt
 //   --repo owner/name                          # override data repo (env: HPMA_DATA_REPO)
 //
-// Data source: release tags named spellbook-vX.Y.Z on the public hpma-data
+// Data repo: release tags named spellbook-vX.Y.Z on the public hpma-data
 // repo. The three needed files (checksums.txt, cards.json, manifest.json)
 // are downloaded as bare blobs from raw.githubusercontent.com at the
 // immutable tag and sha256-audited against checksums.txt — integrity is

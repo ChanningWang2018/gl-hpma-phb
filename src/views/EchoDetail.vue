@@ -251,10 +251,10 @@ const signed = (value) => {
 };
 
 // EchoDetail — one character page for the 2026-10 echoes module. Weekly stats
-// still come from trends.json (the crawler's 1..19 ids map onto character ids
+// still come from trends.json (the dataset's 1..19 ids map onto character ids
 // via EchoService.STATS_ECHO_IDS); skill text and rarity variants come from
-// echoes.json. Game-sourced strategy tips and card-score recommendations were
-// removed because that advice is stale and not actionable for players.
+// echoes.json. Stale strategy tips and card-score recommendations were removed
+// because that advice drifted and is not actionable for players.
 export default {
   name: 'EchoDetail',
   components: { EchoImage, PressButton, SegmentControl },
