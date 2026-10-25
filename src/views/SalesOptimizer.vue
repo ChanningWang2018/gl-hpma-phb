@@ -370,13 +370,13 @@ export default {
         },
         {
           property: 'og:url',
-          content: 'https://hpma-phb.netlify.app/sales-optimizer',
+          content: 'https://grimmauldplace.top/sales-optimizer',
         },
       ],
       link: [
         {
           rel: 'canonical',
-          href: 'https://hpma-phb.netlify.app/sales-optimizer',
+          href: 'https://grimmauldplace.top/sales-optimizer',
         },
       ],
       script: [

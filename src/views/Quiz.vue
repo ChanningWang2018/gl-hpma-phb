@@ -240,13 +240,13 @@ export default {
             { name: 'description', content: description },
             {
               property: 'og:url',
-              content: 'https://hpma-phb.netlify.app/quiz',
+              content: 'https://grimmauldplace.top/quiz',
             },
           ],
           link: [
             {
               rel: 'canonical',
-              href: 'https://hpma-phb.netlify.app/quiz',
+              href: 'https://grimmauldplace.top/quiz',
             },
           ],
           script: [

@@ -22,7 +22,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const DIST = join(ROOT, 'dist');
-const SITE_ORIGIN = 'https://hpma-phb.netlify.app';
+const SITE_ORIGIN = 'https://grimmauldplace.top';
 
 // The indexable-route contract. When a data module adds or removes entities,
 // update these numbers (and the README count) in the same commit.

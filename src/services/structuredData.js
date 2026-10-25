@@ -15,7 +15,7 @@
 // Inventing any of them would be rich-result spam, so they are simply absent.
 
 /** Canonical site origin used by every URL builder. */
-export const SITE_ORIGIN = 'https://hpma-phb.netlify.app';
+export const SITE_ORIGIN = 'https://grimmauldplace.top';
 
 /** Local 1200×630 fallback used when an entity has no usable image. */
 export const FALLBACK_OG_IMAGE = '/og-image.webp';

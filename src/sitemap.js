@@ -8,7 +8,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const BASE = 'https://hpma-phb.netlify.app';
+const BASE = 'https://grimmauldplace.top';
 
 function readJson(relativePath) {
   return JSON.parse(readFileSync(join(process.cwd(), relativePath), 'utf8'));

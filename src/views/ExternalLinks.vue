@@ -49,13 +49,13 @@ export default {
         },
         {
           property: 'og:url',
-          content: 'https://hpma-phb.netlify.app/resources',
+          content: 'https://grimmauldplace.top/resources',
         },
       ],
       link: [
         {
           rel: 'canonical',
-          href: 'https://hpma-phb.netlify.app/resources',
+          href: 'https://grimmauldplace.top/resources',
         },
       ],
       script: [

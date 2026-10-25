@@ -135,13 +135,13 @@ export default {
         },
         {
           property: 'og:url',
-          content: 'https://hpma-phb.netlify.app/analytics',
+          content: 'https://grimmauldplace.top/analytics',
         },
       ],
       link: [
         {
           rel: 'canonical',
-          href: 'https://hpma-phb.netlify.app/analytics',
+          href: 'https://grimmauldplace.top/analytics',
         },
       ],
       // Tool pages have no per-entity graph; keep one truthful generic block so

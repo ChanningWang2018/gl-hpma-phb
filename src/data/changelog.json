@@ -69,6 +69,18 @@
   ],
   "siteChanges": [
     {
+      "date": "2026-10-25",
+      "refs": [],
+      "title": {
+        "en": "Canonical domain for search",
+        "zh": "搜索引擎规范域名切换"
+      },
+      "summary": {
+        "en": "The sitemap, canonical links, structured data and social preview images now point at grimmauldplace.top instead of the Netlify subdomain.",
+        "zh": "sitemap、canonical、结构化数据与社交分享图统一改用 grimmauldplace.top 主域名，不再指向 Netlify 子域。"
+      }
+    },
+    {
       "date": "2026-10-24",
       "refs": ["#24"],
       "title": {
