@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
- "data_version": 20261024,
- "generated_at": "2026-10-24T10:28:55+08:00",
+ "data_version": 20261111,
+ "generated_at": "2026-11-11T13:02:06+08:00",
  "face_attrs": [
   "hp",
   "damage",
@@ -18636,7 +18636,7 @@
      "name": "速速禁锢",
      "desc": "施放禁锢咒，将范围内的敌方单位束缚至中心并造成伤害和禁锢效果。",
      "quote": "施放禁锢咒，将范围内的敌方单位束缚至中心并造成伤害和禁锢效果。",
-     "stats": "伤害 26→186；范围半径 32；控制时间 3.8；目标 air&ground",
+     "stats": "伤害 30→214；范围半径 32；控制时间 4.3；目标 air&ground",
      "tags": [
       "控制"
      ]
@@ -18645,7 +18645,7 @@
      "name": "Incarcerous",
      "desc": "Casts Incarcerous. Binds all enemies to the centre of the target area and deals Damage.",
      "quote": "Casts Incarcerous. Binds all enemies to the centre of the target area and deals Damage.",
-     "stats": "Damage 26→186; Range 32; Control Duration 3.8; Target air&ground",
+     "stats": "Damage 30→214; Range 32; Control Duration 4.3; Target air&ground",
      "tags": [
       "Control"
      ]
@@ -18653,70 +18653,6 @@
    },
    "levels": {
     "1": {
-     "battle_show": [
-      1,
-      3
-     ],
-     "rows": [
-      {
-       "attr_name": "damage",
-       "k": "伤害",
-       "k_en": "Damage",
-       "v": 26
-      },
-      {
-       "attr_name": "radius",
-       "k": "范围半径",
-       "k_en": "Range",
-       "v": 32
-      },
-      {
-       "attr_name": "stun_time",
-       "k": "控制时间",
-       "k_en": "Control Duration",
-       "v": 3.8
-      },
-      {
-       "attr_name": "targets",
-       "k": "目标",
-       "k_en": "Target",
-       "v": "air&ground"
-      }
-     ]
-    },
-    "2": {
-     "battle_show": [
-      1,
-      3
-     ],
-     "rows": [
-      {
-       "attr_name": "damage",
-       "k": "伤害",
-       "k_en": "Damage",
-       "v": 28
-      },
-      {
-       "attr_name": "radius",
-       "k": "范围半径",
-       "k_en": "Range",
-       "v": 32
-      },
-      {
-       "attr_name": "stun_time",
-       "k": "控制时间",
-       "k_en": "Control Duration",
-       "v": 3.8
-      },
-      {
-       "attr_name": "targets",
-       "k": "目标",
-       "k_en": "Target",
-       "v": "air&ground"
-      }
-     ]
-    },
-    "3": {
      "battle_show": [
       1,
       3
@@ -18738,7 +18674,71 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
+      },
+      {
+       "attr_name": "targets",
+       "k": "目标",
+       "k_en": "Target",
+       "v": "air&ground"
+      }
+     ]
+    },
+    "2": {
+     "battle_show": [
+      1,
+      3
+     ],
+     "rows": [
+      {
+       "attr_name": "damage",
+       "k": "伤害",
+       "k_en": "Damage",
+       "v": 32
+      },
+      {
+       "attr_name": "radius",
+       "k": "范围半径",
+       "k_en": "Range",
+       "v": 32
+      },
+      {
+       "attr_name": "stun_time",
+       "k": "控制时间",
+       "k_en": "Control Duration",
+       "v": 4.3
+      },
+      {
+       "attr_name": "targets",
+       "k": "目标",
+       "k_en": "Target",
+       "v": "air&ground"
+      }
+     ]
+    },
+    "3": {
+     "battle_show": [
+      1,
+      3
+     ],
+     "rows": [
+      {
+       "attr_name": "damage",
+       "k": "伤害",
+       "k_en": "Damage",
+       "v": 35
+      },
+      {
+       "attr_name": "radius",
+       "k": "范围半径",
+       "k_en": "Range",
+       "v": 32
+      },
+      {
+       "attr_name": "stun_time",
+       "k": "控制时间",
+       "k_en": "Control Duration",
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -18758,7 +18758,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 32
+       "v": 37
       },
       {
        "attr_name": "radius",
@@ -18770,7 +18770,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -18781,70 +18781,6 @@
      ]
     },
     "5": {
-     "battle_show": [
-      1,
-      3
-     ],
-     "rows": [
-      {
-       "attr_name": "damage",
-       "k": "伤害",
-       "k_en": "Damage",
-       "v": 34
-      },
-      {
-       "attr_name": "radius",
-       "k": "范围半径",
-       "k_en": "Range",
-       "v": 32
-      },
-      {
-       "attr_name": "stun_time",
-       "k": "控制时间",
-       "k_en": "Control Duration",
-       "v": 3.8
-      },
-      {
-       "attr_name": "targets",
-       "k": "目标",
-       "k_en": "Target",
-       "v": "air&ground"
-      }
-     ]
-    },
-    "6": {
-     "battle_show": [
-      1,
-      3
-     ],
-     "rows": [
-      {
-       "attr_name": "damage",
-       "k": "伤害",
-       "k_en": "Damage",
-       "v": 36
-      },
-      {
-       "attr_name": "radius",
-       "k": "范围半径",
-       "k_en": "Range",
-       "v": 32
-      },
-      {
-       "attr_name": "stun_time",
-       "k": "控制时间",
-       "k_en": "Control Duration",
-       "v": 3.8
-      },
-      {
-       "attr_name": "targets",
-       "k": "目标",
-       "k_en": "Target",
-       "v": "air&ground"
-      }
-     ]
-    },
-    "7": {
      "battle_show": [
       1,
       3
@@ -18866,7 +18802,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -18876,7 +18812,7 @@
       }
      ]
     },
-    "8": {
+    "6": {
      "battle_show": [
       1,
       3
@@ -18886,7 +18822,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 42
+       "v": 41
       },
       {
        "attr_name": "radius",
@@ -18898,7 +18834,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -18908,7 +18844,7 @@
       }
      ]
     },
-    "9": {
+    "7": {
      "battle_show": [
       1,
       3
@@ -18930,7 +18866,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -18940,7 +18876,7 @@
       }
      ]
     },
-    "10": {
+    "8": {
      "battle_show": [
       1,
       3
@@ -18962,7 +18898,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -18972,7 +18908,7 @@
       }
      ]
     },
-    "11": {
+    "9": {
      "battle_show": [
       1,
       3
@@ -18982,7 +18918,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 51
+       "v": 52
       },
       {
        "attr_name": "radius",
@@ -18994,7 +18930,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -19004,7 +18940,7 @@
       }
      ]
     },
-    "12": {
+    "10": {
      "battle_show": [
       1,
       3
@@ -19026,7 +18962,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -19036,7 +18972,7 @@
       }
      ]
     },
-    "13": {
+    "11": {
      "battle_show": [
       1,
       3
@@ -19058,7 +18994,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -19068,7 +19004,7 @@
       }
      ]
     },
-    "14": {
+    "12": {
      "battle_show": [
       1,
       3
@@ -19090,7 +19026,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -19100,7 +19036,7 @@
       }
      ]
     },
-    "15": {
+    "13": {
      "battle_show": [
       1,
       3
@@ -19110,7 +19046,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 67
+       "v": 68
       },
       {
        "attr_name": "radius",
@@ -19122,7 +19058,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -19132,7 +19068,7 @@
       }
      ]
     },
-    "16": {
+    "14": {
      "battle_show": [
       1,
       3
@@ -19154,7 +19090,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -19164,7 +19100,7 @@
       }
      ]
     },
-    "17": {
+    "15": {
      "battle_show": [
       1,
       3
@@ -19186,7 +19122,71 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
+      },
+      {
+       "attr_name": "targets",
+       "k": "目标",
+       "k_en": "Target",
+       "v": "air&ground"
+      }
+     ]
+    },
+    "16": {
+     "battle_show": [
+      1,
+      3
+     ],
+     "rows": [
+      {
+       "attr_name": "damage",
+       "k": "伤害",
+       "k_en": "Damage",
+       "v": 83
+      },
+      {
+       "attr_name": "radius",
+       "k": "范围半径",
+       "k_en": "Range",
+       "v": 32
+      },
+      {
+       "attr_name": "stun_time",
+       "k": "控制时间",
+       "k_en": "Control Duration",
+       "v": 4.3
+      },
+      {
+       "attr_name": "targets",
+       "k": "目标",
+       "k_en": "Target",
+       "v": "air&ground"
+      }
+     ]
+    },
+    "17": {
+     "battle_show": [
+      1,
+      3
+     ],
+     "rows": [
+      {
+       "attr_name": "damage",
+       "k": "伤害",
+       "k_en": "Damage",
+       "v": 89
+      },
+      {
+       "attr_name": "radius",
+       "k": "范围半径",
+       "k_en": "Range",
+       "v": 32
+      },
+      {
+       "attr_name": "stun_time",
+       "k": "控制时间",
+       "k_en": "Control Duration",
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -19197,70 +19197,6 @@
      ]
     },
     "18": {
-     "battle_show": [
-      1,
-      3
-     ],
-     "rows": [
-      {
-       "attr_name": "damage",
-       "k": "伤害",
-       "k_en": "Damage",
-       "v": 82
-      },
-      {
-       "attr_name": "radius",
-       "k": "范围半径",
-       "k_en": "Range",
-       "v": 32
-      },
-      {
-       "attr_name": "stun_time",
-       "k": "控制时间",
-       "k_en": "Control Duration",
-       "v": 3.8
-      },
-      {
-       "attr_name": "targets",
-       "k": "目标",
-       "k_en": "Target",
-       "v": "air&ground"
-      }
-     ]
-    },
-    "19": {
-     "battle_show": [
-      1,
-      3
-     ],
-     "rows": [
-      {
-       "attr_name": "damage",
-       "k": "伤害",
-       "k_en": "Damage",
-       "v": 88
-      },
-      {
-       "attr_name": "radius",
-       "k": "范围半径",
-       "k_en": "Range",
-       "v": 32
-      },
-      {
-       "attr_name": "stun_time",
-       "k": "控制时间",
-       "k_en": "Control Duration",
-       "v": 3.8
-      },
-      {
-       "attr_name": "targets",
-       "k": "目标",
-       "k_en": "Target",
-       "v": "air&ground"
-      }
-     ]
-    },
-    "20": {
      "battle_show": [
       1,
       3
@@ -19282,7 +19218,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -19292,7 +19228,7 @@
       }
      ]
     },
-    "21": {
+    "19": {
      "battle_show": [
       1,
       3
@@ -19314,7 +19250,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -19324,7 +19260,7 @@
       }
      ]
     },
-    "22": {
+    "20": {
      "battle_show": [
       1,
       3
@@ -19346,7 +19282,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -19356,7 +19292,7 @@
       }
      ]
     },
-    "23": {
+    "21": {
      "battle_show": [
       1,
       3
@@ -19378,7 +19314,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -19388,7 +19324,7 @@
       }
      ]
     },
-    "24": {
+    "22": {
      "battle_show": [
       1,
       3
@@ -19410,7 +19346,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -19420,7 +19356,7 @@
       }
      ]
     },
-    "25": {
+    "23": {
      "battle_show": [
       1,
       3
@@ -19442,7 +19378,71 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
+      },
+      {
+       "attr_name": "targets",
+       "k": "目标",
+       "k_en": "Target",
+       "v": "air&ground"
+      }
+     ]
+    },
+    "24": {
+     "battle_show": [
+      1,
+      3
+     ],
+     "rows": [
+      {
+       "attr_name": "damage",
+       "k": "伤害",
+       "k_en": "Damage",
+       "v": 143
+      },
+      {
+       "attr_name": "radius",
+       "k": "范围半径",
+       "k_en": "Range",
+       "v": 32
+      },
+      {
+       "attr_name": "stun_time",
+       "k": "控制时间",
+       "k_en": "Control Duration",
+       "v": 4.3
+      },
+      {
+       "attr_name": "targets",
+       "k": "目标",
+       "k_en": "Target",
+       "v": "air&ground"
+      }
+     ]
+    },
+    "25": {
+     "battle_show": [
+      1,
+      3
+     ],
+     "rows": [
+      {
+       "attr_name": "damage",
+       "k": "伤害",
+       "k_en": "Damage",
+       "v": 153
+      },
+      {
+       "attr_name": "radius",
+       "k": "范围半径",
+       "k_en": "Range",
+       "v": 32
+      },
+      {
+       "attr_name": "stun_time",
+       "k": "控制时间",
+       "k_en": "Control Duration",
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -19453,70 +19453,6 @@
      ]
     },
     "26": {
-     "battle_show": [
-      1,
-      3
-     ],
-     "rows": [
-      {
-       "attr_name": "damage",
-       "k": "伤害",
-       "k_en": "Damage",
-       "v": 142
-      },
-      {
-       "attr_name": "radius",
-       "k": "范围半径",
-       "k_en": "Range",
-       "v": 32
-      },
-      {
-       "attr_name": "stun_time",
-       "k": "控制时间",
-       "k_en": "Control Duration",
-       "v": 3.8
-      },
-      {
-       "attr_name": "targets",
-       "k": "目标",
-       "k_en": "Target",
-       "v": "air&ground"
-      }
-     ]
-    },
-    "27": {
-     "battle_show": [
-      1,
-      3
-     ],
-     "rows": [
-      {
-       "attr_name": "damage",
-       "k": "伤害",
-       "k_en": "Damage",
-       "v": 152
-      },
-      {
-       "attr_name": "radius",
-       "k": "范围半径",
-       "k_en": "Range",
-       "v": 32
-      },
-      {
-       "attr_name": "stun_time",
-       "k": "控制时间",
-       "k_en": "Control Duration",
-       "v": 3.8
-      },
-      {
-       "attr_name": "targets",
-       "k": "目标",
-       "k_en": "Target",
-       "v": "air&ground"
-      }
-     ]
-    },
-    "28": {
      "battle_show": [
       1,
       3
@@ -19538,7 +19474,71 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
+      },
+      {
+       "attr_name": "targets",
+       "k": "目标",
+       "k_en": "Target",
+       "v": "air&ground"
+      }
+     ]
+    },
+    "27": {
+     "battle_show": [
+      1,
+      3
+     ],
+     "rows": [
+      {
+       "attr_name": "damage",
+       "k": "伤害",
+       "k_en": "Damage",
+       "v": 175
+      },
+      {
+       "attr_name": "radius",
+       "k": "范围半径",
+       "k_en": "Range",
+       "v": 32
+      },
+      {
+       "attr_name": "stun_time",
+       "k": "控制时间",
+       "k_en": "Control Duration",
+       "v": 4.3
+      },
+      {
+       "attr_name": "targets",
+       "k": "目标",
+       "k_en": "Target",
+       "v": "air&ground"
+      }
+     ]
+    },
+    "28": {
+     "battle_show": [
+      1,
+      3
+     ],
+     "rows": [
+      {
+       "attr_name": "damage",
+       "k": "伤害",
+       "k_en": "Damage",
+       "v": 187
+      },
+      {
+       "attr_name": "radius",
+       "k": "范围半径",
+       "k_en": "Range",
+       "v": 32
+      },
+      {
+       "attr_name": "stun_time",
+       "k": "控制时间",
+       "k_en": "Control Duration",
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -19558,7 +19558,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 174
+       "v": 200
       },
       {
        "attr_name": "radius",
@@ -19570,7 +19570,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -19590,7 +19590,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 186
+       "v": 214
       },
       {
        "attr_name": "radius",
@@ -19602,7 +19602,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 3.8
+       "v": 4.3
       },
       {
        "attr_name": "targets",
@@ -39741,7 +39741,7 @@
      "name": "阿瓦达",
      "desc": "施放咒语，对第一个命中的敌方单位造成伤害。\n*该咒语每击败一个敌方单位，伤害提高25%。\n*击败4个敌方单位之后，该咒语效果变为直接击败命中的敌方单位（无法直接消灭首领单位，转而造成大量额外伤害）。",
      "quote": "施放咒语，对第一个命中的敌方单位造成伤害。",
-     "stats": "伤害 dynamic_1014/dynamic_1085/dynamic_1161/dynamic_1242/dynamic_1329/dynamic_1422/dynamic_200/dynamic_214/dynamic_229/dynamic_245/dynamic_262/dynamic_280/dynamic_300/dynamic_321/dynamic_343/dynamic_367/dynamic_393/dynamic_421/dynamic_450/dynamic_482/dynamic_516/dynamic_552/dynamic_591/dynamic_632/dynamic_676/dynamic_723/dynamic_774/dynamic_828/dynamic_886/dynamic_948；宽度 20；目标 air&ground",
+     "stats": "伤害 dynamic_1024/dynamic_1095/dynamic_1172/dynamic_1254/dynamic_1341/dynamic_1435/dynamic_1536/dynamic_216/dynamic_231/dynamic_247/dynamic_265/dynamic_283/dynamic_302/dynamic_324/dynamic_347/dynamic_370/dynamic_396/dynamic_424/dynamic_455/dynamic_486/dynamic_521/dynamic_557/dynamic_596/dynamic_638/dynamic_683/dynamic_730/dynamic_781/dynamic_836/dynamic_894/dynamic_957；宽度 20；目标 air&ground",
      "tags": [
       "输出"
      ]
@@ -39750,7 +39750,7 @@
      "name": "Avada Kedavra",
      "desc": "Casts Avada Kedavra, dealing Damage to the first enemy hit.\n*Each opponent unit defeated by the Curse increases its Damage by 25%.\n*After defeating 4 opponents, the Curse instantly defeats the targets it hits. (Boss units cannot be instantly defeated, but will receive massive damage.)",
      "quote": "Casts Avada Kedavra, dealing Damage to the first enemy hit.",
-     "stats": "Damage dynamic_1014/dynamic_1085/dynamic_1161/dynamic_1242/dynamic_1329/dynamic_1422/dynamic_200/dynamic_214/dynamic_229/dynamic_245/dynamic_262/dynamic_280/dynamic_300/dynamic_321/dynamic_343/dynamic_367/dynamic_393/dynamic_421/dynamic_450/dynamic_482/dynamic_516/dynamic_552/dynamic_591/dynamic_632/dynamic_676/dynamic_723/dynamic_774/dynamic_828/dynamic_886/dynamic_948; Width 20; Target air&ground",
+     "stats": "Damage dynamic_1024/dynamic_1095/dynamic_1172/dynamic_1254/dynamic_1341/dynamic_1435/dynamic_1536/dynamic_216/dynamic_231/dynamic_247/dynamic_265/dynamic_283/dynamic_302/dynamic_324/dynamic_347/dynamic_370/dynamic_396/dynamic_424/dynamic_455/dynamic_486/dynamic_521/dynamic_557/dynamic_596/dynamic_638/dynamic_683/dynamic_730/dynamic_781/dynamic_836/dynamic_894/dynamic_957; Width 20; Target air&ground",
      "tags": [
       "Damage"
      ]
@@ -39766,7 +39766,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_200"
+       "v": "dynamic_216"
       },
       {
        "attr_name": "width",
@@ -39791,7 +39791,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_214"
+       "v": "dynamic_231"
       },
       {
        "attr_name": "width",
@@ -39816,7 +39816,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_229"
+       "v": "dynamic_247"
       },
       {
        "attr_name": "width",
@@ -39841,7 +39841,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_245"
+       "v": "dynamic_265"
       },
       {
        "attr_name": "width",
@@ -39866,7 +39866,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_262"
+       "v": "dynamic_283"
       },
       {
        "attr_name": "width",
@@ -39891,7 +39891,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_280"
+       "v": "dynamic_302"
       },
       {
        "attr_name": "width",
@@ -39916,7 +39916,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_300"
+       "v": "dynamic_324"
       },
       {
        "attr_name": "width",
@@ -39941,7 +39941,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_321"
+       "v": "dynamic_347"
       },
       {
        "attr_name": "width",
@@ -39966,7 +39966,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_343"
+       "v": "dynamic_370"
       },
       {
        "attr_name": "width",
@@ -39991,7 +39991,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_367"
+       "v": "dynamic_396"
       },
       {
        "attr_name": "width",
@@ -40016,7 +40016,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_393"
+       "v": "dynamic_424"
       },
       {
        "attr_name": "width",
@@ -40041,7 +40041,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_421"
+       "v": "dynamic_455"
       },
       {
        "attr_name": "width",
@@ -40066,7 +40066,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_450"
+       "v": "dynamic_486"
       },
       {
        "attr_name": "width",
@@ -40091,7 +40091,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_482"
+       "v": "dynamic_521"
       },
       {
        "attr_name": "width",
@@ -40116,7 +40116,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_516"
+       "v": "dynamic_557"
       },
       {
        "attr_name": "width",
@@ -40141,7 +40141,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_552"
+       "v": "dynamic_596"
       },
       {
        "attr_name": "width",
@@ -40166,7 +40166,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_591"
+       "v": "dynamic_638"
       },
       {
        "attr_name": "width",
@@ -40191,7 +40191,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_632"
+       "v": "dynamic_683"
       },
       {
        "attr_name": "width",
@@ -40216,7 +40216,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_676"
+       "v": "dynamic_730"
       },
       {
        "attr_name": "width",
@@ -40241,7 +40241,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_723"
+       "v": "dynamic_781"
       },
       {
        "attr_name": "width",
@@ -40266,7 +40266,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_774"
+       "v": "dynamic_836"
       },
       {
        "attr_name": "width",
@@ -40291,7 +40291,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_828"
+       "v": "dynamic_894"
       },
       {
        "attr_name": "width",
@@ -40316,7 +40316,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_886"
+       "v": "dynamic_957"
       },
       {
        "attr_name": "width",
@@ -40341,7 +40341,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_948"
+       "v": "dynamic_1024"
       },
       {
        "attr_name": "width",
@@ -40366,7 +40366,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_1014"
+       "v": "dynamic_1095"
       },
       {
        "attr_name": "width",
@@ -40391,7 +40391,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_1085"
+       "v": "dynamic_1172"
       },
       {
        "attr_name": "width",
@@ -40416,7 +40416,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_1161"
+       "v": "dynamic_1254"
       },
       {
        "attr_name": "width",
@@ -40441,7 +40441,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_1242"
+       "v": "dynamic_1341"
       },
       {
        "attr_name": "width",
@@ -40466,7 +40466,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_1329"
+       "v": "dynamic_1435"
       },
       {
        "attr_name": "width",
@@ -40491,7 +40491,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": "dynamic_1422"
+       "v": "dynamic_1536"
       },
       {
        "attr_name": "width",
@@ -66899,7 +66899,7 @@
      "name": "恶婆鸟",
      "desc": "召唤两只恶婆鸟，它们会随机在敌方单位周围飞行，并发出尖叫，造成伤害和恐惧效果。\n*每使1个新的敌方单位陷入恐惧，恶婆鸟获得25%最大生命值的护盾。",
      "quote": "召唤两只恶婆鸟，它们会随机在敌方单位周围飞行，并发出尖叫，造成伤害和恐惧效果。",
-     "stats": "生命值 70→498；伤害 36→258；攻击间隔 2.5；每秒伤害 14.4→103.2；范围半径 20；控制时间 1.5；移动速度 speed_veryfast；目标 air&ground",
+     "stats": "生命值 70→498；伤害 34→243；攻击间隔 2.5；每秒伤害 13.6→97.2；范围半径 20；控制时间 1.2；移动速度 speed_veryfast；目标 air&ground",
      "tags": [
       "控制",
       "输出"
@@ -66909,7 +66909,7 @@
      "name": "Fwoopers",
      "desc": "Summons 2 Fwoopers that shriek and circle random enemies, dealing Damage while applying Fear.\n*Each time a new opponent is affected by fear, the Fwooper gains a shield equal to 25% of its max Health.",
      "quote": "Summons 2 Fwoopers that shriek and circle random enemies, dealing Damage while applying Fear.",
-     "stats": "Health 70→498; Damage 36→258; Damage Interval 2.5; DPS 14.4→103.2; Range 20; Control Duration 1.5; Speed speed_veryfast; Target air&ground",
+     "stats": "Health 70→498; Damage 34→243; Damage Interval 2.5; DPS 13.6→97.2; Range 20; Control Duration 1.2; Speed speed_veryfast; Target air&ground",
      "tags": [
       "Control",
       "Damage"
@@ -66932,7 +66932,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 36
+       "v": 34
       },
       {
        "attr_name": "hit_speed",
@@ -66944,7 +66944,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 14.4
+       "v": 13.6
       },
       {
        "attr_name": "radius",
@@ -66956,7 +66956,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -66987,7 +66987,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 39
+       "v": 37
       },
       {
        "attr_name": "hit_speed",
@@ -66999,7 +66999,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 15.6
+       "v": 14.8
       },
       {
        "attr_name": "radius",
@@ -67011,7 +67011,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -67042,7 +67042,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 42
+       "v": 39
       },
       {
        "attr_name": "hit_speed",
@@ -67054,7 +67054,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 16.8
+       "v": 15.6
       },
       {
        "attr_name": "radius",
@@ -67066,7 +67066,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -67097,7 +67097,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 45
+       "v": 42
       },
       {
        "attr_name": "hit_speed",
@@ -67109,7 +67109,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 18
+       "v": 16.8
       },
       {
        "attr_name": "radius",
@@ -67121,7 +67121,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -67152,7 +67152,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 48
+       "v": 45
       },
       {
        "attr_name": "hit_speed",
@@ -67164,7 +67164,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 19.2
+       "v": 18
       },
       {
        "attr_name": "radius",
@@ -67176,7 +67176,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -67207,7 +67207,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 51
+       "v": 48
       },
       {
        "attr_name": "hit_speed",
@@ -67219,7 +67219,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 20.4
+       "v": 19.2
       },
       {
        "attr_name": "radius",
@@ -67231,7 +67231,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -67262,7 +67262,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 55
+       "v": 52
       },
       {
        "attr_name": "hit_speed",
@@ -67274,7 +67274,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 22
+       "v": 20.8
       },
       {
        "attr_name": "radius",
@@ -67286,7 +67286,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -67317,7 +67317,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 59
+       "v": 55
       },
       {
        "attr_name": "hit_speed",
@@ -67329,7 +67329,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 23.6
+       "v": 22
       },
       {
        "attr_name": "radius",
@@ -67341,7 +67341,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -67372,7 +67372,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 63
+       "v": 59
       },
       {
        "attr_name": "hit_speed",
@@ -67384,7 +67384,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 25.2
+       "v": 23.6
       },
       {
        "attr_name": "radius",
@@ -67396,7 +67396,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -67427,7 +67427,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 67
+       "v": 63
       },
       {
        "attr_name": "hit_speed",
@@ -67439,7 +67439,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 26.8
+       "v": 25.2
       },
       {
        "attr_name": "radius",
@@ -67451,7 +67451,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -67482,7 +67482,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 72
+       "v": 68
       },
       {
        "attr_name": "hit_speed",
@@ -67494,7 +67494,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 28.8
+       "v": 27.2
       },
       {
        "attr_name": "radius",
@@ -67506,7 +67506,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -67537,7 +67537,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 77
+       "v": 72
       },
       {
        "attr_name": "hit_speed",
@@ -67549,7 +67549,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 30.8
+       "v": 28.8
       },
       {
        "attr_name": "radius",
@@ -67561,7 +67561,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -67592,7 +67592,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 82
+       "v": 77
       },
       {
        "attr_name": "hit_speed",
@@ -67604,7 +67604,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 32.8
+       "v": 30.8
       },
       {
        "attr_name": "radius",
@@ -67616,7 +67616,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -67647,7 +67647,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 88
+       "v": 83
       },
       {
        "attr_name": "hit_speed",
@@ -67659,7 +67659,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 35.2
+       "v": 33.2
       },
       {
        "attr_name": "radius",
@@ -67671,7 +67671,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -67702,7 +67702,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 94
+       "v": 88
       },
       {
        "attr_name": "hit_speed",
@@ -67714,7 +67714,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 37.6
+       "v": 35.2
       },
       {
        "attr_name": "radius",
@@ -67726,7 +67726,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -67757,7 +67757,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 100
+       "v": 94
       },
       {
        "attr_name": "hit_speed",
@@ -67769,7 +67769,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 40
+       "v": 37.6
       },
       {
        "attr_name": "radius",
@@ -67781,7 +67781,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -67812,7 +67812,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 107
+       "v": 101
       },
       {
        "attr_name": "hit_speed",
@@ -67824,7 +67824,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 42.8
+       "v": 40.4
       },
       {
        "attr_name": "radius",
@@ -67836,7 +67836,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -67867,7 +67867,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 114
+       "v": 107
       },
       {
        "attr_name": "hit_speed",
@@ -67879,7 +67879,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 45.6
+       "v": 42.8
       },
       {
        "attr_name": "radius",
@@ -67891,7 +67891,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -67922,7 +67922,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 122
+       "v": 115
       },
       {
        "attr_name": "hit_speed",
@@ -67934,7 +67934,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 48.8
+       "v": 46
       },
       {
        "attr_name": "radius",
@@ -67946,7 +67946,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -67977,7 +67977,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 131
+       "v": 123
       },
       {
        "attr_name": "hit_speed",
@@ -67989,7 +67989,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 52.4
+       "v": 49.2
       },
       {
        "attr_name": "radius",
@@ -68001,7 +68001,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -68032,7 +68032,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 140
+       "v": 132
       },
       {
        "attr_name": "hit_speed",
@@ -68044,7 +68044,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 56
+       "v": 52.8
       },
       {
        "attr_name": "radius",
@@ -68056,7 +68056,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -68087,7 +68087,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 150
+       "v": 141
       },
       {
        "attr_name": "hit_speed",
@@ -68099,7 +68099,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 60
+       "v": 56.4
       },
       {
        "attr_name": "radius",
@@ -68111,7 +68111,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -68142,7 +68142,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 160
+       "v": 150
       },
       {
        "attr_name": "hit_speed",
@@ -68154,7 +68154,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 64
+       "v": 60
       },
       {
        "attr_name": "radius",
@@ -68166,7 +68166,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -68197,7 +68197,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 171
+       "v": 161
       },
       {
        "attr_name": "hit_speed",
@@ -68209,7 +68209,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 68.4
+       "v": 64.4
       },
       {
        "attr_name": "radius",
@@ -68221,7 +68221,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -68252,7 +68252,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 183
+       "v": 172
       },
       {
        "attr_name": "hit_speed",
@@ -68264,7 +68264,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 73.2
+       "v": 68.8
       },
       {
        "attr_name": "radius",
@@ -68276,7 +68276,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -68307,7 +68307,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 196
+       "v": 184
       },
       {
        "attr_name": "hit_speed",
@@ -68319,7 +68319,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 78.4
+       "v": 73.6
       },
       {
        "attr_name": "radius",
@@ -68331,7 +68331,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -68362,7 +68362,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 210
+       "v": 197
       },
       {
        "attr_name": "hit_speed",
@@ -68374,7 +68374,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 84
+       "v": 78.8
       },
       {
        "attr_name": "radius",
@@ -68386,7 +68386,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -68417,7 +68417,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 225
+       "v": 212
       },
       {
        "attr_name": "hit_speed",
@@ -68429,7 +68429,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 90
+       "v": 84.8
       },
       {
        "attr_name": "radius",
@@ -68441,7 +68441,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -68472,7 +68472,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 241
+       "v": 227
       },
       {
        "attr_name": "hit_speed",
@@ -68484,7 +68484,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 96.4
+       "v": 90.8
       },
       {
        "attr_name": "radius",
@@ -68496,7 +68496,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -68527,7 +68527,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 258
+       "v": 243
       },
       {
        "attr_name": "hit_speed",
@@ -68539,7 +68539,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 103.2
+       "v": 97.2
       },
       {
        "attr_name": "radius",
@@ -68551,7 +68551,7 @@
        "attr_name": "stun_time",
        "k": "控制时间",
        "k_en": "Control Duration",
-       "v": 1.5
+       "v": 1.2
       },
       {
        "attr_name": "speed",
@@ -130440,7 +130440,7 @@
      "name": "漂浮炸弹",
      "desc": "召唤韦斯莱炸弹盒，炸弹盒会消耗自身生命值，制造出炸弹，附着在没有炸弹的友方单位身上。\n*漂浮炸弹附近有敌人时会直接攻击敌人。\n*携带炸弹的单位普通攻击后，炸弹会飞向第一个被攻击的敌方目标并爆炸造成范围伤害；\n*若携带炸弹的单位被击败，炸弹会在原地爆炸。\n*若爆炸只命中了一个敌方目标，则伤害将额外提升50%。",
      "quote": "召唤韦斯莱炸弹盒，炸弹盒会消耗自身生命值，制造出炸弹，附着在没有炸弹的友方单位身上。",
-     "stats": "生命值 100→711；伤害 22→157；技能间隔 1.6；范围半径 50；炸弹（伤害 30→213；范围半径 25）",
+     "stats": "生命值 100→711；伤害 19→133；技能间隔 1.6；范围半径 50；炸弹（伤害 30→213；范围半径 25）",
      "tags": [
       "后排",
       "输出"
@@ -130450,7 +130450,7 @@
      "name": "Bombtastic Bomb Box",
      "desc": "Summons a Bombtastic Bomb Box that creates bombs at the cost of its Health. Bombs will travel with Ally Units, increasing their Movement Speed.\n*The bombs will also directly go for opponents when they are in range.\n*When a bomb-carrying Ally Unit Attacks, the bomb will fly towards the first enemy struck and detonate, dealing AoE Damage.\n*If an Ally Unit unit with a bomb is defeated, the bomb will explode on the spot.\n*Deals 50% more Damage if the explosion only hits one target.",
      "quote": "Summons a Bombtastic Bomb Box that creates bombs at the cost of its Health. Bombs will travel with Ally Units, increasing their Movement Speed.",
-     "stats": "Health 100→711; Damage 22→157; Cooldown 1.6; Range 50; Bomb (Damage 30→213; Range 25)",
+     "stats": "Health 100→711; Damage 19→133; Cooldown 1.6; Range 50; Bomb (Damage 30→213; Range 25)",
      "tags": [
       "Back-Row",
       "Damage"
@@ -130474,7 +130474,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 22
+       "v": 19
       },
       {
        "attr_name": "jinengjiange",
@@ -130522,7 +130522,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 24
+       "v": 20
       },
       {
        "attr_name": "jinengjiange",
@@ -130570,7 +130570,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 25
+       "v": 21
       },
       {
        "attr_name": "jinengjiange",
@@ -130618,7 +130618,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 27
+       "v": 23
       },
       {
        "attr_name": "jinengjiange",
@@ -130666,7 +130666,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 29
+       "v": 25
       },
       {
        "attr_name": "jinengjiange",
@@ -130714,7 +130714,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 31
+       "v": 26
       },
       {
        "attr_name": "jinengjiange",
@@ -130762,7 +130762,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 33
+       "v": 28
       },
       {
        "attr_name": "jinengjiange",
@@ -130810,7 +130810,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 35
+       "v": 30
       },
       {
        "attr_name": "jinengjiange",
@@ -130858,7 +130858,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 38
+       "v": 32
       },
       {
        "attr_name": "jinengjiange",
@@ -130906,7 +130906,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 40
+       "v": 34
       },
       {
        "attr_name": "jinengjiange",
@@ -130954,7 +130954,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 43
+       "v": 37
       },
       {
        "attr_name": "jinengjiange",
@@ -131002,7 +131002,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 46
+       "v": 39
       },
       {
        "attr_name": "jinengjiange",
@@ -131050,7 +131050,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 50
+       "v": 43
       },
       {
        "attr_name": "jinengjiange",
@@ -131098,7 +131098,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 53
+       "v": 45
       },
       {
        "attr_name": "jinengjiange",
@@ -131146,7 +131146,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 57
+       "v": 48
       },
       {
        "attr_name": "jinengjiange",
@@ -131194,7 +131194,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 61
+       "v": 52
       },
       {
        "attr_name": "jinengjiange",
@@ -131242,7 +131242,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 65
+       "v": 55
       },
       {
        "attr_name": "jinengjiange",
@@ -131290,7 +131290,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 69
+       "v": 59
       },
       {
        "attr_name": "jinengjiange",
@@ -131338,7 +131338,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 74
+       "v": 63
       },
       {
        "attr_name": "jinengjiange",
@@ -131386,7 +131386,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 80
+       "v": 68
       },
       {
        "attr_name": "jinengjiange",
@@ -131434,7 +131434,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 85
+       "v": 72
       },
       {
        "attr_name": "jinengjiange",
@@ -131482,7 +131482,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 91
+       "v": 77
       },
       {
        "attr_name": "jinengjiange",
@@ -131530,7 +131530,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 97
+       "v": 82
       },
       {
        "attr_name": "jinengjiange",
@@ -131578,7 +131578,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 104
+       "v": 88
       },
       {
        "attr_name": "jinengjiange",
@@ -131626,7 +131626,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 112
+       "v": 95
       },
       {
        "attr_name": "jinengjiange",
@@ -131674,7 +131674,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 119
+       "v": 101
       },
       {
        "attr_name": "jinengjiange",
@@ -131722,7 +131722,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 128
+       "v": 109
       },
       {
        "attr_name": "jinengjiange",
@@ -131770,7 +131770,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 137
+       "v": 116
       },
       {
        "attr_name": "jinengjiange",
@@ -131818,7 +131818,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 146
+       "v": 124
       },
       {
        "attr_name": "jinengjiange",
@@ -131866,7 +131866,7 @@
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 157
+       "v": 133
       },
       {
        "attr_name": "jinengjiange",
@@ -162194,7 +162194,7 @@
      "name": "弗雷兄弟",
      "desc": "同时召唤费舍尔·弗雷和科尔比·弗雷，进入场中为你战斗。\n*当其中一名离场时，另一名立即进入狂暴状态，攻速提升100%并回复全部生命值。",
      "quote": "同时召唤费舍尔·弗雷和科尔比·弗雷，进入场中为你战斗。",
-     "stats": "生命值 176→1254；伤害 24→172；攻击间隔 1.7；每秒伤害 14.1→101.2；攻击距离 50；移动速度 speed_normal；目标 air&ground",
+     "stats": "生命值 164→1166；伤害 22→160；攻击间隔 1.7；每秒伤害 12.9→94.1；攻击距离 50；移动速度 speed_normal；目标 air&ground",
      "tags": [
       "输出"
      ]
@@ -162203,7 +162203,7 @@
      "name": "The Frey Twins",
      "desc": "Summons both Fischer Frey and Colby Frey to aid you.\n*When one twin exits the arena, the other becomes enraged, regenerating all lost Health and attacking at double speed.",
      "quote": "Summons both Fischer Frey and Colby Frey to aid you.",
-     "stats": "Health 176→1254; Damage 24→172; Damage Interval 1.7; DPS 14.1→101.2; Attack Range 50; Speed speed_normal; Target air&ground",
+     "stats": "Health 164→1166; Damage 22→160; Damage Interval 1.7; DPS 12.9→94.1; Attack Range 50; Speed speed_normal; Target air&ground",
      "tags": [
       "Damage"
      ]
@@ -162220,7 +162220,57 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 176
+       "v": 164
+      },
+      {
+       "attr_name": "damage",
+       "k": "伤害",
+       "k_en": "Damage",
+       "v": 22
+      },
+      {
+       "attr_name": "hit_speed",
+       "k": "攻击间隔",
+       "k_en": "Damage Interval",
+       "v": 1.7
+      },
+      {
+       "attr_name": "dps",
+       "k": "每秒伤害",
+       "k_en": "DPS",
+       "v": 12.9
+      },
+      {
+       "attr_name": "range",
+       "k": "攻击距离",
+       "k_en": "Attack Range",
+       "v": 50
+      },
+      {
+       "attr_name": "speed",
+       "k": "移动速度",
+       "k_en": "Speed",
+       "v": "speed_normal"
+      },
+      {
+       "attr_name": "targets",
+       "k": "目标",
+       "k_en": "Target",
+       "v": "air&ground"
+      }
+     ]
+    },
+    "2": {
+     "battle_show": [
+      1,
+      3
+     ],
+     "rows": [
+      {
+       "attr_name": "hp",
+       "k": "生命值",
+       "k_en": "Health",
+       "v": 175
       },
       {
        "attr_name": "damage",
@@ -162260,7 +162310,7 @@
       }
      ]
     },
-    "2": {
+    "3": {
      "battle_show": [
       1,
       3
@@ -162270,7 +162320,7 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 188
+       "v": 187
       },
       {
        "attr_name": "damage",
@@ -162310,7 +162360,7 @@
       }
      ]
     },
-    "3": {
+    "4": {
      "battle_show": [
       1,
       3
@@ -162320,7 +162370,7 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 201
+       "v": 200
       },
       {
        "attr_name": "damage",
@@ -162360,7 +162410,7 @@
       }
      ]
     },
-    "4": {
+    "5": {
      "battle_show": [
       1,
       3
@@ -162370,7 +162420,7 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 215
+       "v": 214
       },
       {
        "attr_name": "damage",
@@ -162410,7 +162460,7 @@
       }
      ]
     },
-    "5": {
+    "6": {
      "battle_show": [
       1,
       3
@@ -162420,7 +162470,7 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 230
+       "v": 229
       },
       {
        "attr_name": "damage",
@@ -162460,7 +162510,7 @@
       }
      ]
     },
-    "6": {
+    "7": {
      "battle_show": [
       1,
       3
@@ -162470,13 +162520,13 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 246
+       "v": 245
       },
       {
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 34
+       "v": 33
       },
       {
        "attr_name": "hit_speed",
@@ -162488,7 +162538,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 20
+       "v": 19.4
       },
       {
        "attr_name": "range",
@@ -162510,7 +162560,7 @@
       }
      ]
     },
-    "7": {
+    "8": {
      "battle_show": [
       1,
       3
@@ -162520,7 +162570,7 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 263
+       "v": 261
       },
       {
        "attr_name": "damage",
@@ -162560,7 +162610,7 @@
       }
      ]
     },
-    "8": {
+    "9": {
      "battle_show": [
       1,
       3
@@ -162570,7 +162620,7 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 281
+       "v": 280
       },
       {
        "attr_name": "damage",
@@ -162610,7 +162660,7 @@
       }
      ]
     },
-    "9": {
+    "10": {
      "battle_show": [
       1,
       3
@@ -162620,7 +162670,7 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 301
+       "v": 299
       },
       {
        "attr_name": "damage",
@@ -162660,7 +162710,7 @@
       }
      ]
     },
-    "10": {
+    "11": {
      "battle_show": [
       1,
       3
@@ -162670,7 +162720,7 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 322
+       "v": 321
       },
       {
        "attr_name": "damage",
@@ -162710,7 +162760,7 @@
       }
      ]
     },
-    "11": {
+    "12": {
      "battle_show": [
       1,
       3
@@ -162720,13 +162770,13 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 345
+       "v": 343
       },
       {
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 48
+       "v": 47
       },
       {
        "attr_name": "hit_speed",
@@ -162738,7 +162788,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 28.2
+       "v": 27.6
       },
       {
        "attr_name": "range",
@@ -162760,7 +162810,7 @@
       }
      ]
     },
-    "12": {
+    "13": {
      "battle_show": [
       1,
       3
@@ -162770,7 +162820,7 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 369
+       "v": 367
       },
       {
        "attr_name": "damage",
@@ -162810,7 +162860,7 @@
       }
      ]
     },
-    "13": {
+    "14": {
      "battle_show": [
       1,
       3
@@ -162820,7 +162870,7 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 395
+       "v": 393
       },
       {
        "attr_name": "damage",
@@ -162860,7 +162910,7 @@
       }
      ]
     },
-    "14": {
+    "15": {
      "battle_show": [
       1,
       3
@@ -162870,7 +162920,7 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 423
+       "v": 421
       },
       {
        "attr_name": "damage",
@@ -162910,7 +162960,7 @@
       }
      ]
     },
-    "15": {
+    "16": {
      "battle_show": [
       1,
       3
@@ -162920,13 +162970,13 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 453
+       "v": 451
       },
       {
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 63
+       "v": 62
       },
       {
        "attr_name": "hit_speed",
@@ -162938,7 +162988,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 37.1
+       "v": 36.5
       },
       {
        "attr_name": "range",
@@ -162960,7 +163010,7 @@
       }
      ]
     },
-    "16": {
+    "17": {
      "battle_show": [
       1,
       3
@@ -162970,7 +163020,7 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 485
+       "v": 483
       },
       {
        "attr_name": "damage",
@@ -163010,7 +163060,7 @@
       }
      ]
     },
-    "17": {
+    "18": {
      "battle_show": [
       1,
       3
@@ -163020,7 +163070,7 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 519
+       "v": 516
       },
       {
        "attr_name": "damage",
@@ -163060,7 +163110,7 @@
       }
      ]
     },
-    "18": {
+    "19": {
      "battle_show": [
       1,
       3
@@ -163070,13 +163120,13 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 555
+       "v": 552
       },
       {
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 77
+       "v": 76
       },
       {
        "attr_name": "hit_speed",
@@ -163088,7 +163138,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 45.3
+       "v": 44.7
       },
       {
        "attr_name": "range",
@@ -163110,7 +163160,7 @@
       }
      ]
     },
-    "19": {
+    "20": {
      "battle_show": [
       1,
       3
@@ -163120,7 +163170,7 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 594
+       "v": 591
       },
       {
        "attr_name": "damage",
@@ -163160,7 +163210,7 @@
       }
      ]
     },
-    "20": {
+    "21": {
      "battle_show": [
       1,
       3
@@ -163170,13 +163220,13 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 636
+       "v": 633
       },
       {
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 88
+       "v": 87
       },
       {
        "attr_name": "hit_speed",
@@ -163188,7 +163238,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 51.8
+       "v": 51.2
       },
       {
        "attr_name": "range",
@@ -163210,7 +163260,7 @@
       }
      ]
     },
-    "21": {
+    "22": {
      "battle_show": [
       1,
       3
@@ -163220,7 +163270,7 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 681
+       "v": 678
       },
       {
        "attr_name": "damage",
@@ -163260,56 +163310,6 @@
       }
      ]
     },
-    "22": {
-     "battle_show": [
-      1,
-      3
-     ],
-     "rows": [
-      {
-       "attr_name": "hp",
-       "k": "生命值",
-       "k_en": "Health",
-       "v": 729
-      },
-      {
-       "attr_name": "damage",
-       "k": "伤害",
-       "k_en": "Damage",
-       "v": 101
-      },
-      {
-       "attr_name": "hit_speed",
-       "k": "攻击间隔",
-       "k_en": "Damage Interval",
-       "v": 1.7
-      },
-      {
-       "attr_name": "dps",
-       "k": "每秒伤害",
-       "k_en": "DPS",
-       "v": 59.4
-      },
-      {
-       "attr_name": "range",
-       "k": "攻击距离",
-       "k_en": "Attack Range",
-       "v": 50
-      },
-      {
-       "attr_name": "speed",
-       "k": "移动速度",
-       "k_en": "Speed",
-       "v": "speed_normal"
-      },
-      {
-       "attr_name": "targets",
-       "k": "目标",
-       "k_en": "Target",
-       "v": "air&ground"
-      }
-     ]
-    },
     "23": {
      "battle_show": [
       1,
@@ -163320,13 +163320,13 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 780
+       "v": 725
       },
       {
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 108
+       "v": 100
       },
       {
        "attr_name": "hit_speed",
@@ -163338,7 +163338,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 63.5
+       "v": 58.8
       },
       {
        "attr_name": "range",
@@ -163370,13 +163370,13 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 835
+       "v": 777
       },
       {
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 115
+       "v": 107
       },
       {
        "attr_name": "hit_speed",
@@ -163388,7 +163388,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 67.6
+       "v": 62.9
       },
       {
        "attr_name": "range",
@@ -163420,7 +163420,57 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 893
+       "v": 830
+      },
+      {
+       "attr_name": "damage",
+       "k": "伤害",
+       "k_en": "Damage",
+       "v": 114
+      },
+      {
+       "attr_name": "hit_speed",
+       "k": "攻击间隔",
+       "k_en": "Damage Interval",
+       "v": 1.7
+      },
+      {
+       "attr_name": "dps",
+       "k": "每秒伤害",
+       "k_en": "DPS",
+       "v": 67.1
+      },
+      {
+       "attr_name": "range",
+       "k": "攻击距离",
+       "k_en": "Attack Range",
+       "v": 50
+      },
+      {
+       "attr_name": "speed",
+       "k": "移动速度",
+       "k_en": "Speed",
+       "v": "speed_normal"
+      },
+      {
+       "attr_name": "targets",
+       "k": "目标",
+       "k_en": "Target",
+       "v": "air&ground"
+      }
+     ]
+    },
+    "26": {
+     "battle_show": [
+      1,
+      3
+     ],
+     "rows": [
+      {
+       "attr_name": "hp",
+       "k": "生命值",
+       "k_en": "Health",
+       "v": 889
       },
       {
        "attr_name": "damage",
@@ -163460,56 +163510,6 @@
       }
      ]
     },
-    "26": {
-     "battle_show": [
-      1,
-      3
-     ],
-     "rows": [
-      {
-       "attr_name": "hp",
-       "k": "生命值",
-       "k_en": "Health",
-       "v": 956
-      },
-      {
-       "attr_name": "damage",
-       "k": "伤害",
-       "k_en": "Damage",
-       "v": 132
-      },
-      {
-       "attr_name": "hit_speed",
-       "k": "攻击间隔",
-       "k_en": "Damage Interval",
-       "v": 1.7
-      },
-      {
-       "attr_name": "dps",
-       "k": "每秒伤害",
-       "k_en": "DPS",
-       "v": 77.6
-      },
-      {
-       "attr_name": "range",
-       "k": "攻击距离",
-       "k_en": "Attack Range",
-       "v": 50
-      },
-      {
-       "attr_name": "speed",
-       "k": "移动速度",
-       "k_en": "Speed",
-       "v": "speed_normal"
-      },
-      {
-       "attr_name": "targets",
-       "k": "目标",
-       "k_en": "Target",
-       "v": "air&ground"
-      }
-     ]
-    },
     "27": {
      "battle_show": [
       1,
@@ -163520,13 +163520,13 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 1023
+       "v": 951
       },
       {
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 141
+       "v": 131
       },
       {
        "attr_name": "hit_speed",
@@ -163538,7 +163538,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 82.9
+       "v": 77.1
       },
       {
        "attr_name": "range",
@@ -163570,13 +163570,13 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 1095
+       "v": 1018
       },
       {
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 151
+       "v": 140
       },
       {
        "attr_name": "hit_speed",
@@ -163588,7 +163588,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 88.8
+       "v": 82.4
       },
       {
        "attr_name": "range",
@@ -163620,13 +163620,13 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 1172
+       "v": 1090
       },
       {
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 161
+       "v": 150
       },
       {
        "attr_name": "hit_speed",
@@ -163638,7 +163638,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 94.7
+       "v": 88.2
       },
       {
        "attr_name": "range",
@@ -163670,13 +163670,13 @@
        "attr_name": "hp",
        "k": "生命值",
        "k_en": "Health",
-       "v": 1254
+       "v": 1166
       },
       {
        "attr_name": "damage",
        "k": "伤害",
        "k_en": "Damage",
-       "v": 172
+       "v": 160
       },
       {
        "attr_name": "hit_speed",
@@ -163688,7 +163688,7 @@
        "attr_name": "dps",
        "k": "每秒伤害",
        "k_en": "DPS",
-       "v": 101.2
+       "v": 94.1
       },
       {
        "attr_name": "range",
