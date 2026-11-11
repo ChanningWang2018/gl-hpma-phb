@@ -221,7 +221,7 @@ Spellbook data is split into two independent modules in [hpma-spellbook](https:/
 - **cards** (`cards-v*`) → `public/data/spellbook/` (`cards.json` + `manifest.json` + `version.json`)
 - **echoes** (`echoes-v*`) → `public/data/echoes/` (`echoes.json` + `manifest.json` + `version.json`)
 
-The scheduled `Spellbook Data Update` workflow (Mondays 03:00 UTC) runs:
+The scheduled `Spellbook Data Update` workflow (Sundays, Mondays and Wednesdays at 04:00 UTC) runs:
 
 ```bash
 node scripts/fetch-spellbook-modules.mjs update

@@ -307,7 +307,7 @@ release zip（Node 零依赖解 zip 不值得），改为按 tag 从
 2. `tests/unit/fetchSpellbook.test.js`：版本比对逻辑、id diff 计算、tag 解析、
    version.json 组装（纯函数；网络部分不测）。
 3. `.github/workflows/spellbook-update.yml`：
-   - `schedule: cron "0 3 * * 1"`（周一 03:00 UTC ≈ 北京 11:00）+
+   - `schedule: cron "0 4 * * 0,1,3"`（周日/周一/周三 04:00 UTC ≈ 北京 12:00）+
      `workflow_dispatch`；`permissions: contents: write`。
    - steps：checkout → `node scripts/fetch-spellbook.mjs update` →
      `git diff --quiet && echo noop || (git add public/data/spellbook && git
