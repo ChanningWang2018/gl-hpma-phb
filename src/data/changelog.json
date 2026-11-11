@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-10-25",
+  "updated": "2026-11-11",
   "dataVersions": [
     {
       "id": "cards",
@@ -8,14 +8,14 @@
         "en": "Cards",
         "zh": "卡牌"
       },
-      "tag": "cards-v1.20261024.1",
+      "tag": "cards-v1.20261111.0",
       "tagKind": "release",
-      "date": "2026-10-25",
+      "date": "2026-11-11",
       "sourceLabel": "hpma-bits/hpma-spellbook",
-      "sourceUrl": "https://github.com/hpma-bits/hpma-spellbook/releases/tag/cards-v1.20261024.1",
+      "sourceUrl": "https://github.com/hpma-bits/hpma-spellbook/releases/tag/cards-v1.20261111.0",
       "note": {
-        "en": "141 cards with every level and both language tables.",
-        "zh": "141 张卡牌，含全部等级与中英文文案。"
+        "en": "141 cards; a balance pass refreshed the level tables and stat panels of five cards (Incarcerous, Avada Kedavra, Fwoopers, Bombtastic Bomb Box, The Frey Twins).",
+        "zh": "141 张卡牌；本次平衡调整刷新了 5 张卡的等级表与数值面板（速速禁锢、阿瓦达、恶婆鸟、漂浮炸弹、弗雷兄弟）。"
       }
     },
     {
