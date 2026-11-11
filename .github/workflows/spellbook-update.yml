@@ -46,8 +46,8 @@ jobs:
           CARDS=$(node -p "JSON.parse(require('fs').readFileSync('public/data/spellbook/version.json','utf8')).tag")
           ECHOES=$(node -p "JSON.parse(require('fs').readFileSync('public/data/echoes/version.json','utf8')).tag")
 
-          if [ -n "$(git status --porcelain -- public/data/spellbook public/data/echoes)" ]; then
-            git add public/data/spellbook public/data/echoes
+          if [ -n "$(git status --porcelain -- public/data/spellbook public/data/echoes netlify.toml)" ]; then
+            git add public/data/spellbook public/data/echoes netlify.toml
             git commit -m "chore(spellbook): data ${CARDS} / ${ECHOES}"
             git push
             echo "changed=true" >> "$GITHUB_OUTPUT"
