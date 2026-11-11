@@ -2,8 +2,8 @@ name: Spellbook Data Update
 
 on:
   schedule:
-    # Run every Monday at 03:00 UTC (11:00 Beijing time)
-    - cron: '0 3 * * 1'
+    # Run Sunday, Monday and Wednesday at 04:00 UTC (12:00 Beijing time)
+    - cron: '0 4 * * 0,1,3'
   workflow_dispatch:  # Manual trigger to pull new spellbook data on demand
 
 # Needs write access to commit the updated spellbook data
